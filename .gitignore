@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# hatch / build
+.hatch/
+*.dist-info/
+
+# Version file is committed with placeholder; overwritten by hatch-vcs at build time
+# src/assgen/_version.py  (intentionally NOT ignored)
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Ruff
+.ruff_cache/
+
+# Local dev overrides
+*.local.yaml
+*.local.toml
