@@ -1,0 +1,148 @@
+# Default model catalog for assgen.
+#
+# Maps job_type → HuggingFace model ID and metadata.
+# Users can override / extend this by adding entries to
+# ~/.config/assgen/models.yaml under the same `catalog` key.
+#
+# Fields:
+#   model_id  — HuggingFace repo ID (org/repo)
+#   name      — human-readable display name
+#   task      — HF pipeline task tag (used during inference dispatch)
+#   notes     — optional freeform description
+
+catalog:
+
+  # ── Visual / Concept ──────────────────────────────────────────────────────
+  visual.concept.generate:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+
+  visual.concept.style:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+
+  # ── Visual / Blockout ─────────────────────────────────────────────────────
+  visual.blockout.create:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Generates blockout reference sheets"
+
+  # ── Visual / Model (3D mesh) ──────────────────────────────────────────────
+  visual.model.create:
+    model_id: "stabilityai/TripoSR"
+    name: "TripoSR"
+    task: "image-to-3d"
+
+  visual.model.splat:
+    model_id: "huggingface/gaussian-splatting"
+    name: "Gaussian Splatting"
+    task: "image-to-3dgs"
+    notes: "Photogrammetry-style 3DGS from multi-view images"
+
+  visual.model.retopo:
+    model_id: "stabilityai/TripoSR"
+    name: "TripoSR"
+    task: "mesh-retopology"
+
+  # ── Visual / UV ──────────────────────────────────────────────────────────
+  visual.uv.auto:
+    model_id: "stabilityai/TripoSR"
+    name: "TripoSR"
+    task: "uv-unwrap"
+
+  # ── Visual / Texture ─────────────────────────────────────────────────────
+  visual.texture.generate:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+
+  visual.texture.bake:
+    model_id: "stabilityai/TripoSR"
+    name: "TripoSR"
+    task: "texture-bake"
+
+  # ── Visual / Rig ─────────────────────────────────────────────────────────
+  visual.rig.auto:
+    model_id: "VAST-AI-Research/UniRig"
+    name: "UniRig"
+    task: "auto-rig"
+
+  # ── Visual / Animate ─────────────────────────────────────────────────────
+  visual.animate.keyframe:
+    model_id: "guoyww/animatediff-motion-adapter-v1-5-2"
+    name: "AnimateDiff"
+    task: "text-to-animation"
+
+  visual.animate.mocap:
+    model_id: "ViTPose/vitpose-h-multi-coco"
+    name: "ViTPose"
+    task: "video-to-pose"
+
+  # ── Visual / VFX ─────────────────────────────────────────────────────────
+  visual.vfx.particle:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Generates particle texture sheets"
+
+  # ── Visual / UI ──────────────────────────────────────────────────────────
+  visual.ui.icon:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+
+  # ── Audio / SFX ──────────────────────────────────────────────────────────
+  audio.sfx.generate:
+    model_id: "facebook/audiogen-medium"
+    name: "AudioGen Medium"
+    task: "text-to-audio"
+
+  # ── Audio / Music ────────────────────────────────────────────────────────
+  audio.music.compose:
+    model_id: "facebook/musicgen-small"
+    name: "MusicGen Small"
+    task: "text-to-music"
+
+  audio.music.loop:
+    model_id: "facebook/musicgen-small"
+    name: "MusicGen Small"
+    task: "text-to-music"
+
+  audio.music.adaptive:
+    model_id: "facebook/musicgen-medium"
+    name: "MusicGen Medium"
+    task: "text-to-music"
+
+  # ── Audio / Voice ────────────────────────────────────────────────────────
+  audio.voice.tts:
+    model_id: "suno/bark"
+    name: "Bark"
+    task: "text-to-speech"
+
+  audio.voice.clone:
+    model_id: "suno/bark"
+    name: "Bark"
+    task: "voice-clone"
+
+  # ── Scene / Physics ──────────────────────────────────────────────────────
+  scene.physics.collider:
+    model_id: "stabilityai/TripoSR"
+    name: "TripoSR"
+    task: "collision-mesh"
+
+  # ── Scene / Lighting ────────────────────────────────────────────────────
+  scene.lighting.hdri:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-panorama"
+    notes: "Equirectangular HDRI generation"
+
+  # ── Pipeline / Integrate ─────────────────────────────────────────────────
+  pipeline.integrate.export:
+    model_id: null
+    name: "Engine Exporter"
+    task: "mesh-export"
+    notes: "Format conversion — no AI model required"
