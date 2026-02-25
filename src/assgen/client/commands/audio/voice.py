@@ -1,0 +1,68 @@
+"""assgen audio voice — voice synthesis and dialog.
+
+  assgen audio voice tts      text → speech with emotion (Bark)
+  assgen audio voice clone    clone a voice from a sample recording
+  assgen audio voice dialog   generate a batch of NPC dialog lines
+"""
+from __future__ import annotations
+from typing import Optional
+import typer
+from assgen.client.commands.submit import submit_job
+
+app = typer.Typer(help="Voice synthesis, cloning, and dialog generation.", no_args_is_help=True)
+
+_WAIT_OPT = typer.Option(None, "--wait/--no-wait")
+_OUT_OPT  = typer.Option(None, "--output", "-o")
+
+
+@app.command("tts")
+def voice_tts(
+    text: str = typer.Argument(..., help="Text to synthesise"),
+    emotion: Optional[str] = typer.Option(None, "--emotion",
+                                          help="Emotion tag: neutral angry happy sad fearful"),
+    speaker: Optional[str] = typer.Option(None, "--speaker",
+                                          help="Speaker preset, e.g. 'v2/en_speaker_6'"),
+    output: Optional[str] = _OUT_OPT,
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Convert text to speech with optional emotion (Bark)."""
+    submit_job("audio.voice.tts", {
+        "text": text,
+        "emotion": emotion,
+        "speaker": speaker,
+        "output": output,
+    }, wait=wait)
+
+
+@app.command("clone")
+def voice_clone(
+    sample: str = typer.Argument(..., help="Path to reference audio sample (≥5 seconds)"),
+    text: str = typer.Argument(..., help="Text for the cloned voice to speak"),
+    output: Optional[str] = _OUT_OPT,
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Clone a voice from an audio sample and synthesise new speech."""
+    submit_job("audio.voice.clone", {
+        "sample": sample,
+        "text": text,
+        "output": output,
+    }, wait=wait)
+
+
+@app.command("dialog")
+def voice_dialog(
+    script_file: str = typer.Argument(..., help="JSON or plain-text file with dialog lines"),
+    speaker: Optional[str] = typer.Option(None, "--speaker", help="Speaker preset or voice sample"),
+    emotion: Optional[str] = typer.Option(None, "--emotion"),
+    output_dir: Optional[str] = typer.Option(None, "--output-dir", "-o",
+                                             help="Directory for output files"),
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Generate a batch of voiced NPC dialog lines from a script file."""
+    submit_job("audio.voice.tts", {
+        "mode": "batch",
+        "script_file": script_file,
+        "speaker": speaker,
+        "emotion": emotion,
+        "output_dir": output_dir,
+    }, wait=wait)
