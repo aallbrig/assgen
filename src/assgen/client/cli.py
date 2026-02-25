@@ -18,6 +18,7 @@ import typer
 from rich.console import Console
 
 # ── sub-apps ────────────────────────────────────────────────────────────────
+from assgen.client.commands.config   import app as config_app
 from assgen.client.commands.jobs     import app as jobs_app
 from assgen.client.commands.models   import app as models_app
 from assgen.client.commands.server   import app as server_app
@@ -98,6 +99,7 @@ app.add_typer(qa_app,       name="qa",       help="Asset validation and performa
 app.add_typer(jobs_app,     name="jobs",     help="Job queue management")
 app.add_typer(models_app,   name="models",   help="Model catalog and installation")
 app.add_typer(server_app,   name="server",   help="Local server process management")
+app.add_typer(config_app,   name="config",   help="Configure job-type → model mappings")
 
 
 # ── version command ───────────────────────────────────────────────────────────
