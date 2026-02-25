@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "assgen"
+dynamic = ["version"]
+description = "Game asset generation CLI — client/server pipeline for AI-driven 3D game asset production"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "typer[all]>=0.12",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+    "platformdirs>=4.2",
+    "pyyaml>=6.0",
+    "rich>=13.7",
+    "huggingface-hub>=0.23",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.2",
+    "anyio>=4.4",
+]
+
+[project.optional-dependencies]
+inference = [
+    "transformers>=4.40",
+    "torch>=2.3",
+    "diffusers>=0.28",
+    "accelerate>=0.30",
+]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+assgen = "assgen.client.cli:app"
+assgen-server = "assgen.server.cli:app"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/assgen/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/assgen"]
+
+[tool.ruff]
+src = ["src"]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
