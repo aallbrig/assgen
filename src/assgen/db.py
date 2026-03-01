@@ -166,8 +166,28 @@ def create_job(
 
 
 def get_job(conn: sqlite3.Connection, job_id: str) -> dict[str, Any] | None:
+    """Lookup by exact ID or unambiguous prefix (≥8 chars)."""
     row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    if row is None and len(job_id) >= 8:
+        rows = conn.execute(
+            "SELECT * FROM jobs WHERE id LIKE ?", (f"{job_id}%",)
+        ).fetchall()
+        if len(rows) == 1:
+            row = rows[0]
     return _row_to_job(row) if row else None
+
+
+def reset_stale_running_jobs(conn: sqlite3.Connection) -> int:
+    """Mark any RUNNING jobs as FAILED on server startup (crash recovery).
+
+    Returns the number of jobs reset.
+    """
+    with transaction(conn):
+        cur = conn.execute(
+            "UPDATE jobs SET status = ?, error = ?, completed_at = ? WHERE status = ?",
+            (JobStatus.FAILED, "Server restarted while job was running", _now_iso(), JobStatus.RUNNING),
+        )
+    return cur.rowcount
 
 
 def list_jobs(

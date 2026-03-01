@@ -37,7 +37,14 @@ def server_start(
     _host = host or srv_cfg.get("host", "127.0.0.1")
     _port = port or srv_cfg.get("port", 8432)
 
-    exe = shutil.which("assgen-server") or sys.executable
+    exe = shutil.which("assgen-server") or shutil.which("assgen_server")
+    if not exe:
+        bin_dir = os.path.dirname(sys.executable)
+        candidate = os.path.join(bin_dir, "assgen-server")
+        exe = candidate if os.path.isfile(candidate) else None
+    if not exe:
+        console.print("[red]Error:[/red] Could not find assgen-server executable.")
+        raise typer.Exit(1)
     cmd = [exe, "start", "--host", _host, "--port", str(_port)]
     if daemon:
         cmd.append("--daemon")
@@ -50,8 +57,16 @@ def server_start(
 @app.command("stop")
 def server_stop() -> None:
     """Stop the local assgen-server."""
-    import shutil, subprocess, sys
-    exe = shutil.which("assgen-server") or sys.executable
+    import os
+    import shutil
+    import subprocess
+    import sys
+    from assgen.client.auto_server import find_server_executable
+    try:
+        exe = find_server_executable()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(1)
     result = subprocess.run([exe, "stop"])
     raise typer.Exit(result.returncode)
 
