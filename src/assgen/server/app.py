@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from assgen.config import load_server_config
-from assgen.db import init_db
+from assgen.db import init_db, reset_stale_running_jobs
 from assgen.server.model_manager import ModelManager
 from assgen.server.routes.health import router as health_router
 from assgen.server.routes.jobs import router as jobs_router
@@ -51,6 +51,10 @@ def create_app(server_config: dict | None = None) -> FastAPI:
 
         conn: sqlite3.Connection = init_db()
         app.state.conn = conn
+
+        stale = reset_stale_running_jobs(conn)
+        if stale:
+            logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
 
         mm = ModelManager(conn, device=cfg.get("device", "auto"))
         app.state.model_manager = mm

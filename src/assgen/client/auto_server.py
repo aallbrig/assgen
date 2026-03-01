@@ -62,7 +62,7 @@ def _start_local_server() -> str:
     logger.debug(f"Starting local assgen-server on {url}")
 
     # Find the assgen-server executable in the same Python environment
-    server_exe = _find_server_executable()
+    server_exe = find_server_executable()
 
     proc = subprocess.Popen(
         [server_exe, "start", "--host", host, "--port", str(port)],
@@ -102,7 +102,7 @@ def _is_server_healthy(url: str) -> bool:
         return False
 
 
-def _find_server_executable() -> str:
+def find_server_executable() -> str:
     """Find assgen-server in PATH or the same venv as the current interpreter."""
     import shutil
     if exe := shutil.which("assgen-server"):
