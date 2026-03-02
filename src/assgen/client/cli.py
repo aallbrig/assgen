@@ -7,9 +7,12 @@ Command hierarchy:
   assgen pipeline    → workflow, batch, integrate
   assgen support     → narrative, data
   assgen qa          → validate, perf, style, report
+  assgen tasks       → full task tree with configured models
   assgen jobs        → list, status, wait, cancel, clean
   assgen models      → list, status, install
-  assgen server      → start, stop, status, config, use, unset
+  assgen server      → start, stop, status, config (show/set/models), use, unset
+  assgen client      → config (show/set-server/unset-server)
+  assgen config      → list, show, set, remove, search
   assgen version     → print version info
 """
 from __future__ import annotations
@@ -18,13 +21,15 @@ import typer
 from rich.console import Console
 
 # ── sub-apps ────────────────────────────────────────────────────────────────
-from assgen.client.commands.config   import app as config_app
-from assgen.client.commands.jobs     import app as jobs_app
-from assgen.client.commands.models   import app as models_app
-from assgen.client.commands.server   import app as server_app
-from assgen.client.commands.pipeline import app as pipeline_app
-from assgen.client.commands.qa       import app as qa_app
-from assgen.client.commands.support  import app as support_app
+from assgen.client.commands.client_cmd import app as client_app
+from assgen.client.commands.config    import app as config_app
+from assgen.client.commands.jobs      import app as jobs_app
+from assgen.client.commands.models    import app as models_app
+from assgen.client.commands.server    import app as server_app
+from assgen.client.commands.tasks     import app as tasks_app
+from assgen.client.commands.pipeline  import app as pipeline_app
+from assgen.client.commands.qa        import app as qa_app
+from assgen.client.commands.support   import app as support_app
 
 # visual sub-apps
 from assgen.client.commands.visual.concept  import app as concept_app
@@ -96,9 +101,11 @@ app.add_typer(scene_app, name="scene")
 app.add_typer(pipeline_app, name="pipeline", help="Workflows, batching, and engine integration")
 app.add_typer(support_app,  name="support",  help="Narrative, lore, and procedural data")
 app.add_typer(qa_app,       name="qa",       help="Asset validation and performance testing")
+app.add_typer(tasks_app,    name="tasks",    help="Browse all game dev tasks and their configured models")
 app.add_typer(jobs_app,     name="jobs",     help="Job queue management")
 app.add_typer(models_app,   name="models",   help="Model catalog and installation")
 app.add_typer(server_app,   name="server",   help="Local server process management")
+app.add_typer(client_app,   name="client",   help="Client configuration: server targeting and connection settings")
 app.add_typer(config_app,   name="config",   help="Configure job-type → model mappings")
 
 

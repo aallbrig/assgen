@@ -1,9 +1,11 @@
 """assgen server — manage the local assgen-server process from the client CLI.
 
-  assgen server start    [--daemon]
+  assgen server start               [--daemon]
   assgen server stop
   assgen server status
-  assgen server config   show active config
+  assgen server config show         server runtime settings (host, port, device…)
+  assgen server config set          update a runtime setting key/value
+  assgen server config models       task → model catalog (same as assgen config)
 """
 from __future__ import annotations
 
@@ -21,6 +23,13 @@ from assgen.config import (
 )
 
 app = typer.Typer(help="Manage the local assgen-server process.", no_args_is_help=True)
+
+# ── server config sub-group ───────────────────────────────────────────────────
+_config_app = typer.Typer(
+    help="View and update assgen-server runtime configuration.",
+    no_args_is_help=True,
+)
+app.add_typer(_config_app, name="config")
 
 
 @app.command("start")
@@ -108,33 +117,120 @@ def server_status() -> None:
         console.print(f"[yellow]Stale PID file (process {pid} not running)[/yellow]")
 
 
-@app.command("config")
+@_config_app.command("show")
 def server_config_show() -> None:
-    """Show the resolved server and client configuration."""
+    """Show the resolved assgen-server runtime configuration."""
     srv = load_server_config()
-    cli = load_client_config()
     cfg_dir = get_config_dir()
 
     console.print(f"\n[bold]Config directory:[/bold] {cfg_dir}")
-    console.print("\n[bold]Server config:[/bold]")
+    console.print("\n[bold]Server runtime settings:[/bold]")
+    _DESCRIPTIONS = {
+        "host":               "Bind address",
+        "port":               "Listen port",
+        "workers":            "Concurrent worker threads",
+        "device":             "Inference device (auto / cuda / cpu)",
+        "log_level":          "Logging verbosity",
+        "model_load_timeout": "Max seconds to wait for a model download",
+        "job_retention_days": "Days to keep completed jobs in DB",
+    }
     for k, v in srv.items():
-        console.print(f"  {k}: {v}")
-    console.print("\n[bold]Client config:[/bold]")
-    for k, v in cli.items():
-        console.print(f"  {k}: {v}")
+        desc = _DESCRIPTIONS.get(k, "")
+        desc_str = f"  [dim]{desc}[/dim]" if desc else ""
+        console.print(f"  [cyan]{k}[/cyan] = {v}{desc_str}")
+
+    console.print()
+    console.print(
+        "[dim]Override any setting via environment variable: "
+        "ASSGEN_SERVER_HOST, ASSGEN_SERVER_PORT, ASSGEN_SERVER_DEVICE, …[/dim]"
+    )
+    console.print("[dim]Update a setting: assgen server config set <key> <value>[/dim]")
+    console.print("[dim]Task → model map: assgen server config models[/dim]")
+
+
+@_config_app.command("set")
+def server_config_set(
+    key: str = typer.Argument(..., help="Config key, e.g. device or port"),
+    value: str = typer.Argument(..., help="New value"),
+) -> None:
+    """Persist a server configuration setting to ~/.config/assgen/server.yaml.
+
+    Changes take effect on next server start.
+
+    Examples:
+      assgen server config set device cuda
+      assgen server config set port 9000
+      assgen server config set log_level debug
+    """
+    from assgen.config import get_config_dir
+    import yaml
+    from pathlib import Path
+
+    cfg_dir = get_config_dir()
+    server_yaml = cfg_dir / "server.yaml"
+
+    # Load existing file (if any) or start fresh
+    existing: dict = {}
+    if server_yaml.exists():
+        with open(server_yaml) as f:
+            existing = yaml.safe_load(f) or {}
+
+    # Type-coerce common numeric keys
+    _INT_KEYS = {"port", "workers", "job_retention_days", "model_load_timeout"}
+    coerced: object = value
+    if key in _INT_KEYS:
+        try:
+            coerced = int(value)
+        except ValueError:
+            console.print(f"[red]Error:[/red] '{key}' must be an integer, got {value!r}")
+            raise typer.Exit(1)
+
+    old = existing.get(key, "[not set]")
+    existing[key] = coerced
+
+    server_yaml.parent.mkdir(parents=True, exist_ok=True)
+    with open(server_yaml, "w") as f:
+        yaml.safe_dump(existing, f)
+
+    console.print(
+        f"[green]✓[/green]  [cyan]{key}[/cyan]: {old!r} → {coerced!r}\n"
+        f"[dim]Saved to {server_yaml}\n"
+        f"Restart the server for changes to take effect.[/dim]"
+    )
+
+
+@_config_app.command("models")
+def server_config_models(
+    domain: Optional[str] = typer.Option(
+        None, "--domain", "-d", help="Filter by domain (visual, audio, scene…)"
+    ),
+) -> None:
+    """Show and manage the task → model catalog used by the server.
+
+    This is the same as running `assgen config list` but surfaced here
+    so it's discoverable under server configuration.
+
+    To add / change a model:
+      assgen server config models --domain visual
+      assgen config set <job-type> [--model-id <id>]
+    """
+    from assgen.client.commands.config import config_list
+    # Delegate to the top-level config list command
+    config_list(domain=domain, installed=False)
 
 
 @app.command("use")
 def server_use(
     url: str = typer.Argument(..., help="Server URL, e.g. http://192.168.1.100:8432"),
 ) -> None:
-    """Point the client at a specific server URL."""
+    """Point the client at a specific server URL. (Alias for: assgen client config set-server)"""
     save_client_config({"server_url": url})
     console.print(f"[green]Client will now use server:[/green] {url}")
+    console.print("[dim]Full client config: assgen client config show[/dim]")
 
 
 @app.command("unset")
 def server_unset() -> None:
-    """Remove the configured server URL (revert to auto-start local server)."""
+    """Remove the configured server URL — revert to auto-start mode. (Alias for: assgen client config unset-server)"""
     save_client_config({"server_url": None})
     console.print("[green]Cleared server_url — will auto-start local server.[/green]")
