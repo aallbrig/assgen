@@ -18,8 +18,8 @@ app.add_typer(narrative_app, name="narrative")
 data_app = typer.Typer(help="Lightmap baking and procedural data generation.")
 app.add_typer(data_app, name="data")
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait")
-_OUT_OPT  = typer.Option(None, "--output", "-o")
+_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
+_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 # ---------------------------------------------------------------------------
