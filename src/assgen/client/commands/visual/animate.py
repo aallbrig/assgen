@@ -12,8 +12,8 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Animation generation and retargeting.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait")
-_OUT_OPT  = typer.Option(None, "--output", "-o")
+_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
+_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("keyframe")

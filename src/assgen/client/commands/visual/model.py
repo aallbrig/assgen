@@ -1,6 +1,6 @@
 """assgen visual model — 3D mesh generation and editing.
 
-  assgen visual model create    text/image → 3D mesh (TripoSR / InstantMesh)
+  assgen visual model create    text/image → 3D mesh (InstantMesh)
   assgen visual model highpoly  refine mesh to high-poly
   assgen visual model retopo    auto-retopology for game-ready topology
   assgen visual model splat     Gaussian Splatting / 3DGS generation
@@ -15,7 +15,7 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Generate and edit 3D meshes.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait")
+_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
 _OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file path (.glb/.obj/.fbx)")
 
 
@@ -28,7 +28,7 @@ def model_create(
     wait: Optional[bool] = _WAIT_OPT,
     model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
-    """Generate a 3D mesh from text or an image (TripoSR / InstantMesh)."""
+    """Generate a 3D mesh from text or an image using InstantMesh (multi-view diffusion)."""
     if not prompt and not input_image:
         typer.echo("Provide at least --prompt or --input-image", err=True)
         raise typer.Exit(1)
