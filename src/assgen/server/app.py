@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,12 +23,56 @@ logger = logging.getLogger(__name__)
 def create_app(server_config: dict | None = None) -> FastAPI:
     cfg = server_config or load_server_config()
 
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
+        logger.info("assgen-server starting up", extra={"config": cfg})
+
+        from assgen.config import get_db_path
+
+        conn: sqlite3.Connection = init_db()
+        application.state.conn = conn
+        application.state.server_cfg = cfg
+
+        stale = reset_stale_running_jobs(conn)
+        if stale:
+            logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
+
+        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg)
+        application.state.model_manager = mm
+
+        db_path = str(get_db_path())
+
+        def _make_worker_conn() -> sqlite3.Connection:
+            import sqlite3 as _s
+            worker_conn = _s.connect(db_path)
+            worker_conn.row_factory = _s.Row
+            worker_conn.execute("PRAGMA journal_mode=WAL")
+            worker_conn.execute("PRAGMA foreign_keys=ON")
+            return worker_conn
+
+        worker = WorkerThread(
+            conn_factory=_make_worker_conn,
+            model_manager=mm,
+        )
+        worker.start()
+        application.state.worker = worker
+        logger.info("Worker thread started")
+
+        yield
+
+        logger.info("assgen-server shutting down")
+        if w := getattr(application.state, "worker", None):
+            w.stop()
+        if c := getattr(application.state, "conn", None):
+            c.close()
+
     app = FastAPI(
         title="assgen-server",
         description="AI game asset generation server — part of the assgen pipeline",
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
+        lifespan=lifespan,
     )
 
     app.add_middleware(
@@ -36,53 +82,8 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Include routers — note: jobs/models routes use `request: Any` to access
-    # app.state, so they don't need explicit dependencies here.
     app.include_router(health_router)
     app.include_router(jobs_router)
     app.include_router(models_router)
-
-    @app.on_event("startup")
-    async def startup() -> None:
-        logger.info("assgen-server starting up", extra={"config": cfg})
-
-        from assgen.config import get_db_path
-
-        conn: sqlite3.Connection = init_db()
-        app.state.conn = conn
-        app.state.server_cfg = cfg
-
-        stale = reset_stale_running_jobs(conn)
-        if stale:
-            logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
-
-        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg)
-        app.state.model_manager = mm
-
-        db_path = str(get_db_path())
-
-        def _make_worker_conn() -> sqlite3.Connection:
-            import sqlite3 as _s
-            conn = _s.connect(db_path)
-            conn.row_factory = _s.Row
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA foreign_keys=ON")
-            return conn
-
-        worker = WorkerThread(
-            conn_factory=_make_worker_conn,
-            model_manager=mm,
-        )
-        worker.start()
-        app.state.worker = worker
-        logger.info("Worker thread started")
-
-    @app.on_event("shutdown")
-    async def shutdown() -> None:
-        logger.info("assgen-server shutting down")
-        if worker := getattr(app.state, "worker", None):
-            worker.stop()
-        if conn := getattr(app.state, "conn", None):
-            conn.close()
 
     return app
