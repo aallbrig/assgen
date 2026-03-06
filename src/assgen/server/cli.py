@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 import signal
+import subprocess
 import sys
 from typing import Optional
 
@@ -89,10 +90,14 @@ def stop() -> None:
         raise typer.Exit(1)
     pid, url = info
     try:
-        os.kill(pid, signal.SIGTERM)
+        if sys.platform == "win32":
+            # On Windows os.kill with SIGTERM calls TerminateProcess
+            os.kill(pid, signal.SIGTERM)
+        else:
+            os.kill(pid, signal.SIGTERM)
         remove_pid_file()
         typer.echo(f"Sent SIGTERM to pid {pid} ({url})")
-    except ProcessLookupError:
+    except (ProcessLookupError, OSError):
         typer.echo(f"Process {pid} not found — removing stale PID file.", err=True)
         remove_pid_file()
         raise typer.Exit(1)
@@ -109,7 +114,12 @@ def status() -> None:
     try:
         os.kill(pid, 0)  # no-op signal: raises if process doesn't exist
         typer.echo(f"Running  pid={pid}  url={url}")
-    except ProcessLookupError:
+    except (ProcessLookupError, PermissionError):
+        typer.echo(f"Stale PID file — process {pid} is not running.", err=True)
+        remove_pid_file()
+        raise typer.Exit(1)
+    except OSError:
+        # Windows raises a bare OSError when process is not found
         typer.echo(f"Stale PID file — process {pid} is not running.", err=True)
         remove_pid_file()
         raise typer.Exit(1)
@@ -126,11 +136,32 @@ def version_cmd() -> None:
 # ---------------------------------------------------------------------------
 
 def _daemonise(cfg: dict, log_level: str, json_logs: bool) -> None:
-    """Fork and start the server in the background, writing a PID file."""
+    """Start the server as a background process, writing a PID file.
+
+    On Unix uses ``os.fork()``; on Windows spawns a detached subprocess
+    (``os.fork`` does not exist on Windows).
+    """
     _host = cfg["host"]
     _port = cfg["port"]
     url = f"http://{_host}:{_port}"
 
+    if sys.platform == "win32":
+        # Windows: spawn a detached subprocess instead of forking
+        from assgen.client.auto_server import find_server_executable
+        server_exe = find_server_executable()
+        proc = subprocess.Popen(
+            [server_exe, "start", "--host", _host, "--port", str(_port),
+             "--log-level", log_level] + (["--json-logs"] if json_logs else []),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
+        )
+        write_pid_file(proc.pid, url)
+        typer.echo(f"Server started: pid={proc.pid}  url={url}")
+        typer.echo(f"Config dir: {get_config_dir()}")
+        return
+
+    # Unix: traditional double-fork / setsid approach
     pid = os.fork()  # type: ignore[attr-defined]
     if pid > 0:
         # Parent: write PID file and exit

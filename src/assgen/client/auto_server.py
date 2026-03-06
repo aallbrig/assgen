@@ -69,11 +69,23 @@ def _start_local_server() -> str:
     # Find the assgen-server executable in the same Python environment
     server_exe = find_server_executable()
 
-    proc = subprocess.Popen(
-        [server_exe, "start", "--host", host, "--port", str(port)],
+    # On Windows use DETACHED_PROCESS so the server gets its own console and
+    # is not killed when the parent terminal closes.  On Unix, start_new_session
+    # achieves the same effect via setsid().
+    popen_kwargs: dict = dict(
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
-        start_new_session=True,  # detach from our process group
+    )
+    if sys.platform == "win32":
+        popen_kwargs["creationflags"] = (
+            subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+        )
+    else:
+        popen_kwargs["start_new_session"] = True
+
+    proc = subprocess.Popen(
+        [server_exe, "start", "--host", host, "--port", str(port)],
+        **popen_kwargs,
     )
 
     write_pid_file(proc.pid, url)
@@ -98,6 +110,9 @@ def _is_process_alive(pid: int) -> bool:
         return True
     except (ProcessLookupError, PermissionError):
         return False
+    except OSError:
+        # Windows raises a bare OSError when the process is not found
+        return False
 
 
 def _is_server_healthy(url: str) -> bool:
@@ -109,15 +124,20 @@ def _is_server_healthy(url: str) -> bool:
 
 
 def find_server_executable() -> str:
-    """Find assgen-server in PATH or the same venv as the current interpreter."""
+    """Find assgen-server in PATH or the same venv as the current interpreter.
+
+    Works on Linux, macOS, and Windows (handles ``.exe`` extension).
+    """
     import shutil
     if exe := shutil.which("assgen-server"):
         return exe
-    # Try same bin directory as the current Python
+    # Fallback: same bin/Scripts directory as the current Python interpreter.
+    # Windows puts scripts in Scripts\; Linux/macOS use bin/.
     bin_dir = os.path.dirname(sys.executable)
-    candidate = os.path.join(bin_dir, "assgen-server")
-    if os.path.isfile(candidate):
-        return candidate
+    for name in ("assgen-server.exe", "assgen-server"):
+        candidate = os.path.join(bin_dir, name)
+        if os.path.isfile(candidate):
+            return candidate
     raise FileNotFoundError(
         "Could not find assgen-server. Make sure it is installed: pip install assgen"
     )
