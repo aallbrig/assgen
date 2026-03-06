@@ -49,18 +49,28 @@ class JobDispatcher:
         job_type: str = job["job_type"]
         params: dict[str, Any] = job.get("params") or {}
 
-        # Ensure the model is available before starting
-        progress_cb(0.05, "Resolving model")
-        model_id, model_path = model_manager.ensure_for_job_type(job_type)
+        # Resolve the effective model (client override or catalog default)
+        override_model = params.get("_model_id_override")
+        if override_model:
+            progress_cb(0.05, f"Checking model {override_model}…")
+            model_path = model_manager.ensure_model(override_model, progress_cb=progress_cb)
+            model_id = override_model
+            record_model_usage(conn, model_id, job["id"])
+        else:
+            progress_cb(0.05, "Resolving model from catalog…")
+            model_id, model_path = model_manager.ensure_for_job_type(
+                job_type, progress_cb=progress_cb
+            )
+            if model_id:
+                record_model_usage(conn, model_id, job["id"])
 
         if model_id:
-            record_model_usage(conn, model_id, job["id"])
             logger.info(
                 "Dispatching job",
                 extra={"job_id": job["id"], "job_type": job_type, "model_id": model_id},
             )
 
-        progress_cb(0.10, "Model ready — starting inference")
+        progress_cb(0.22, "Model ready — starting inference…")
 
         # Try to find a specific handler; fall back to the stub handler
         handler = _load_handler(job_type)

@@ -42,24 +42,41 @@ TASK_COMPATIBLE_TAGS: dict[str, frozenset[str]] = {
 
     # Texture / material
     "texture-generation": frozenset({"text-to-image", "image-to-image", "texture-generation"}),
+    "texture-bake":       frozenset({"texture-bake", "text-to-image", "image-to-image"}),
 
     # Rigging / animation
+    "auto-rig":           frozenset({"auto-rig", "image-to-3d", "object-detection", "image-classification"}),
     "skeleton-rig":       frozenset({"skeleton-rig", "image-to-3d"}),
     "motion-retarget":    frozenset({"motion-retarget", "skeleton-rig"}),
+    "text-to-animation":  frozenset({"text-to-motion", "text-to-video", "text-to-animation", "animation-generate"}),
     "text-to-motion":     frozenset({"text-to-motion", "text-to-video"}),
     "video-to-motion":    frozenset({"video-to-motion", "video-classification"}),
+    "video-to-pose":      frozenset({"video-classification", "image-classification", "video-to-pose", "pose-estimation"}),
     "animation-generate": frozenset({"text-to-motion", "animation-generate"}),
 
-    # Audio
+    # Audio — MusicGen and AudioGen both have pipeline_tag "text-to-audio" on HF
     "text-to-audio":      frozenset({"text-to-audio", "audio-to-audio", "text-to-speech"}),
+    "text-to-music":      frozenset({"text-to-audio", "audio-generation", "music-generation"}),
     "audio-generation":   frozenset({"text-to-audio", "audio-generation"}),
     "music-generation":   frozenset({"text-to-audio", "audio-generation", "music-generation"}),
     "audio-to-audio":     frozenset({"audio-to-audio", "text-to-audio"}),
     "automatic-speech-recognition": frozenset({"automatic-speech-recognition"}),
 
+    # Voice
+    "text-to-speech":     frozenset({"text-to-speech", "text-to-audio"}),
+    "voice-clone":        frozenset({"text-to-speech", "voice-conversion", "voice-clone", "text-to-audio"}),
+
     # Video
     "text-to-video":      frozenset({"text-to-video"}),
     "image-to-video":     frozenset({"image-to-video", "text-to-video"}),
+
+    # Scene / environment
+    "text-to-panorama":   frozenset({"text-to-image", "text-to-panorama", "text-to-3d", "image-to-image"}),
+    "collision-mesh":     frozenset({"collision-mesh", "image-to-3d", "text-to-3d"}),
+    "mesh-export":        frozenset({"mesh-export"}),
+
+    # Pose / keypoints (facebook/sapiens-pose-0.3b has pipeline_tag "keypoint-detection")
+    "keypoint-detection": frozenset({"keypoint-detection", "image-to-image", "image-classification"}),
 
     # NLP / support
     "text-generation":    frozenset({"text-generation", "text2text-generation"}),
