@@ -61,7 +61,6 @@ def sfx_library(
     from assgen.config import get_outputs_dir
     from rich.table import Table
     from assgen.client.output import console
-    import pathlib
 
     sfx_dir = get_outputs_dir() / "sfx"
     if not sfx_dir.exists():

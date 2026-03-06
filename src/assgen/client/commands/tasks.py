@@ -15,7 +15,6 @@ from typing import Optional
 import typer
 from rich.console import Console
 from rich.tree import Tree
-from rich import print as rprint
 
 console = Console()
 

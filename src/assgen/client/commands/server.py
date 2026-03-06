@@ -16,7 +16,6 @@ import typer
 from assgen.client.output import console
 from assgen.config import (
     get_config_dir,
-    load_client_config,
     load_server_config,
     read_pid_file,
     save_client_config,
@@ -39,8 +38,10 @@ def server_start(
     port: Optional[int] = typer.Option(None, help="Override server port"),
 ) -> None:
     """Start a local assgen-server."""
-    import subprocess, sys, os, shutil
-    from assgen.config import write_pid_file
+    import subprocess
+    import sys
+    import os
+    import shutil
 
     srv_cfg = load_server_config()
     _host = host or srv_cfg.get("host", "127.0.0.1")
@@ -66,10 +67,7 @@ def server_start(
 @app.command("stop")
 def server_stop() -> None:
     """Stop the local assgen-server."""
-    import os
-    import shutil
     import subprocess
-    import sys
     from assgen.client.auto_server import find_server_executable
     try:
         exe = find_server_executable()
@@ -126,13 +124,15 @@ def server_config_show() -> None:
     console.print(f"\n[bold]Config directory:[/bold] {cfg_dir}")
     console.print("\n[bold]Server runtime settings:[/bold]")
     _DESCRIPTIONS = {
-        "host":               "Bind address",
-        "port":               "Listen port",
-        "workers":            "Concurrent worker threads",
-        "device":             "Inference device (auto / cuda / cpu)",
-        "log_level":          "Logging verbosity",
-        "model_load_timeout": "Max seconds to wait for a model download",
-        "job_retention_days": "Days to keep completed jobs in DB",
+        "host":                  "Bind address",
+        "port":                  "Listen port",
+        "workers":               "Concurrent worker threads",
+        "device":                "Inference device (auto / cuda / cpu)",
+        "log_level":             "Logging verbosity",
+        "model_load_timeout":    "Max seconds to wait for a model download",
+        "job_retention_days":    "Days to keep completed jobs in DB",
+        "allow_list":            "Allowed model IDs ([] = all allowed)",
+        "skip_model_validation": "Bypass HF pipeline_tag compatibility checks",
     }
     for k, v in srv.items():
         desc = _DESCRIPTIONS.get(k, "")
@@ -164,7 +164,6 @@ def server_config_set(
     """
     from assgen.config import get_config_dir
     import yaml
-    from pathlib import Path
 
     cfg_dir = get_config_dir()
     server_yaml = cfg_dir / "server.yaml"
@@ -175,8 +174,10 @@ def server_config_set(
         with open(server_yaml) as f:
             existing = yaml.safe_load(f) or {}
 
-    # Type-coerce common numeric keys
+    # Type-coerce common keys
     _INT_KEYS = {"port", "workers", "job_retention_days", "model_load_timeout"}
+    _BOOL_KEYS = {"skip_model_validation"}
+    _LIST_KEYS = {"allow_list"}
     coerced: object = value
     if key in _INT_KEYS:
         try:
@@ -184,6 +185,18 @@ def server_config_set(
         except ValueError:
             console.print(f"[red]Error:[/red] '{key}' must be an integer, got {value!r}")
             raise typer.Exit(1)
+    elif key in _BOOL_KEYS:
+        coerced = value.lower() in {"true", "1", "yes"}
+    elif key in _LIST_KEYS:
+        import json
+        try:
+            parsed = json.loads(value)
+            if not isinstance(parsed, list):
+                raise ValueError("must be a JSON array")
+            coerced = parsed
+        except (ValueError, json.JSONDecodeError):
+            # Treat comma-separated string as list
+            coerced = [v.strip() for v in value.split(",") if v.strip()]
 
     old = existing.get(key, "[not set]")
     existing[key] = coerced

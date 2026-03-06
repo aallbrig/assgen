@@ -11,7 +11,6 @@ from __future__ import annotations
 from typing import Optional
 
 import typer
-from rich.console import Console
 
 from assgen.client.api import APIError, get_client
 from assgen.client.output import (
@@ -115,9 +114,7 @@ def jobs_clean(
     Note: this operates directly on the local SQLite DB (config dir),
     not via the server API.
     """
-    from assgen.config import get_db_path
     from assgen.db import init_db
-    import sqlite3
 
     conn = init_db()
     clauses = [f"status IN ({','.join('?' * len(statuses))})"]

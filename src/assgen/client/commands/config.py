@@ -13,7 +13,6 @@ When required arguments are omitted, each command prompts interactively.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any, Optional
 
@@ -481,13 +480,6 @@ def _prompt_job_type(prompt_text: str) -> str:
 
     console.print(f"\n[bold]{prompt_text}[/bold]  (type a number or job-type string)\n")
 
-    # Group by domain for readability
-    from itertools import groupby
-    grouped = {
-        domain: list(jts)
-        for domain, jts in groupby(known, key=lambda jt: jt.split(".")[0])
-    }
-
     table = Table(show_header=True, header_style="bold cyan", show_lines=False, box=None)
     table.add_column("#",        width=4,  style="dim")
     table.add_column("Job type", min_width=30)
@@ -545,7 +537,7 @@ def _prompt_choice(prompt_text: str, choices: list[str]) -> str:
 def _interactive_hf_search(job_type: str, hf_task: str | None) -> str | None:
     """Run an interactive HF model search loop; return chosen model_id or None."""
     console.print(
-        f"\n[bold]Searching HuggingFace Hub[/bold]"
+        "\n[bold]Searching HuggingFace Hub[/bold]"
         + (f"  [dim](task filter: {hf_task})[/dim]" if hf_task else "")
     )
 

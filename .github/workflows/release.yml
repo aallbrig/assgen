@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed so hatch-vcs can read all tags
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dev + build dependencies
+        run: pip install -e ".[dev]" hatch
+
+      - name: Lint with ruff
+        run: ruff check src/ tests/
+
+      - name: Run tests
+        run: pytest -v --tb=short
+
+      - name: Build distribution packages
+        run: hatch build
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          body: |
+            ## assgen ${{ github.ref_name }}
+
+            ### Install
+            ```bash
+            pip install assgen==${{ github.ref_name }}
+            ```
+
+            See the [README](https://github.com/${{ github.repository }}/blob/main/README.md)
+            for full usage documentation.

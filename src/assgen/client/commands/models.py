@@ -10,7 +10,6 @@ from __future__ import annotations
 from typing import Optional
 
 import typer
-from rich.console import Console
 from rich.table import Table
 
 from assgen.client.api import APIError, get_client
@@ -80,7 +79,7 @@ def models_status(model_id: str = typer.Argument(..., help="HuggingFace model ID
     if m.get("size_bytes"):
         console.print(f"[bold]Size:[/bold]     {_fmt_bytes(m['size_bytes'])}")
     if m.get("job_types"):
-        console.print(f"[bold]Job types:[/bold]")
+        console.print("[bold]Job types:[/bold]")
         for jt in m["job_types"]:
             console.print(f"  • {jt}")
 
