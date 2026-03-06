@@ -12,13 +12,15 @@ import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from assgen.catalog import get_model_for_job, load_catalog
 from assgen.config import get_models_cache_dir
 from assgen.db import upsert_model
 
 logger = logging.getLogger(__name__)
+
+ProgressCallback = Callable[[float, str], None]
 
 # ---------------------------------------------------------------------------
 # Device detection
@@ -77,11 +79,18 @@ class ModelManager:
     # Download / install
     # ------------------------------------------------------------------
 
-    def ensure_model(self, model_id: str) -> Path:
+    def ensure_model(
+        self,
+        model_id: str,
+        progress_cb: "ProgressCallback | None" = None,
+    ) -> Path:
         """Download model if not already cached; return the local cache path.
 
         Args:
             model_id: HuggingFace model identifier in ``org/repo`` format.
+            progress_cb: Optional ``(fraction: float, message: str) -> None``
+                callback for surfacing download/check progress to the caller
+                (e.g. to forward to the client via :func:`assgen.db.update_job_status`).
 
         Returns:
             Local ``Path`` to the directory containing the downloaded model.
@@ -91,6 +100,10 @@ class ModelManager:
             Exception: Re-raised from ``huggingface_hub.snapshot_download`` on
                 network or authentication errors.
         """
+        def _cb(frac: float, msg: str) -> None:
+            if progress_cb:
+                progress_cb(frac, msg)
+
         if model_id is None:
             raise ValueError("model_id is None — job type may not require a model")
 
@@ -102,23 +115,68 @@ class ModelManager:
 
         if cache_path.exists() and any(cache_path.iterdir()):
             logger.info("Model already cached", extra={"model_id": model_id})
+            _cb(0.15, f"Model {model_id} already cached ✓")
             return cache_path
 
+        _cb(0.05, f"Downloading {model_id} from HuggingFace Hub…")
         logger.info(
             "Downloading model from HuggingFace Hub",
             extra={"model_id": model_id, "cache_dir": str(cache_path)},
         )
         try:
             from huggingface_hub import snapshot_download
+
+            # Use a file-count based progress tracker
+            _file_counter: list[int] = [0]
+
+            class _ProgressTqdm:
+                """Minimal tqdm-compatible shim that forwards file-level progress."""
+
+                def __init__(self, *args, **kwargs):  # noqa: ANN002, ANN003
+                    total = kwargs.get("total") or 0
+                    self._total = int(total) if total else 1
+                    self._n = 0
+
+                def update(self, n: int = 1) -> None:  # noqa: ANN001
+                    self._n += n
+                    # Map file-download fraction to 5%→18% of overall job
+                    frac = 0.05 + min(self._n / self._total, 1.0) * 0.13
+                    _cb(frac, f"Downloading {model_id} ({self._n}/{self._total} files)…")
+
+                def __enter__(self):  # noqa: ANN204
+                    return self
+
+                def __exit__(self, *_):  # noqa: ANN002
+                    pass
+
+                def close(self) -> None:
+                    pass
+
             snapshot_download(
                 repo_id=model_id,
                 local_dir=str(cache_path),
                 local_dir_use_symlinks=False,
                 ignore_patterns=["*.msgpack", "*.h5", "flax_*"],
+                tqdm_class=_ProgressTqdm,
             )
+        except TypeError:
+            # Older huggingface_hub versions don't support tqdm_class
+            try:
+                from huggingface_hub import snapshot_download as _sd
+                _sd(
+                    repo_id=model_id,
+                    local_dir=str(cache_path),
+                    local_dir_use_symlinks=False,
+                    ignore_patterns=["*.msgpack", "*.h5", "flax_*"],
+                )
+            except Exception as exc:
+                logger.error("Model download failed", extra={"model_id": model_id, "error": str(exc)})
+                raise
         except Exception as exc:
             logger.error("Model download failed", extra={"model_id": model_id, "error": str(exc)})
             raise
+
+        _cb(0.20, f"Model {model_id} downloaded successfully ✓")
 
         now = datetime.now(timezone.utc).isoformat()
         size = _dir_size(cache_path)
@@ -135,11 +193,16 @@ class ModelManager:
         )
         return cache_path
 
-    def ensure_for_job_type(self, job_type: str) -> tuple[str | None, Path | None]:
+    def ensure_for_job_type(
+        self,
+        job_type: str,
+        progress_cb: "ProgressCallback | None" = None,
+    ) -> tuple[str | None, Path | None]:
         """Resolve the catalog model for *job_type* and ensure it is cached.
 
         Args:
             job_type: Dot-separated task identifier, e.g. ``"visual.model.create"``.
+            progress_cb: Optional progress callback forwarded to :meth:`ensure_model`.
 
         Returns:
             A ``(model_id, local_path)`` tuple.  Both elements are ``None`` if
@@ -154,7 +217,7 @@ class ModelManager:
         model_id = entry.get("model_id")
         if not model_id:
             return None, None  # e.g., format-conversion tasks
-        path = self.ensure_model(model_id)
+        path = self.ensure_model(model_id, progress_cb=progress_cb)
         return model_id, path
 
     # ------------------------------------------------------------------

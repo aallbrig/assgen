@@ -53,12 +53,18 @@ def get_or_start_server() -> str:
 
 
 def _start_local_server() -> str:
+    from rich.console import Console
+    _console = Console(stderr=True)
+
     srv_cfg = load_server_config()
     host = srv_cfg.get("host", "127.0.0.1")
     port = srv_cfg.get("port", 8432)
     url = f"http://{host}:{port}"
 
-    logger.debug(f"Starting local assgen-server on {url}")
+    _console.print(
+        f"\n[yellow]⚡ No server detected — starting local assgen-server on {url}[/yellow]\n"
+        "[dim]  (It will stay running between commands. Stop with: assgen server stop)[/dim]\n"
+    )
 
     # Find the assgen-server executable in the same Python environment
     server_exe = find_server_executable()
@@ -76,6 +82,7 @@ def _start_local_server() -> str:
     deadline = time.monotonic() + _STARTUP_TIMEOUT
     while time.monotonic() < deadline:
         if _is_server_healthy(url):
+            _console.print("[green]✓ Server ready[/green]\n")
             return url
         time.sleep(_STARTUP_POLL)
 

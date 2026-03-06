@@ -51,7 +51,7 @@ class TestVersionCommand:
 
     def test_help_lists_main_subcommands(self) -> None:
         result = invoke("--help")
-        for cmd in ("visual", "audio", "tasks", "jobs", "models", "server", "upgrade"):
+        for cmd in ("gen", "tasks", "jobs", "models", "server", "upgrade"):
             assert cmd in result.output
 
 

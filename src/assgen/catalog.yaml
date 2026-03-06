@@ -14,131 +14,149 @@ catalog:
 
   # ── Visual / Concept ──────────────────────────────────────────────────────
   visual.concept.generate:
-    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
-    name: "Stable Diffusion XL"
+    model_id: "stabilityai/stable-diffusion-3-medium-diffusers"
+    name: "Stable Diffusion 3 Medium"
     task: "text-to-image"
+    notes: "2B params (~7 GB fp16); superior prompt adherence and art-style range over SDXL"
 
   visual.concept.style:
-    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
-    name: "Stable Diffusion XL"
-    task: "text-to-image"
+    model_id: "h94/IP-Adapter"
+    name: "IP-Adapter"
+    task: "image-to-image"
+    notes: "Reference-image style guidance via image prompts alongside SDXL backbone"
 
   # ── Visual / Blockout ─────────────────────────────────────────────────────
   visual.blockout.create:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
-    notes: "Generates blockout reference sheets"
+    notes: "Generates blockout reference sheets; prompt for 'greybox / wireframe / white model'"
 
   # ── Visual / Model (3D mesh) ──────────────────────────────────────────────
   visual.model.create:
+    model_id: "TencentARC/InstantMesh"
+    name: "InstantMesh"
+    task: "image-to-3d"
+    notes: "Multi-view diffusion + sparse-view reconstruction; higher mesh quality than TripoSR"
+
+  visual.model.splat:
     model_id: "stabilityai/TripoSR"
     name: "TripoSR"
     task: "image-to-3d"
-
-  visual.model.splat:
-    model_id: "huggingface/gaussian-splatting"
-    name: "Gaussian Splatting"
-    task: "image-to-3dgs"
-    notes: "Photogrammetry-style 3DGS from multi-view images"
+    notes: "No HF-hosted 3DGS model has a pipeline_tag; TripoSR output (PLY/mesh) feeds downstream GS pipelines"
 
   visual.model.retopo:
-    model_id: "stabilityai/TripoSR"
-    name: "TripoSR"
+    model_id: null
+    name: "Mesh Retopologiser (algorithmic)"
     task: "mesh-retopology"
+    notes: "Algorithmic — use Instant Meshes or Blender Remesh; no ML model required"
 
   # ── Visual / UV ──────────────────────────────────────────────────────────
   visual.uv.auto:
-    model_id: "stabilityai/TripoSR"
-    name: "TripoSR"
+    model_id: null
+    name: "UV Unwrapper (algorithmic)"
     task: "uv-unwrap"
+    notes: "Algorithmic — xatlas or Blender Smart UV Project; no ML model required"
 
   # ── Visual / Texture ─────────────────────────────────────────────────────
   visual.texture.generate:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
+    notes: "Pair with ControlNet Tile for seamless PBR albedo/roughness/normal sheet generation"
 
   visual.texture.bake:
-    model_id: "stabilityai/TripoSR"
-    name: "TripoSR"
+    model_id: null
+    name: "Texture Baker (algorithmic)"
     task: "texture-bake"
+    notes: "Rasterisation-based ray-cast bake — no ML model required"
 
   # ── Visual / Rig ─────────────────────────────────────────────────────────
   visual.rig.auto:
-    model_id: "VAST-AI-Research/UniRig"
+    model_id: "VAST-AI/UniRig"
     name: "UniRig"
     task: "auto-rig"
+    notes: "No HF pipeline_tag (validation auto-skipped); best open auto-rigging model available"
 
   # ── Visual / Animate ─────────────────────────────────────────────────────
   visual.animate.keyframe:
     model_id: "guoyww/animatediff-motion-adapter-v1-5-2"
     name: "AnimateDiff"
-    task: "text-to-animation"
+    task: "text-to-video"
+    notes: "SD 1.5 motion adapter; HF pipeline_tag is text-to-video; good for 2-D sprite/preview animations"
 
   visual.animate.mocap:
-    model_id: "ViTPose/vitpose-h-multi-coco"
-    name: "ViTPose"
-    task: "video-to-pose"
+    model_id: "facebook/sapiens-pose-0.3b"
+    name: "Sapiens Pose 0.3B"
+    task: "keypoint-detection"
+    notes: "Meta Sapiens 0.3B; state-of-the-art body keypoint detection; fits in 12 GB fp16"
 
   # ── Visual / VFX ─────────────────────────────────────────────────────────
   visual.vfx.particle:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
-    notes: "Generates particle texture sheets"
+    notes: "Generates particle texture sheets; prompt for 'sprite sheet, transparent background'"
 
   # ── Visual / UI ──────────────────────────────────────────────────────────
   visual.ui.icon:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
+    notes: "Game UI icons and HUD elements; prompt for 'flat icon, isolated, game HUD element'"
 
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:
     model_id: "facebook/audiogen-medium"
     name: "AudioGen Medium"
     task: "text-to-audio"
+    notes: "HF pipeline_tag is null (validation auto-skipped); best open-source SFX synthesis model"
 
   # ── Audio / Music ────────────────────────────────────────────────────────
   audio.music.compose:
-    model_id: "facebook/musicgen-small"
-    name: "MusicGen Small"
-    task: "text-to-music"
+    model_id: "facebook/musicgen-large"
+    name: "MusicGen Large"
+    task: "text-to-audio"
+    notes: "3.3B params (~6.6 GB fp16); best single-stem music quality that fits in 12 GB"
 
   audio.music.loop:
-    model_id: "facebook/musicgen-small"
-    name: "MusicGen Small"
-    task: "text-to-music"
+    model_id: "facebook/musicgen-stereo-medium"
+    name: "MusicGen Stereo Medium"
+    task: "text-to-audio"
+    notes: "Stereo output essential for loop playback; 1.5B params; prompt for 'seamless loop'"
 
   audio.music.adaptive:
-    model_id: "facebook/musicgen-medium"
-    name: "MusicGen Medium"
-    task: "text-to-music"
+    model_id: "facebook/musicgen-stereo-large"
+    name: "MusicGen Stereo Large"
+    task: "text-to-audio"
+    notes: "Best quality stereo; use continuation mode to generate adaptive stinger/transition layers"
 
   # ── Audio / Voice ────────────────────────────────────────────────────────
   audio.voice.tts:
     model_id: "suno/bark"
     name: "Bark"
     task: "text-to-speech"
+    notes: "Highly expressive TTS with non-verbal sounds (laughs, sighs); fits in 12 GB fp16"
 
   audio.voice.clone:
-    model_id: "suno/bark"
-    name: "Bark"
-    task: "voice-clone"
+    model_id: "myshell-ai/OpenVoice"
+    name: "OpenVoice"
+    task: "text-to-speech"
+    notes: "Instant voice cloning from a short reference clip; pipeline_tag text-to-speech; ~200 MB model"
 
   # ── Scene / Physics ──────────────────────────────────────────────────────
   scene.physics.collider:
-    model_id: "stabilityai/TripoSR"
-    name: "TripoSR"
+    model_id: null
+    name: "Collision Mesh Generator (algorithmic)"
     task: "collision-mesh"
+    notes: "Algorithmic convex decomposition — use V-HACD or CoACD; no ML model required"
 
   # ── Scene / Lighting ────────────────────────────────────────────────────
   scene.lighting.hdri:
-    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
-    name: "Stable Diffusion XL"
+    model_id: "Intel/ldm3d-pano"
+    name: "LDM3D Panorama"
     task: "text-to-panorama"
-    notes: "Equirectangular HDRI generation"
+    notes: "Generates equirectangular 360° RGB+depth panoramas from text; HF pipeline_tag is text-to-3d"
 
   # ── Pipeline / Integrate ─────────────────────────────────────────────────
   pipeline.integrate.export:
