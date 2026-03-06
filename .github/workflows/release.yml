@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   release:
@@ -24,8 +26,8 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install dev + build dependencies
-        run: pip install -e ".[dev]" hatch
+      - name: Install dev + build + docs dependencies
+        run: pip install -e ".[dev,docs]" hatch
 
       - name: Lint with ruff
         run: ruff check src/ tests/
@@ -36,10 +38,20 @@ jobs:
       - name: Build distribution packages
         run: hatch build
 
+      - name: Build docs site
+        run: mkdocs build --strict
+
+      - name: Zip docs
+        run: |
+          VERSION="${{ github.ref_name }}"
+          zip -r "assgen-docs-${VERSION}.zip" site/
+
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: |
+            dist/*
+            assgen-docs-*.zip
           generate_release_notes: true
           body: |
             ## assgen ${{ github.ref_name }}
@@ -49,5 +61,12 @@ jobs:
             pip install assgen==${{ github.ref_name }}
             ```
 
+            Or use the upgrade command if you already have assgen installed:
+            ```bash
+            assgen upgrade
+            ```
+
             See the [README](https://github.com/${{ github.repository }}/blob/main/README.md)
-            for full usage documentation.
+            for full usage documentation.  Offline docs are attached as
+            `assgen-docs-${{ github.ref_name }}.zip`.
+

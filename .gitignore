@@ -44,3 +44,6 @@ htmlcov/
 # Local dev overrides
 *.local.yaml
 *.local.toml
+
+# MkDocs built site
+site/

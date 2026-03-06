@@ -1,0 +1,20 @@
+/* assgen docs — minimal style overrides */
+
+:root {
+  --md-primary-fg-color: #6200ea;
+  --md-accent-fg-color:  #00bcd4;
+}
+
+.md-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* Make inline code blocks stand out a bit more */
+code {
+  border-radius: 3px;
+}
+
+/* Hero badge row */
+.hero-badges img {
+  margin: 0 4px;
+}

@@ -26,6 +26,7 @@ def model_create(
     format: str = typer.Option("glb", "--format", "-f", help="Output format: glb obj fbx"),
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
+    model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
     """Generate a 3D mesh from text or an image (TripoSR / InstantMesh)."""
     if not prompt and not input_image:
@@ -36,7 +37,7 @@ def model_create(
         "input_image": input_image,
         "format": format,
         "output": output,
-    }, wait=wait)
+    }, wait=wait, model_id=model_id)
 
 
 @app.command("highpoly")

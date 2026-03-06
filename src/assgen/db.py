@@ -35,7 +35,16 @@ def _now_iso() -> str:
 # ---------------------------------------------------------------------------
 
 def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
-    """Open a connection with WAL mode and foreign-key enforcement."""
+    """Open a SQLite connection with WAL mode and foreign-key enforcement.
+
+    Args:
+        db_path: Path to the SQLite file.  Defaults to the platform-appropriate
+            config directory (``~/.config/assgen/assgen.db`` on Linux).
+
+    Returns:
+        An open ``sqlite3.Connection`` with ``row_factory = sqlite3.Row``,
+        WAL journal mode, and foreign keys enabled.
+    """
     path = db_path or get_db_path()
     conn = sqlite3.connect(str(path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -46,6 +55,17 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
 
 @contextmanager
 def transaction(conn: sqlite3.Connection) -> Generator[sqlite3.Connection, None, None]:
+    """Context manager that commits on success or rolls back on any exception.
+
+    Args:
+        conn: An open SQLite connection.
+
+    Yields:
+        The same connection, for use inside a ``with`` block.
+
+    Raises:
+        Exception: Re-raises whatever caused the rollback.
+    """
     try:
         yield conn
         conn.commit()
@@ -136,6 +156,17 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
 # ---------------------------------------------------------------------------
 
 class JobStatus:
+    """String constants for job lifecycle states.
+
+    Attributes:
+        QUEUED: Job is waiting to be picked up by a worker.
+        RUNNING: A worker is actively processing the job.
+        COMPLETED: Job finished successfully.
+        FAILED: Job terminated with an error.
+        CANCELLED: Job was explicitly cancelled before completion.
+        TERMINAL: The set of states from which no transition is possible.
+    """
+
     QUEUED    = "QUEUED"
     RUNNING   = "RUNNING"
     COMPLETED = "COMPLETED"
@@ -152,7 +183,18 @@ def create_job(
     priority: int = 0,
     tags: list[str] | None = None,
 ) -> str:
-    """Insert a new QUEUED job and return its ID."""
+    """Insert a new QUEUED job and return its UUID.
+
+    Args:
+        conn: An open database connection.
+        job_type: Dot-separated task identifier, e.g. ``"visual.model.create"``.
+        params: Arbitrary key/value pairs forwarded to the inference handler.
+        priority: Worker priority; higher values are processed first (0–100).
+        tags: Optional list of string labels for filtering/grouping.
+
+    Returns:
+        The newly created job's UUID string.
+    """
     job_id = str(uuid.uuid4())
     with transaction(conn):
         conn.execute(
@@ -166,7 +208,16 @@ def create_job(
 
 
 def get_job(conn: sqlite3.Connection, job_id: str) -> dict[str, Any] | None:
-    """Lookup by exact ID or unambiguous prefix (≥8 chars)."""
+    """Look up a job by exact UUID or unambiguous 8-character prefix.
+
+    Args:
+        conn: An open database connection.
+        job_id: Full UUID or a prefix of at least 8 characters.  If the prefix
+            matches more than one job, ``None`` is returned to avoid ambiguity.
+
+    Returns:
+        A dict representation of the job row, or ``None`` if not found.
+    """
     row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     if row is None and len(job_id) >= 8:
         rows = conn.execute(
@@ -195,6 +246,17 @@ def list_jobs(
     statuses: list[str] | None = None,
     limit: int = 50,
 ) -> list[dict[str, Any]]:
+    """Return a list of jobs, newest first.
+
+    Args:
+        conn: An open database connection.
+        statuses: If provided, only return jobs whose status is in this list.
+            Use ``JobStatus`` constants, e.g. ``[JobStatus.QUEUED, JobStatus.RUNNING]``.
+        limit: Maximum number of rows to return (default 50, max 500 via API).
+
+    Returns:
+        A list of job dicts ordered by ``created_at`` descending.
+    """
     if statuses:
         placeholders = ",".join("?" * len(statuses))
         rows = conn.execute(
@@ -218,6 +280,21 @@ def update_job_status(
     error: str | None = None,
     worker_id: str | None = None,
 ) -> None:
+    """Update a job's status and optional progress/output fields.
+
+    Automatically sets ``started_at`` when transitioning to ``RUNNING`` and
+    ``completed_at`` when transitioning to any terminal state.
+
+    Args:
+        conn: An open database connection.
+        job_id: The job's full UUID.
+        status: New status — use a ``JobStatus`` constant.
+        progress: Completion fraction 0.0–1.0.
+        progress_message: Human-readable progress description shown in the CLI bar.
+        output: Arbitrary result payload stored as JSON (e.g. ``{"path": "..."}``).
+        error: Error message to store when the job fails.
+        worker_id: Identifier of the worker thread handling this job.
+    """
     now = _now_iso()
     fields: list[str] = ["status = ?"]
     values: list[Any] = [status]
