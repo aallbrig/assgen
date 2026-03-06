@@ -1049,8 +1049,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>  --moods TEXT          Comma-separated mood states to generate stems for
 </span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>                        [default: calm,tense,combat,victory]
 </span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>  -d, --duration FLOAT  [default: 30.0]
-</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>  -o, --output TEXT
-</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>  --wait / --no-wait
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>  -o, --output TEXT     Output file or directory path
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>  --wait / --no-wait    Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="compose">compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h5>
 <p>Compose a music track from a text prompt (MusicGen).</p>
@@ -1063,8 +1063,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>  -d, --duration FLOAT  Track length in seconds  [default: 15.0]
 </span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  --bpm INTEGER         Beats per minute
 </span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>  --key TEXT            Musical key, e.g. &#39;C minor&#39;
-</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  -o, --output TEXT
-</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>  --wait / --no-wait
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  -o, --output TEXT     Output file or directory path
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>  --wait / --no-wait    Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="loop">loop<a class="headerlink" href="#loop" title="Permanent link">&para;</a></h5>
 <p>Generate a seamlessly looping music track.</p>
@@ -1076,8 +1076,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>                            [required]
 </span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>  -d, --duration FLOAT      Loop duration in seconds  [default: 30.0]
 </span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>  -n, --variations INTEGER  Number of loop variants  [default: 1]
-</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>  -o, --output TEXT
-</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>  --wait / --no-wait
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>                            progress
 </span></code></pre></div>
 <h4 id="sfx">sfx<a class="headerlink" href="#sfx" title="Permanent link">&para;</a></h4>
 <p>Sound effects generation</p>
@@ -1095,8 +1096,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>                      pitch]
 </span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>  --value TEXT        Operation parameter
 </span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>  --secondary TEXT    Second audio for layer op
-</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>  -o, --output TEXT
-</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>  --wait / --no-wait
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="generate">generate<a class="headerlink" href="#generate" title="Permanent link">&para;</a></h5>
 <p>Generate a sound effect from a text description (AudioGen).</p>
@@ -1108,9 +1109,10 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>                            [required]
 </span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>  -d, --duration FLOAT      Target duration in seconds  [default: 2.0]
 </span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>  -n, --variations INTEGER  Number of variants to generate  [default: 1]
-</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>  -o, --output TEXT
-</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>  --wait / --no-wait
-</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>  --model-id TEXT           Override HF model (validated by server)
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-32-7"><a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>                            progress
+</span><span id="__span-32-8"><a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a>  --model-id TEXT           Override HF model (validated by server)
 </span></code></pre></div>
 <h5 id="library">library<a class="headerlink" href="#library" title="Permanent link">&para;</a></h5>
 <p>Browse the local generated SFX library.</p>
@@ -1133,8 +1135,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>  SAMPLE              Path to reference audio sample (≥5 seconds)  [required]
 </span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>  TEXT                Text for the cloned voice to speak  [required]
-</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>  -o, --output TEXT
-</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>  --wait / --no-wait
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="dialog">dialog<a class="headerlink" href="#dialog" title="Permanent link">&para;</a></h5>
 <p>Generate a batch of voiced NPC dialog lines from a script file.</p>
@@ -1146,7 +1148,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-39-2"><a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>  --speaker TEXT         Speaker preset or voice sample
 </span><span id="__span-39-3"><a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>  --emotion TEXT
 </span><span id="__span-39-4"><a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>  -o, --output-dir TEXT  Directory for output files
-</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>  --wait / --no-wait
+</span><span id="__span-39-5"><a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a>  --wait / --no-wait     Block until the job completes and stream live
+</span><span id="__span-39-6"><a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a>                         progress
 </span></code></pre></div>
 <h5 id="tts">tts<a class="headerlink" href="#tts" title="Permanent link">&para;</a></h5>
 <p>Convert text to speech with optional emotion (Bark).</p>
@@ -1157,8 +1160,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>  TEXT                Text to synthesise  [required]
 </span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>  --emotion TEXT      Emotion tag: neutral angry happy sad fearful
 </span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>  --speaker TEXT      Speaker preset, e.g. &#39;v2/en_speaker_6&#39;
-</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>  -o, --output TEXT
-</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>  --wait / --no-wait
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h3 id="pipeline">pipeline<a class="headerlink" href="#pipeline" title="Permanent link">&para;</a></h3>
 <p>Workflows, batching, engine integration</p>
@@ -1286,8 +1289,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-65-2"><a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>  --poly-budget INTEGER  Max polygon count
 </span><span id="__span-65-3"><a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>  --vram-budget INTEGER  VRAM budget in MB
 </span><span id="__span-65-4"><a id="__codelineno-65-4" name="__codelineno-65-4" href="#__codelineno-65-4"></a>  --lod-preview          Preview all LOD levels
-</span><span id="__span-65-5"><a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a>  -o, --output TEXT
-</span><span id="__span-65-6"><a id="__codelineno-65-6" name="__codelineno-65-6" href="#__codelineno-65-6"></a>  --wait / --no-wait
+</span><span id="__span-65-5"><a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a>  -o, --output TEXT      Output file or directory path
+</span><span id="__span-65-6"><a id="__codelineno-65-6" name="__codelineno-65-6" href="#__codelineno-65-6"></a>  --wait / --no-wait     Block until the job completes and stream live
+</span><span id="__span-65-7"><a id="__codelineno-65-7" name="__codelineno-65-7" href="#__codelineno-65-7"></a>                         progress
 </span></code></pre></div>
 <h4 id="report">report<a class="headerlink" href="#report" title="Permanent link">&para;</a></h4>
 <p>Generate a full QA issues report for a set of assets.</p>
@@ -1298,8 +1302,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-67-1"><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>  [ASSET_DIR]         Directory of assets to include in the report  [default:
 </span><span id="__span-67-2"><a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a>                      .]
 </span><span id="__span-67-3"><a id="__codelineno-67-3" name="__codelineno-67-3" href="#__codelineno-67-3"></a>  --format TEXT       markdown | json | html  [default: markdown]
-</span><span id="__span-67-4"><a id="__codelineno-67-4" name="__codelineno-67-4" href="#__codelineno-67-4"></a>  -o, --output TEXT
-</span><span id="__span-67-5"><a id="__codelineno-67-5" name="__codelineno-67-5" href="#__codelineno-67-5"></a>  --wait / --no-wait
+</span><span id="__span-67-4"><a id="__codelineno-67-4" name="__codelineno-67-4" href="#__codelineno-67-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-67-5"><a id="__codelineno-67-5" name="__codelineno-67-5" href="#__codelineno-67-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="style">style<a class="headerlink" href="#style" title="Permanent link">&para;</a></h4>
 <p>Check assets for visual consistency with the project art style guide.</p>
@@ -1310,8 +1314,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-69-1"><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>  ASSET               Asset or directory to style-check  [required]
 </span><span id="__span-69-2"><a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>  --guide TEXT        Path to style guide image or YAML
 </span><span id="__span-69-3"><a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a>  --threshold FLOAT   Similarity threshold 0.0-1.0  [default: 0.8]
-</span><span id="__span-69-4"><a id="__codelineno-69-4" name="__codelineno-69-4" href="#__codelineno-69-4"></a>  -o, --output TEXT
-</span><span id="__span-69-5"><a id="__codelineno-69-5" name="__codelineno-69-5" href="#__codelineno-69-5"></a>  --wait / --no-wait
+</span><span id="__span-69-4"><a id="__codelineno-69-4" name="__codelineno-69-4" href="#__codelineno-69-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-69-5"><a id="__codelineno-69-5" name="__codelineno-69-5" href="#__codelineno-69-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="validate">validate<a class="headerlink" href="#validate" title="Permanent link">&para;</a></h4>
 <p>Run automated validation checks on an asset (normals, UVs, manifold, etc.).</p>
@@ -1324,8 +1328,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-71-3"><a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>                      naming textures  [default:
 </span><span id="__span-71-4"><a id="__codelineno-71-4" name="__codelineno-71-4" href="#__codelineno-71-4"></a>                      normals,uvs,manifold,scale,naming]
 </span><span id="__span-71-5"><a id="__codelineno-71-5" name="__codelineno-71-5" href="#__codelineno-71-5"></a>  --strict            Fail on warnings as well as errors
-</span><span id="__span-71-6"><a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a>  -o, --output TEXT
-</span><span id="__span-71-7"><a id="__codelineno-71-7" name="__codelineno-71-7" href="#__codelineno-71-7"></a>  --wait / --no-wait
+</span><span id="__span-71-6"><a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-71-7"><a id="__codelineno-71-7" name="__codelineno-71-7" href="#__codelineno-71-7"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h3 id="scene">scene<a class="headerlink" href="#scene" title="Permanent link">&para;</a></h3>
 <p>Physics colliders and lighting assets</p>
@@ -1345,8 +1349,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-75-1"><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>  SCENE               Scene file to bake lighting for  [required]
 </span><span id="__span-75-2"><a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>  --quality TEXT      low | medium | high  [default: medium]
-</span><span id="__span-75-3"><a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a>  -o, --output TEXT
-</span><span id="__span-75-4"><a id="__codelineno-75-4" name="__codelineno-75-4" href="#__codelineno-75-4"></a>  --wait / --no-wait
+</span><span id="__span-75-3"><a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-75-4"><a id="__codelineno-75-4" name="__codelineno-75-4" href="#__codelineno-75-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="hdri">hdri<a class="headerlink" href="#hdri" title="Permanent link">&para;</a></h5>
 <p>Generate an HDR environment / sky map from a text description.</p>
@@ -1359,8 +1363,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-77-3"><a id="__codelineno-77-3" name="__codelineno-77-3" href="#__codelineno-77-3"></a>  -r, --resolution INTEGER  Output resolution (width of equirectangular image)
 </span><span id="__span-77-4"><a id="__codelineno-77-4" name="__codelineno-77-4" href="#__codelineno-77-4"></a>                            [default: 4096]
 </span><span id="__span-77-5"><a id="__codelineno-77-5" name="__codelineno-77-5" href="#__codelineno-77-5"></a>  --format TEXT             exr | hdr  [default: exr]
-</span><span id="__span-77-6"><a id="__codelineno-77-6" name="__codelineno-77-6" href="#__codelineno-77-6"></a>  -o, --output TEXT
-</span><span id="__span-77-7"><a id="__codelineno-77-7" name="__codelineno-77-7" href="#__codelineno-77-7"></a>  --wait / --no-wait
+</span><span id="__span-77-6"><a id="__codelineno-77-6" name="__codelineno-77-6" href="#__codelineno-77-6"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-77-7"><a id="__codelineno-77-7" name="__codelineno-77-7" href="#__codelineno-77-7"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-77-8"><a id="__codelineno-77-8" name="__codelineno-77-8" href="#__codelineno-77-8"></a>                            progress
 </span></code></pre></div>
 <h5 id="probes">probes<a class="headerlink" href="#probes" title="Permanent link">&para;</a></h5>
 <p>Generate reflection or irradiance probes for a scene.</p>
@@ -1370,8 +1375,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-79-1"><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>  SCENE               Scene file to generate probes for  [required]
 </span><span id="__span-79-2"><a id="__codelineno-79-2" name="__codelineno-79-2" href="#__codelineno-79-2"></a>  --type TEXT         reflection | light | irradiance  [default: reflection]
-</span><span id="__span-79-3"><a id="__codelineno-79-3" name="__codelineno-79-3" href="#__codelineno-79-3"></a>  -o, --output TEXT
-</span><span id="__span-79-4"><a id="__codelineno-79-4" name="__codelineno-79-4" href="#__codelineno-79-4"></a>  --wait / --no-wait
+</span><span id="__span-79-3"><a id="__codelineno-79-3" name="__codelineno-79-3" href="#__codelineno-79-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-79-4"><a id="__codelineno-79-4" name="__codelineno-79-4" href="#__codelineno-79-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="volumetrics">volumetrics<a class="headerlink" href="#volumetrics" title="Permanent link">&para;</a></h5>
 <p>Generate volumetric fog, cloud, or atmosphere assets.</p>
@@ -1382,8 +1387,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-81-1"><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>  PROMPT              Volume description, e.g. &#39;thick morning fog&#39;  [required]
 </span><span id="__span-81-2"><a id="__codelineno-81-2" name="__codelineno-81-2" href="#__codelineno-81-2"></a>  --type TEXT         fog | clouds | smoke | dust  [default: fog]
 </span><span id="__span-81-3"><a id="__codelineno-81-3" name="__codelineno-81-3" href="#__codelineno-81-3"></a>  --density FLOAT     Volume density 0.0-1.0  [default: 0.5]
-</span><span id="__span-81-4"><a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>  -o, --output TEXT
-</span><span id="__span-81-5"><a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>  --wait / --no-wait
+</span><span id="__span-81-4"><a id="__codelineno-81-4" name="__codelineno-81-4" href="#__codelineno-81-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-81-5"><a id="__codelineno-81-5" name="__codelineno-81-5" href="#__codelineno-81-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="physics">physics<a class="headerlink" href="#physics" title="Permanent link">&para;</a></h4>
 <p>Colliders, rigid bodies, cloth sim</p>
@@ -1399,8 +1404,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-84-1"><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>  MESH                Cloth or hair mesh to simulate  [required]
 </span><span id="__span-84-2"><a id="__codelineno-84-2" name="__codelineno-84-2" href="#__codelineno-84-2"></a>  --type TEXT         cloth | hair | softbody  [default: cloth]
 </span><span id="__span-84-3"><a id="__codelineno-84-3" name="__codelineno-84-3" href="#__codelineno-84-3"></a>  --duration FLOAT    Simulation duration in seconds  [default: 3.0]
-</span><span id="__span-84-4"><a id="__codelineno-84-4" name="__codelineno-84-4" href="#__codelineno-84-4"></a>  -o, --output TEXT
-</span><span id="__span-84-5"><a id="__codelineno-84-5" name="__codelineno-84-5" href="#__codelineno-84-5"></a>  --wait / --no-wait
+</span><span id="__span-84-4"><a id="__codelineno-84-4" name="__codelineno-84-4" href="#__codelineno-84-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-84-5"><a id="__codelineno-84-5" name="__codelineno-84-5" href="#__codelineno-84-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="collider">collider<a class="headerlink" href="#collider" title="Permanent link">&para;</a></h5>
 <p>Generate an optimised collision mesh from a visual mesh.</p>
@@ -1412,8 +1417,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-86-2"><a id="__codelineno-86-2" name="__codelineno-86-2" href="#__codelineno-86-2"></a>  --shape TEXT          Collider type: convex hull box sphere capsule mesh
 </span><span id="__span-86-3"><a id="__codelineno-86-3" name="__codelineno-86-3" href="#__codelineno-86-3"></a>                        [default: convex]
 </span><span id="__span-86-4"><a id="__codelineno-86-4" name="__codelineno-86-4" href="#__codelineno-86-4"></a>  --simplify / --exact  [default: simplify]
-</span><span id="__span-86-5"><a id="__codelineno-86-5" name="__codelineno-86-5" href="#__codelineno-86-5"></a>  -o, --output TEXT
-</span><span id="__span-86-6"><a id="__codelineno-86-6" name="__codelineno-86-6" href="#__codelineno-86-6"></a>  --wait / --no-wait
+</span><span id="__span-86-5"><a id="__codelineno-86-5" name="__codelineno-86-5" href="#__codelineno-86-5"></a>  -o, --output TEXT     Output file or directory path
+</span><span id="__span-86-6"><a id="__codelineno-86-6" name="__codelineno-86-6" href="#__codelineno-86-6"></a>  --wait / --no-wait    Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="export_1">export<a class="headerlink" href="#export_1" title="Permanent link">&para;</a></h5>
 <p>Export baked physics data for a target game engine.</p>
@@ -1423,8 +1428,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-88-1"><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>  MESH                Physics setup to export  [required]
 </span><span id="__span-88-2"><a id="__codelineno-88-2" name="__codelineno-88-2" href="#__codelineno-88-2"></a>  --engine TEXT       Target engine: unity unreal godot  [default: unity]
-</span><span id="__span-88-3"><a id="__codelineno-88-3" name="__codelineno-88-3" href="#__codelineno-88-3"></a>  -o, --output TEXT
-</span><span id="__span-88-4"><a id="__codelineno-88-4" name="__codelineno-88-4" href="#__codelineno-88-4"></a>  --wait / --no-wait
+</span><span id="__span-88-3"><a id="__codelineno-88-3" name="__codelineno-88-3" href="#__codelineno-88-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-88-4"><a id="__codelineno-88-4" name="__codelineno-88-4" href="#__codelineno-88-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="rigid">rigid<a class="headerlink" href="#rigid" title="Permanent link">&para;</a></h5>
 <p>Set up rigid body physics properties for a mesh.</p>
@@ -1435,8 +1440,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-90-1"><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>  MESH                Mesh to configure as a rigid body  [required]
 </span><span id="__span-90-2"><a id="__codelineno-90-2" name="__codelineno-90-2" href="#__codelineno-90-2"></a>  --mass FLOAT        Mass in kg
 </span><span id="__span-90-3"><a id="__codelineno-90-3" name="__codelineno-90-3" href="#__codelineno-90-3"></a>  --material TEXT     Physics material: wood metal stone rubber
-</span><span id="__span-90-4"><a id="__codelineno-90-4" name="__codelineno-90-4" href="#__codelineno-90-4"></a>  -o, --output TEXT
-</span><span id="__span-90-5"><a id="__codelineno-90-5" name="__codelineno-90-5" href="#__codelineno-90-5"></a>  --wait / --no-wait
+</span><span id="__span-90-4"><a id="__codelineno-90-4" name="__codelineno-90-4" href="#__codelineno-90-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-90-5"><a id="__codelineno-90-5" name="__codelineno-90-5" href="#__codelineno-90-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h3 id="support">support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h3>
 <p>Narrative, lore, procedural data</p>
@@ -1456,8 +1461,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-94-1"><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>  SCENE               Scene file to bake  [required]
 </span><span id="__span-94-2"><a id="__codelineno-94-2" name="__codelineno-94-2" href="#__codelineno-94-2"></a>  --quality TEXT      low | medium | high  [default: medium]
-</span><span id="__span-94-3"><a id="__codelineno-94-3" name="__codelineno-94-3" href="#__codelineno-94-3"></a>  -o, --output TEXT
-</span><span id="__span-94-4"><a id="__codelineno-94-4" name="__codelineno-94-4" href="#__codelineno-94-4"></a>  --wait / --no-wait
+</span><span id="__span-94-3"><a id="__codelineno-94-3" name="__codelineno-94-3" href="#__codelineno-94-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-94-4"><a id="__codelineno-94-4" name="__codelineno-94-4" href="#__codelineno-94-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="proc">proc<a class="headerlink" href="#proc" title="Permanent link">&para;</a></h5>
 <p>Generate a procedural asset generation script from a description.</p>
@@ -1468,8 +1473,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-96-1"><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>  DESCRIPTION         Describe the procedural asset to generate code for
 </span><span id="__span-96-2"><a id="__codelineno-96-2" name="__codelineno-96-2" href="#__codelineno-96-2"></a>                      [required]
 </span><span id="__span-96-3"><a id="__codelineno-96-3" name="__codelineno-96-3" href="#__codelineno-96-3"></a>  --language TEXT     python | gdscript | csharp | hlsl  [default: python]
-</span><span id="__span-96-4"><a id="__codelineno-96-4" name="__codelineno-96-4" href="#__codelineno-96-4"></a>  -o, --output TEXT
-</span><span id="__span-96-5"><a id="__codelineno-96-5" name="__codelineno-96-5" href="#__codelineno-96-5"></a>  --wait / --no-wait
+</span><span id="__span-96-4"><a id="__codelineno-96-4" name="__codelineno-96-4" href="#__codelineno-96-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-96-5"><a id="__codelineno-96-5" name="__codelineno-96-5" href="#__codelineno-96-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="narrative">narrative<a class="headerlink" href="#narrative" title="Permanent link">&para;</a></h4>
 <p>NPC dialog and world-building lore generation.</p>
@@ -1486,8 +1491,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-99-2"><a id="__codelineno-99-2" name="__codelineno-99-2" href="#__codelineno-99-2"></a>  --context TEXT       Scene / quest context
 </span><span id="__span-99-3"><a id="__codelineno-99-3" name="__codelineno-99-3" href="#__codelineno-99-3"></a>  -n, --lines INTEGER  Number of dialog lines to generate  [default: 10]
 </span><span id="__span-99-4"><a id="__codelineno-99-4" name="__codelineno-99-4" href="#__codelineno-99-4"></a>  --branching          Generate a branching dialog tree
-</span><span id="__span-99-5"><a id="__codelineno-99-5" name="__codelineno-99-5" href="#__codelineno-99-5"></a>  -o, --output TEXT
-</span><span id="__span-99-6"><a id="__codelineno-99-6" name="__codelineno-99-6" href="#__codelineno-99-6"></a>  --wait / --no-wait
+</span><span id="__span-99-5"><a id="__codelineno-99-5" name="__codelineno-99-5" href="#__codelineno-99-5"></a>  -o, --output TEXT    Output file or directory path
+</span><span id="__span-99-6"><a id="__codelineno-99-6" name="__codelineno-99-6" href="#__codelineno-99-6"></a>  --wait / --no-wait   Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="lore">lore<a class="headerlink" href="#lore" title="Permanent link">&para;</a></h5>
 <p>Generate world-building lore text.</p>
@@ -1500,8 +1505,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-101-3"><a id="__codelineno-101-3" name="__codelineno-101-3" href="#__codelineno-101-3"></a>  --length INTEGER    Approximate word count  [default: 500]
 </span><span id="__span-101-4"><a id="__codelineno-101-4" name="__codelineno-101-4" href="#__codelineno-101-4"></a>  --format TEXT       prose | codex | item-description | quest  [default:
 </span><span id="__span-101-5"><a id="__codelineno-101-5" name="__codelineno-101-5" href="#__codelineno-101-5"></a>                      prose]
-</span><span id="__span-101-6"><a id="__codelineno-101-6" name="__codelineno-101-6" href="#__codelineno-101-6"></a>  -o, --output TEXT
-</span><span id="__span-101-7"><a id="__codelineno-101-7" name="__codelineno-101-7" href="#__codelineno-101-7"></a>  --wait / --no-wait
+</span><span id="__span-101-6"><a id="__codelineno-101-6" name="__codelineno-101-6" href="#__codelineno-101-6"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-101-7"><a id="__codelineno-101-7" name="__codelineno-101-7" href="#__codelineno-101-7"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h3 id="visual">visual<a class="headerlink" href="#visual" title="Permanent link">&para;</a></h3>
 <p>3D meshes, textures, rigs, animations, VFX, UI</p>
@@ -1522,8 +1527,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-105-1"><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>  ANIM_A              First animation file  [required]
 </span><span id="__span-105-2"><a id="__codelineno-105-2" name="__codelineno-105-2" href="#__codelineno-105-2"></a>  ANIM_B              Second animation file  [required]
 </span><span id="__span-105-3"><a id="__codelineno-105-3" name="__codelineno-105-3" href="#__codelineno-105-3"></a>  --weight FLOAT      Blend weight (0=A, 1=B)  [default: 0.5]
-</span><span id="__span-105-4"><a id="__codelineno-105-4" name="__codelineno-105-4" href="#__codelineno-105-4"></a>  -o, --output TEXT
-</span><span id="__span-105-5"><a id="__codelineno-105-5" name="__codelineno-105-5" href="#__codelineno-105-5"></a>  --wait / --no-wait
+</span><span id="__span-105-4"><a id="__codelineno-105-4" name="__codelineno-105-4" href="#__codelineno-105-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-105-5"><a id="__codelineno-105-5" name="__codelineno-105-5" href="#__codelineno-105-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="keyframe">keyframe<a class="headerlink" href="#keyframe" title="Permanent link">&para;</a></h5>
 <p>Generate animation keyframes from a text prompt.</p>
@@ -1536,8 +1541,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-107-3"><a id="__codelineno-107-3" name="__codelineno-107-3" href="#__codelineno-107-3"></a>  --fps INTEGER       [default: 30]
 </span><span id="__span-107-4"><a id="__codelineno-107-4" name="__codelineno-107-4" href="#__codelineno-107-4"></a>  --duration FLOAT    Duration in seconds  [default: 2.0]
 </span><span id="__span-107-5"><a id="__codelineno-107-5" name="__codelineno-107-5" href="#__codelineno-107-5"></a>  --loop              Generate as a looping animation
-</span><span id="__span-107-6"><a id="__codelineno-107-6" name="__codelineno-107-6" href="#__codelineno-107-6"></a>  -o, --output TEXT
-</span><span id="__span-107-7"><a id="__codelineno-107-7" name="__codelineno-107-7" href="#__codelineno-107-7"></a>  --wait / --no-wait
+</span><span id="__span-107-6"><a id="__codelineno-107-6" name="__codelineno-107-6" href="#__codelineno-107-6"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-107-7"><a id="__codelineno-107-7" name="__codelineno-107-7" href="#__codelineno-107-7"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="mocap">mocap<a class="headerlink" href="#mocap" title="Permanent link">&para;</a></h5>
 <p>Extract motion from a video and convert to skeleton animation.</p>
@@ -1547,8 +1552,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-109-1"><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>  VIDEO               Input video file for motion capture  [required]
 </span><span id="__span-109-2"><a id="__codelineno-109-2" name="__codelineno-109-2" href="#__codelineno-109-2"></a>  --rig TEXT          Rig to retarget captured motion onto
-</span><span id="__span-109-3"><a id="__codelineno-109-3" name="__codelineno-109-3" href="#__codelineno-109-3"></a>  -o, --output TEXT
-</span><span id="__span-109-4"><a id="__codelineno-109-4" name="__codelineno-109-4" href="#__codelineno-109-4"></a>  --wait / --no-wait
+</span><span id="__span-109-3"><a id="__codelineno-109-3" name="__codelineno-109-3" href="#__codelineno-109-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-109-4"><a id="__codelineno-109-4" name="__codelineno-109-4" href="#__codelineno-109-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="retarget">retarget<a class="headerlink" href="#retarget" title="Permanent link">&para;</a></h5>
 <p>Retarget an animation from one rig to another.</p>
@@ -1559,8 +1564,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-111-1"><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>  ANIMATION           Animation file to retarget  [required]
 </span><span id="__span-111-2"><a id="__codelineno-111-2" name="__codelineno-111-2" href="#__codelineno-111-2"></a>  SOURCE_RIG          Source skeleton  [required]
 </span><span id="__span-111-3"><a id="__codelineno-111-3" name="__codelineno-111-3" href="#__codelineno-111-3"></a>  TARGET_RIG          Target skeleton  [required]
-</span><span id="__span-111-4"><a id="__codelineno-111-4" name="__codelineno-111-4" href="#__codelineno-111-4"></a>  -o, --output TEXT
-</span><span id="__span-111-5"><a id="__codelineno-111-5" name="__codelineno-111-5" href="#__codelineno-111-5"></a>  --wait / --no-wait
+</span><span id="__span-111-4"><a id="__codelineno-111-4" name="__codelineno-111-4" href="#__codelineno-111-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-111-5"><a id="__codelineno-111-5" name="__codelineno-111-5" href="#__codelineno-111-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="blockout">blockout<a class="headerlink" href="#blockout" title="Permanent link">&para;</a></h4>
 <p>Rapid greybox / blockout prototyping</p>
@@ -1575,8 +1580,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-114-1"><a id="__codelineno-114-1" name="__codelineno-114-1" href="#__codelineno-114-1"></a>  INPUTS...           Paths to blockout pieces to combine  [required]
 </span><span id="__span-114-2"><a id="__codelineno-114-2" name="__codelineno-114-2" href="#__codelineno-114-2"></a>  --layout TEXT       Layout description
-</span><span id="__span-114-3"><a id="__codelineno-114-3" name="__codelineno-114-3" href="#__codelineno-114-3"></a>  -o, --output TEXT
-</span><span id="__span-114-4"><a id="__codelineno-114-4" name="__codelineno-114-4" href="#__codelineno-114-4"></a>  --wait / --no-wait
+</span><span id="__span-114-3"><a id="__codelineno-114-3" name="__codelineno-114-3" href="#__codelineno-114-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-114-4"><a id="__codelineno-114-4" name="__codelineno-114-4" href="#__codelineno-114-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="create_1">create<a class="headerlink" href="#create_1" title="Permanent link">&para;</a></h5>
 <p>Generate a low-fidelity blockout mesh for layout and scale testing.</p>
@@ -1588,8 +1593,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-116-2"><a id="__codelineno-116-2" name="__codelineno-116-2" href="#__codelineno-116-2"></a>                          [required]
 </span><span id="__span-116-3"><a id="__codelineno-116-3" name="__codelineno-116-3" href="#__codelineno-116-3"></a>  --scale TEXT            Approx scale, e.g. &#39;10x10x3m&#39;
 </span><span id="__span-116-4"><a id="__codelineno-116-4" name="__codelineno-116-4" href="#__codelineno-116-4"></a>  -i, --input-image TEXT  Reference image
-</span><span id="__span-116-5"><a id="__codelineno-116-5" name="__codelineno-116-5" href="#__codelineno-116-5"></a>  -o, --output TEXT
-</span><span id="__span-116-6"><a id="__codelineno-116-6" name="__codelineno-116-6" href="#__codelineno-116-6"></a>  --wait / --no-wait
+</span><span id="__span-116-5"><a id="__codelineno-116-5" name="__codelineno-116-5" href="#__codelineno-116-5"></a>  -o, --output TEXT       Output file or directory path
+</span><span id="__span-116-6"><a id="__codelineno-116-6" name="__codelineno-116-6" href="#__codelineno-116-6"></a>  --wait / --no-wait      Block until the job completes and stream live
+</span><span id="__span-116-7"><a id="__codelineno-116-7" name="__codelineno-116-7" href="#__codelineno-116-7"></a>                          progress
 </span></code></pre></div>
 <h5 id="iterate">iterate<a class="headerlink" href="#iterate" title="Permanent link">&para;</a></h5>
 <p>Generate a quick variation of an existing blockout.</p>
@@ -1599,8 +1605,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-118-1"><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a>  INPUT_MESH          Existing blockout .glb/.obj to vary  [required]
 </span><span id="__span-118-2"><a id="__codelineno-118-2" name="__codelineno-118-2" href="#__codelineno-118-2"></a>  --prompt TEXT       Variation guidance
-</span><span id="__span-118-3"><a id="__codelineno-118-3" name="__codelineno-118-3" href="#__codelineno-118-3"></a>  -o, --output TEXT
-</span><span id="__span-118-4"><a id="__codelineno-118-4" name="__codelineno-118-4" href="#__codelineno-118-4"></a>  --wait / --no-wait
+</span><span id="__span-118-3"><a id="__codelineno-118-3" name="__codelineno-118-3" href="#__codelineno-118-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-118-4"><a id="__codelineno-118-4" name="__codelineno-118-4" href="#__codelineno-118-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="concept">concept<a class="headerlink" href="#concept" title="Permanent link">&para;</a></h4>
 <p>Concept art and style references</p>
@@ -1649,7 +1655,7 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-126-1"><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a>assgen gen visual model [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <h5 id="create_2">create<a class="headerlink" href="#create_2" title="Permanent link">&para;</a></h5>
-<p>Generate a 3D mesh from text or an image (TripoSR / InstantMesh).</p>
+<p>Generate a 3D mesh from text or an image using InstantMesh (multi-view diffusion).</p>
 <p>Usage:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-127-1"><a id="__codelineno-127-1" name="__codelineno-127-1" href="#__codelineno-127-1"></a>assgen gen visual model create [OPTIONS]
 </span></code></pre></div>
@@ -1658,8 +1664,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-128-2"><a id="__codelineno-128-2" name="__codelineno-128-2" href="#__codelineno-128-2"></a>  -i, --input-image TEXT  Input image path or URL
 </span><span id="__span-128-3"><a id="__codelineno-128-3" name="__codelineno-128-3" href="#__codelineno-128-3"></a>  -f, --format TEXT       Output format: glb obj fbx  [default: glb]
 </span><span id="__span-128-4"><a id="__codelineno-128-4" name="__codelineno-128-4" href="#__codelineno-128-4"></a>  -o, --output TEXT       Output file path (.glb/.obj/.fbx)
-</span><span id="__span-128-5"><a id="__codelineno-128-5" name="__codelineno-128-5" href="#__codelineno-128-5"></a>  --wait / --no-wait
-</span><span id="__span-128-6"><a id="__codelineno-128-6" name="__codelineno-128-6" href="#__codelineno-128-6"></a>  --model-id TEXT         Override HF model (validated by server)
+</span><span id="__span-128-5"><a id="__codelineno-128-5" name="__codelineno-128-5" href="#__codelineno-128-5"></a>  --wait / --no-wait      Block until the job completes and stream live
+</span><span id="__span-128-6"><a id="__codelineno-128-6" name="__codelineno-128-6" href="#__codelineno-128-6"></a>                          progress
+</span><span id="__span-128-7"><a id="__codelineno-128-7" name="__codelineno-128-7" href="#__codelineno-128-7"></a>  --model-id TEXT         Override HF model (validated by server)
 </span></code></pre></div>
 <h5 id="edit_1">edit<a class="headerlink" href="#edit_1" title="Permanent link">&para;</a></h5>
 <p>Edit an existing mesh (deform, boolean, combine).</p>
@@ -1672,7 +1679,7 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-130-3"><a id="__codelineno-130-3" name="__codelineno-130-3" href="#__codelineno-130-3"></a>  --prompt TEXT       Edit guidance
 </span><span id="__span-130-4"><a id="__codelineno-130-4" name="__codelineno-130-4" href="#__codelineno-130-4"></a>  --secondary TEXT    Second mesh for boolean/combine
 </span><span id="__span-130-5"><a id="__codelineno-130-5" name="__codelineno-130-5" href="#__codelineno-130-5"></a>  -o, --output TEXT   Output file path (.glb/.obj/.fbx)
-</span><span id="__span-130-6"><a id="__codelineno-130-6" name="__codelineno-130-6" href="#__codelineno-130-6"></a>  --wait / --no-wait
+</span><span id="__span-130-6"><a id="__codelineno-130-6" name="__codelineno-130-6" href="#__codelineno-130-6"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="export_2">export<a class="headerlink" href="#export_2" title="Permanent link">&para;</a></h5>
 <p>Convert and export a mesh to a specific engine format.</p>
@@ -1683,7 +1690,7 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-132-1"><a id="__codelineno-132-1" name="__codelineno-132-1" href="#__codelineno-132-1"></a>  INPUT_MESH          Mesh to export  [required]
 </span><span id="__span-132-2"><a id="__codelineno-132-2" name="__codelineno-132-2" href="#__codelineno-132-2"></a>  -f, --format TEXT   glb obj fbx uasset  [default: glb]
 </span><span id="__span-132-3"><a id="__codelineno-132-3" name="__codelineno-132-3" href="#__codelineno-132-3"></a>  -o, --output TEXT   Output file path (.glb/.obj/.fbx)
-</span><span id="__span-132-4"><a id="__codelineno-132-4" name="__codelineno-132-4" href="#__codelineno-132-4"></a>  --wait / --no-wait
+</span><span id="__span-132-4"><a id="__codelineno-132-4" name="__codelineno-132-4" href="#__codelineno-132-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="highpoly">highpoly<a class="headerlink" href="#highpoly" title="Permanent link">&para;</a></h5>
 <p>Refine a mesh to high-poly for normal map baking.</p>
@@ -1694,7 +1701,7 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-134-1"><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>  INPUT_MESH          Input mesh path  [required]
 </span><span id="__span-134-2"><a id="__codelineno-134-2" name="__codelineno-134-2" href="#__codelineno-134-2"></a>  --detail INTEGER    Detail level 1-5  [default: 3]
 </span><span id="__span-134-3"><a id="__codelineno-134-3" name="__codelineno-134-3" href="#__codelineno-134-3"></a>  -o, --output TEXT   Output file path (.glb/.obj/.fbx)
-</span><span id="__span-134-4"><a id="__codelineno-134-4" name="__codelineno-134-4" href="#__codelineno-134-4"></a>  --wait / --no-wait
+</span><span id="__span-134-4"><a id="__codelineno-134-4" name="__codelineno-134-4" href="#__codelineno-134-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="optimize">optimize<a class="headerlink" href="#optimize" title="Permanent link">&para;</a></h5>
 <p>Generate LOD variants and reduce polygon count.</p>
@@ -1706,7 +1713,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-136-2"><a id="__codelineno-136-2" name="__codelineno-136-2" href="#__codelineno-136-2"></a>  --lods INTEGER          Number of LOD levels  [default: 3]
 </span><span id="__span-136-3"><a id="__codelineno-136-3" name="__codelineno-136-3" href="#__codelineno-136-3"></a>  --target-polys INTEGER
 </span><span id="__span-136-4"><a id="__codelineno-136-4" name="__codelineno-136-4" href="#__codelineno-136-4"></a>  -o, --output TEXT       Output file path (.glb/.obj/.fbx)
-</span><span id="__span-136-5"><a id="__codelineno-136-5" name="__codelineno-136-5" href="#__codelineno-136-5"></a>  --wait / --no-wait
+</span><span id="__span-136-5"><a id="__codelineno-136-5" name="__codelineno-136-5" href="#__codelineno-136-5"></a>  --wait / --no-wait      Block until the job completes and stream live
+</span><span id="__span-136-6"><a id="__codelineno-136-6" name="__codelineno-136-6" href="#__codelineno-136-6"></a>                          progress
 </span></code></pre></div>
 <h5 id="retopo">retopo<a class="headerlink" href="#retopo" title="Permanent link">&para;</a></h5>
 <p>Auto-retopology: produce clean, game-ready mesh topology.</p>
@@ -1718,7 +1726,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-138-2"><a id="__codelineno-138-2" name="__codelineno-138-2" href="#__codelineno-138-2"></a>  --target-polys INTEGER  Target polygon count
 </span><span id="__span-138-3"><a id="__codelineno-138-3" name="__codelineno-138-3" href="#__codelineno-138-3"></a>  --quads / --tris        Prefer quads or triangles  [default: quads]
 </span><span id="__span-138-4"><a id="__codelineno-138-4" name="__codelineno-138-4" href="#__codelineno-138-4"></a>  -o, --output TEXT       Output file path (.glb/.obj/.fbx)
-</span><span id="__span-138-5"><a id="__codelineno-138-5" name="__codelineno-138-5" href="#__codelineno-138-5"></a>  --wait / --no-wait
+</span><span id="__span-138-5"><a id="__codelineno-138-5" name="__codelineno-138-5" href="#__codelineno-138-5"></a>  --wait / --no-wait      Block until the job completes and stream live
+</span><span id="__span-138-6"><a id="__codelineno-138-6" name="__codelineno-138-6" href="#__codelineno-138-6"></a>                          progress
 </span></code></pre></div>
 <h5 id="splat">splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h5>
 <p>Generate a Gaussian Splat (3DGS) from multi-view images.</p>
@@ -1729,7 +1738,7 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-140-1"><a id="__codelineno-140-1" name="__codelineno-140-1" href="#__codelineno-140-1"></a>  IMAGES...           Multi-view input images  [required]
 </span><span id="__span-140-2"><a id="__codelineno-140-2" name="__codelineno-140-2" href="#__codelineno-140-2"></a>  --convert-mesh      Also export a triangle mesh
 </span><span id="__span-140-3"><a id="__codelineno-140-3" name="__codelineno-140-3" href="#__codelineno-140-3"></a>  -o, --output TEXT   Output file path (.glb/.obj/.fbx)
-</span><span id="__span-140-4"><a id="__codelineno-140-4" name="__codelineno-140-4" href="#__codelineno-140-4"></a>  --wait / --no-wait
+</span><span id="__span-140-4"><a id="__codelineno-140-4" name="__codelineno-140-4" href="#__codelineno-140-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="rig">rig<a class="headerlink" href="#rig" title="Permanent link">&para;</a></h4>
 <p>Auto-rigging, skinning, retargeting</p>
@@ -1744,8 +1753,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-143-1"><a id="__codelineno-143-1" name="__codelineno-143-1" href="#__codelineno-143-1"></a>  MESH                Character / creature mesh to rig  [required]
 </span><span id="__span-143-2"><a id="__codelineno-143-2" name="__codelineno-143-2" href="#__codelineno-143-2"></a>  --type TEXT         biped | quadruped | wing | custom  [default: biped]
-</span><span id="__span-143-3"><a id="__codelineno-143-3" name="__codelineno-143-3" href="#__codelineno-143-3"></a>  -o, --output TEXT
-</span><span id="__span-143-4"><a id="__codelineno-143-4" name="__codelineno-143-4" href="#__codelineno-143-4"></a>  --wait / --no-wait
+</span><span id="__span-143-3"><a id="__codelineno-143-3" name="__codelineno-143-3" href="#__codelineno-143-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-143-4"><a id="__codelineno-143-4" name="__codelineno-143-4" href="#__codelineno-143-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="retarget_1">retarget<a class="headerlink" href="#retarget_1" title="Permanent link">&para;</a></h5>
 <p>Retarget an existing rig to a different mesh.</p>
@@ -1755,8 +1764,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-145-1"><a id="__codelineno-145-1" name="__codelineno-145-1" href="#__codelineno-145-1"></a>  SOURCE_RIG          Source rigged mesh  [required]
 </span><span id="__span-145-2"><a id="__codelineno-145-2" name="__codelineno-145-2" href="#__codelineno-145-2"></a>  TARGET_MESH         Target mesh to retarget the rig onto  [required]
-</span><span id="__span-145-3"><a id="__codelineno-145-3" name="__codelineno-145-3" href="#__codelineno-145-3"></a>  -o, --output TEXT
-</span><span id="__span-145-4"><a id="__codelineno-145-4" name="__codelineno-145-4" href="#__codelineno-145-4"></a>  --wait / --no-wait
+</span><span id="__span-145-3"><a id="__codelineno-145-3" name="__codelineno-145-3" href="#__codelineno-145-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-145-4"><a id="__codelineno-145-4" name="__codelineno-145-4" href="#__codelineno-145-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="skin">skin<a class="headerlink" href="#skin" title="Permanent link">&para;</a></h5>
 <p>Generate or refine skin weight maps for a rigged mesh.</p>
@@ -1766,8 +1775,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-147-1"><a id="__codelineno-147-1" name="__codelineno-147-1" href="#__codelineno-147-1"></a>  MESH                Mesh with an existing skeleton  [required]
 </span><span id="__span-147-2"><a id="__codelineno-147-2" name="__codelineno-147-2" href="#__codelineno-147-2"></a>  --method TEXT       Skinning method: heat | geodesic | ai  [default: heat]
-</span><span id="__span-147-3"><a id="__codelineno-147-3" name="__codelineno-147-3" href="#__codelineno-147-3"></a>  -o, --output TEXT
-</span><span id="__span-147-4"><a id="__codelineno-147-4" name="__codelineno-147-4" href="#__codelineno-147-4"></a>  --wait / --no-wait
+</span><span id="__span-147-3"><a id="__codelineno-147-3" name="__codelineno-147-3" href="#__codelineno-147-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-147-4"><a id="__codelineno-147-4" name="__codelineno-147-4" href="#__codelineno-147-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h4 id="texture">texture<a class="headerlink" href="#texture" title="Permanent link">&para;</a></h4>
 <p>PBR textures, baking, material sets</p>
@@ -1782,8 +1791,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-150-1"><a id="__codelineno-150-1" name="__codelineno-150-1" href="#__codelineno-150-1"></a>  MESH                Mesh to apply textures to  [required]
 </span><span id="__span-150-2"><a id="__codelineno-150-2" name="__codelineno-150-2" href="#__codelineno-150-2"></a>  TEXTURE_DIR         Directory containing PBR texture maps  [required]
-</span><span id="__span-150-3"><a id="__codelineno-150-3" name="__codelineno-150-3" href="#__codelineno-150-3"></a>  -o, --output TEXT
-</span><span id="__span-150-4"><a id="__codelineno-150-4" name="__codelineno-150-4" href="#__codelineno-150-4"></a>  --wait / --no-wait
+</span><span id="__span-150-3"><a id="__codelineno-150-3" name="__codelineno-150-3" href="#__codelineno-150-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-150-4"><a id="__codelineno-150-4" name="__codelineno-150-4" href="#__codelineno-150-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="bake_1">bake<a class="headerlink" href="#bake_1" title="Permanent link">&para;</a></h5>
 <p>Bake normal, AO, and curvature from a high-poly to low-poly mesh.</p>
@@ -1796,8 +1805,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-152-3"><a id="__codelineno-152-3" name="__codelineno-152-3" href="#__codelineno-152-3"></a>  --maps TEXT               Maps to bake: normal ao curvature height
 </span><span id="__span-152-4"><a id="__codelineno-152-4" name="__codelineno-152-4" href="#__codelineno-152-4"></a>                            [default: normal,ao,curvature]
 </span><span id="__span-152-5"><a id="__codelineno-152-5" name="__codelineno-152-5" href="#__codelineno-152-5"></a>  -r, --resolution INTEGER  [default: 2048]
-</span><span id="__span-152-6"><a id="__codelineno-152-6" name="__codelineno-152-6" href="#__codelineno-152-6"></a>  -o, --output TEXT
-</span><span id="__span-152-7"><a id="__codelineno-152-7" name="__codelineno-152-7" href="#__codelineno-152-7"></a>  --wait / --no-wait
+</span><span id="__span-152-6"><a id="__codelineno-152-6" name="__codelineno-152-6" href="#__codelineno-152-6"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-152-7"><a id="__codelineno-152-7" name="__codelineno-152-7" href="#__codelineno-152-7"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-152-8"><a id="__codelineno-152-8" name="__codelineno-152-8" href="#__codelineno-152-8"></a>                            progress
 </span></code></pre></div>
 <h5 id="generate_2">generate<a class="headerlink" href="#generate_2" title="Permanent link">&para;</a></h5>
 <p>Generate albedo and PBR maps from a text prompt or mesh reference.</p>
@@ -1811,8 +1821,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-154-4"><a id="__codelineno-154-4" name="__codelineno-154-4" href="#__codelineno-154-4"></a>  --maps TEXT               Comma-separated PBR maps to generate  [default:
 </span><span id="__span-154-5"><a id="__codelineno-154-5" name="__codelineno-154-5" href="#__codelineno-154-5"></a>                            albedo,normal,roughness,metallic]
 </span><span id="__span-154-6"><a id="__codelineno-154-6" name="__codelineno-154-6" href="#__codelineno-154-6"></a>  --style TEXT              Material style, e.g. &#39;worn stone&#39;
-</span><span id="__span-154-7"><a id="__codelineno-154-7" name="__codelineno-154-7" href="#__codelineno-154-7"></a>  -o, --output TEXT
-</span><span id="__span-154-8"><a id="__codelineno-154-8" name="__codelineno-154-8" href="#__codelineno-154-8"></a>  --wait / --no-wait
+</span><span id="__span-154-7"><a id="__codelineno-154-7" name="__codelineno-154-7" href="#__codelineno-154-7"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-154-8"><a id="__codelineno-154-8" name="__codelineno-154-8" href="#__codelineno-154-8"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-154-9"><a id="__codelineno-154-9" name="__codelineno-154-9" href="#__codelineno-154-9"></a>                            progress
 </span></code></pre></div>
 <h5 id="pbr">pbr<a class="headerlink" href="#pbr" title="Permanent link">&para;</a></h5>
 <p>Create a full seamless PBR material set from a text description.</p>
@@ -1824,8 +1835,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-156-2"><a id="__codelineno-156-2" name="__codelineno-156-2" href="#__codelineno-156-2"></a>                               [required]
 </span><span id="__span-156-3"><a id="__codelineno-156-3" name="__codelineno-156-3" href="#__codelineno-156-3"></a>  -r, --resolution INTEGER     [default: 1024]
 </span><span id="__span-156-4"><a id="__codelineno-156-4" name="__codelineno-156-4" href="#__codelineno-156-4"></a>  --seamless / --non-seamless  [default: seamless]
-</span><span id="__span-156-5"><a id="__codelineno-156-5" name="__codelineno-156-5" href="#__codelineno-156-5"></a>  -o, --output TEXT
-</span><span id="__span-156-6"><a id="__codelineno-156-6" name="__codelineno-156-6" href="#__codelineno-156-6"></a>  --wait / --no-wait
+</span><span id="__span-156-5"><a id="__codelineno-156-5" name="__codelineno-156-5" href="#__codelineno-156-5"></a>  -o, --output TEXT            Output file or directory path
+</span><span id="__span-156-6"><a id="__codelineno-156-6" name="__codelineno-156-6" href="#__codelineno-156-6"></a>  --wait / --no-wait           Block until the job completes and stream live
+</span><span id="__span-156-7"><a id="__codelineno-156-7" name="__codelineno-156-7" href="#__codelineno-156-7"></a>                               progress
 </span></code></pre></div>
 <h4 id="ui">ui<a class="headerlink" href="#ui" title="Permanent link">&para;</a></h4>
 <p>Icons, HUD elements, 2D overlays</p>
@@ -1843,8 +1855,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-159-3"><a id="__codelineno-159-3" name="__codelineno-159-3" href="#__codelineno-159-3"></a>  --width INTEGER     [default: 512]
 </span><span id="__span-159-4"><a id="__codelineno-159-4" name="__codelineno-159-4" href="#__codelineno-159-4"></a>  --height INTEGER    [default: 128]
 </span><span id="__span-159-5"><a id="__codelineno-159-5" name="__codelineno-159-5" href="#__codelineno-159-5"></a>  --style TEXT
-</span><span id="__span-159-6"><a id="__codelineno-159-6" name="__codelineno-159-6" href="#__codelineno-159-6"></a>  -o, --output TEXT
-</span><span id="__span-159-7"><a id="__codelineno-159-7" name="__codelineno-159-7" href="#__codelineno-159-7"></a>  --wait / --no-wait
+</span><span id="__span-159-6"><a id="__codelineno-159-6" name="__codelineno-159-6" href="#__codelineno-159-6"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-159-7"><a id="__codelineno-159-7" name="__codelineno-159-7" href="#__codelineno-159-7"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="icon">icon<a class="headerlink" href="#icon" title="Permanent link">&para;</a></h5>
 <p>Generate game UI icons or inventory sprites.</p>
@@ -1857,8 +1869,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-161-3"><a id="__codelineno-161-3" name="__codelineno-161-3" href="#__codelineno-161-3"></a>  -s, --size INTEGER   Icon size in pixels  [default: 256]
 </span><span id="__span-161-4"><a id="__codelineno-161-4" name="__codelineno-161-4" href="#__codelineno-161-4"></a>  --style TEXT         e.g. &#39;flat&#39; &#39;pixel-art&#39; &#39;realistic&#39;
 </span><span id="__span-161-5"><a id="__codelineno-161-5" name="__codelineno-161-5" href="#__codelineno-161-5"></a>  -n, --count INTEGER  Number of variants to generate  [default: 1]
-</span><span id="__span-161-6"><a id="__codelineno-161-6" name="__codelineno-161-6" href="#__codelineno-161-6"></a>  -o, --output TEXT
-</span><span id="__span-161-7"><a id="__codelineno-161-7" name="__codelineno-161-7" href="#__codelineno-161-7"></a>  --wait / --no-wait
+</span><span id="__span-161-6"><a id="__codelineno-161-6" name="__codelineno-161-6" href="#__codelineno-161-6"></a>  -o, --output TEXT    Output file or directory path
+</span><span id="__span-161-7"><a id="__codelineno-161-7" name="__codelineno-161-7" href="#__codelineno-161-7"></a>  --wait / --no-wait   Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="overlay">overlay<a class="headerlink" href="#overlay" title="Permanent link">&para;</a></h5>
 <p>Generate a 2D overlay for a 3D game canvas.</p>
@@ -1870,8 +1882,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-163-2"><a id="__codelineno-163-2" name="__codelineno-163-2" href="#__codelineno-163-2"></a>  --width INTEGER           [default: 1920]
 </span><span id="__span-163-3"><a id="__codelineno-163-3" name="__codelineno-163-3" href="#__codelineno-163-3"></a>  --height INTEGER          [default: 1080]
 </span><span id="__span-163-4"><a id="__codelineno-163-4" name="__codelineno-163-4" href="#__codelineno-163-4"></a>  --transparent / --opaque  [default: transparent]
-</span><span id="__span-163-5"><a id="__codelineno-163-5" name="__codelineno-163-5" href="#__codelineno-163-5"></a>  -o, --output TEXT
-</span><span id="__span-163-6"><a id="__codelineno-163-6" name="__codelineno-163-6" href="#__codelineno-163-6"></a>  --wait / --no-wait
+</span><span id="__span-163-5"><a id="__codelineno-163-5" name="__codelineno-163-5" href="#__codelineno-163-5"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-163-6"><a id="__codelineno-163-6" name="__codelineno-163-6" href="#__codelineno-163-6"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-163-7"><a id="__codelineno-163-7" name="__codelineno-163-7" href="#__codelineno-163-7"></a>                            progress
 </span></code></pre></div>
 <h4 id="uv">uv<a class="headerlink" href="#uv" title="Permanent link">&para;</a></h4>
 <p>UV unwrapping and layout optimisation</p>
@@ -1886,8 +1899,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-166-1"><a id="__codelineno-166-1" name="__codelineno-166-1" href="#__codelineno-166-1"></a>  INPUT_MESH          Mesh to unwrap  [required]
 </span><span id="__span-166-2"><a id="__codelineno-166-2" name="__codelineno-166-2" href="#__codelineno-166-2"></a>  --padding INTEGER   UV island padding in pixels  [default: 4]
-</span><span id="__span-166-3"><a id="__codelineno-166-3" name="__codelineno-166-3" href="#__codelineno-166-3"></a>  -o, --output TEXT
-</span><span id="__span-166-4"><a id="__codelineno-166-4" name="__codelineno-166-4" href="#__codelineno-166-4"></a>  --wait / --no-wait
+</span><span id="__span-166-3"><a id="__codelineno-166-3" name="__codelineno-166-3" href="#__codelineno-166-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-166-4"><a id="__codelineno-166-4" name="__codelineno-166-4" href="#__codelineno-166-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="manual">manual<a class="headerlink" href="#manual" title="Permanent link">&para;</a></h5>
 <p>Generate AI seam suggestions for a mesh.</p>
@@ -1897,8 +1910,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-168-1"><a id="__codelineno-168-1" name="__codelineno-168-1" href="#__codelineno-168-1"></a>  INPUT_MESH          Mesh to provide seam guidance for  [required]
 </span><span id="__span-168-2"><a id="__codelineno-168-2" name="__codelineno-168-2" href="#__codelineno-168-2"></a>  --style TEXT        Unwrap style: organic | hard-surface
-</span><span id="__span-168-3"><a id="__codelineno-168-3" name="__codelineno-168-3" href="#__codelineno-168-3"></a>  -o, --output TEXT
-</span><span id="__span-168-4"><a id="__codelineno-168-4" name="__codelineno-168-4" href="#__codelineno-168-4"></a>  --wait / --no-wait
+</span><span id="__span-168-3"><a id="__codelineno-168-3" name="__codelineno-168-3" href="#__codelineno-168-3"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-168-4"><a id="__codelineno-168-4" name="__codelineno-168-4" href="#__codelineno-168-4"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h5 id="optimize_1">optimize<a class="headerlink" href="#optimize_1" title="Permanent link">&para;</a></h5>
 <p>Optimise UV island packing and texel density.</p>
@@ -1908,8 +1921,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <p>Options:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-170-1"><a id="__codelineno-170-1" name="__codelineno-170-1" href="#__codelineno-170-1"></a>  INPUT_MESH             Mesh with existing UVs to optimize  [required]
 </span><span id="__span-170-2"><a id="__codelineno-170-2" name="__codelineno-170-2" href="#__codelineno-170-2"></a>  --texel-density FLOAT  Target texels/metre
-</span><span id="__span-170-3"><a id="__codelineno-170-3" name="__codelineno-170-3" href="#__codelineno-170-3"></a>  -o, --output TEXT
-</span><span id="__span-170-4"><a id="__codelineno-170-4" name="__codelineno-170-4" href="#__codelineno-170-4"></a>  --wait / --no-wait
+</span><span id="__span-170-3"><a id="__codelineno-170-3" name="__codelineno-170-3" href="#__codelineno-170-3"></a>  -o, --output TEXT      Output file or directory path
+</span><span id="__span-170-4"><a id="__codelineno-170-4" name="__codelineno-170-4" href="#__codelineno-170-4"></a>  --wait / --no-wait     Block until the job completes and stream live
+</span><span id="__span-170-5"><a id="__codelineno-170-5" name="__codelineno-170-5" href="#__codelineno-170-5"></a>                         progress
 </span></code></pre></div>
 <h4 id="vfx">vfx<a class="headerlink" href="#vfx" title="Permanent link">&para;</a></h4>
 <p>Particle systems, decals, simulations</p>
@@ -1926,8 +1940,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-173-2"><a id="__codelineno-173-2" name="__codelineno-173-2" href="#__codelineno-173-2"></a>                            [required]
 </span><span id="__span-173-3"><a id="__codelineno-173-3" name="__codelineno-173-3" href="#__codelineno-173-3"></a>  -r, --resolution INTEGER  [default: 512]
 </span><span id="__span-173-4"><a id="__codelineno-173-4" name="__codelineno-173-4" href="#__codelineno-173-4"></a>  --alpha / --no-alpha      Include alpha channel  [default: alpha]
-</span><span id="__span-173-5"><a id="__codelineno-173-5" name="__codelineno-173-5" href="#__codelineno-173-5"></a>  -o, --output TEXT
-</span><span id="__span-173-6"><a id="__codelineno-173-6" name="__codelineno-173-6" href="#__codelineno-173-6"></a>  --wait / --no-wait
+</span><span id="__span-173-5"><a id="__codelineno-173-5" name="__codelineno-173-5" href="#__codelineno-173-5"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-173-6"><a id="__codelineno-173-6" name="__codelineno-173-6" href="#__codelineno-173-6"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-173-7"><a id="__codelineno-173-7" name="__codelineno-173-7" href="#__codelineno-173-7"></a>                            progress
 </span></code></pre></div>
 <h5 id="particle">particle<a class="headerlink" href="#particle" title="Permanent link">&para;</a></h5>
 <p>Generate a particle texture / sprite sheet.</p>
@@ -1939,8 +1954,9 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 </span><span id="__span-175-2"><a id="__codelineno-175-2" name="__codelineno-175-2" href="#__codelineno-175-2"></a>                            [required]
 </span><span id="__span-175-3"><a id="__codelineno-175-3" name="__codelineno-175-3" href="#__codelineno-175-3"></a>  --frames INTEGER          Sprite sheet frame count  [default: 16]
 </span><span id="__span-175-4"><a id="__codelineno-175-4" name="__codelineno-175-4" href="#__codelineno-175-4"></a>  -r, --resolution INTEGER  [default: 512]
-</span><span id="__span-175-5"><a id="__codelineno-175-5" name="__codelineno-175-5" href="#__codelineno-175-5"></a>  -o, --output TEXT
-</span><span id="__span-175-6"><a id="__codelineno-175-6" name="__codelineno-175-6" href="#__codelineno-175-6"></a>  --wait / --no-wait
+</span><span id="__span-175-5"><a id="__codelineno-175-5" name="__codelineno-175-5" href="#__codelineno-175-5"></a>  -o, --output TEXT         Output file or directory path
+</span><span id="__span-175-6"><a id="__codelineno-175-6" name="__codelineno-175-6" href="#__codelineno-175-6"></a>  --wait / --no-wait        Block until the job completes and stream live
+</span><span id="__span-175-7"><a id="__codelineno-175-7" name="__codelineno-175-7" href="#__codelineno-175-7"></a>                            progress
 </span></code></pre></div>
 <h5 id="sim">sim<a class="headerlink" href="#sim" title="Permanent link">&para;</a></h5>
 <p>Run and bake a physics-based VFX simulation.</p>
@@ -1951,8 +1967,8 @@ When no --model-id is given, an interactive HuggingFace search is offered.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-177-1"><a id="__codelineno-177-1" name="__codelineno-177-1" href="#__codelineno-177-1"></a>  SIM_TYPE            Simulation type: fire smoke cloth destruction fluid
 </span><span id="__span-177-2"><a id="__codelineno-177-2" name="__codelineno-177-2" href="#__codelineno-177-2"></a>                      [required]
 </span><span id="__span-177-3"><a id="__codelineno-177-3" name="__codelineno-177-3" href="#__codelineno-177-3"></a>  --duration FLOAT    Simulation duration in seconds  [default: 2.0]
-</span><span id="__span-177-4"><a id="__codelineno-177-4" name="__codelineno-177-4" href="#__codelineno-177-4"></a>  -o, --output TEXT
-</span><span id="__span-177-5"><a id="__codelineno-177-5" name="__codelineno-177-5" href="#__codelineno-177-5"></a>  --wait / --no-wait
+</span><span id="__span-177-4"><a id="__codelineno-177-4" name="__codelineno-177-4" href="#__codelineno-177-4"></a>  -o, --output TEXT   Output file or directory path
+</span><span id="__span-177-5"><a id="__codelineno-177-5" name="__codelineno-177-5" href="#__codelineno-177-5"></a>  --wait / --no-wait  Block until the job completes and stream live progress
 </span></code></pre></div>
 <h2 id="jobs">jobs<a class="headerlink" href="#jobs" title="Permanent link">&para;</a></h2>
 <p>Job queue management</p>
