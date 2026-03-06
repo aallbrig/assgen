@@ -25,6 +25,7 @@ def submit_job(
     wait: Optional[bool] = None,
     priority: int = 0,
     tags: list[str] | None = None,
+    model_id: str | None = None,
 ) -> None:
     """Enqueue a job and either wait for completion or print the job ID."""
     cfg = load_client_config()
@@ -32,7 +33,11 @@ def submit_job(
 
     with get_client() as client:
         try:
-            job = client.enqueue_job(job_type, params, priority=priority, tags=tags or [])
+            job = client.enqueue_job(
+                job_type, params,
+                priority=priority, tags=tags or [],
+                model_id=model_id,
+            )
         except APIError as e:
             abort_with_error(str(e))
 

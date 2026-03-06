@@ -22,6 +22,7 @@ def sfx_generate(
     variations: int = typer.Option(1, "--variations", "-n", help="Number of variants to generate"),
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
+    model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
     """Generate a sound effect from a text description (AudioGen)."""
     submit_job("audio.sfx.generate", {
@@ -29,7 +30,7 @@ def sfx_generate(
         "duration": duration,
         "variations": variations,
         "output": output,
-    }, wait=wait)
+    }, wait=wait, model_id=model_id)
 
 
 @app.command("edit")

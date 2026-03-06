@@ -43,12 +43,30 @@ def detect_device(preference: str = "auto") -> str:
 # ---------------------------------------------------------------------------
 
 class ModelManager:
+    """Manage HuggingFace model downloads, caching, and status tracking.
+
+    One ``ModelManager`` is instantiated per server process and shared across
+    all worker threads via the ``server_cfg`` stored in ``app.state``.
+
+    Attributes:
+        conn: SQLite connection used to persist model metadata.
+        device: Resolved device string — ``"cuda"``, ``"mps"``, or ``"cpu"``.
+    """
+
     def __init__(
         self,
         conn: sqlite3.Connection,
         device: str = "auto",
         server_cfg: dict | None = None,
     ) -> None:
+        """Initialise the manager.
+
+        Args:
+            conn: An open SQLite connection (must have ``row_factory = sqlite3.Row``).
+            device: Preferred device — ``"auto"`` detects CUDA/MPS/CPU at runtime.
+            server_cfg: The loaded server configuration dict (used for allow-list
+                enforcement).
+        """
         self.conn = conn
         self.device = detect_device(device)
         self._cache_dir = get_models_cache_dir()
@@ -60,9 +78,18 @@ class ModelManager:
     # ------------------------------------------------------------------
 
     def ensure_model(self, model_id: str) -> Path:
-        """Download model if not already cached; return local path.
+        """Download model if not already cached; return the local cache path.
 
-        Raises ``ValueError`` if the model_id is not on the server allow_list.
+        Args:
+            model_id: HuggingFace model identifier in ``org/repo`` format.
+
+        Returns:
+            Local ``Path`` to the directory containing the downloaded model.
+
+        Raises:
+            ValueError: If ``model_id`` is ``None`` or blocked by the allow-list.
+            Exception: Re-raised from ``huggingface_hub.snapshot_download`` on
+                network or authentication errors.
         """
         if model_id is None:
             raise ValueError("model_id is None — job type may not require a model")
@@ -109,9 +136,17 @@ class ModelManager:
         return cache_path
 
     def ensure_for_job_type(self, job_type: str) -> tuple[str | None, Path | None]:
-        """Resolve catalog entry for job_type and ensure the model is cached.
+        """Resolve the catalog model for *job_type* and ensure it is cached.
 
-        Returns (model_id, local_path) — both None if no model is needed.
+        Args:
+            job_type: Dot-separated task identifier, e.g. ``"visual.model.create"``.
+
+        Returns:
+            A ``(model_id, local_path)`` tuple.  Both elements are ``None`` if
+            the job type has no associated model (e.g. pure format-conversion).
+
+        Raises:
+            ValueError: If *job_type* is not found in the catalog.
         """
         entry = get_model_for_job(job_type)
         if not entry:

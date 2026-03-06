@@ -62,13 +62,17 @@ class APIClient:
         params: dict[str, Any],
         priority: int = 0,
         tags: list[str] | None = None,
+        model_id: str | None = None,
     ) -> dict[str, Any]:
-        return self._post("/jobs", {
+        body: dict[str, Any] = {
             "job_type": job_type,
             "params": params,
             "priority": priority,
             "tags": tags or [],
-        })
+        }
+        if model_id:
+            body["model_id"] = model_id
+        return self._post("/jobs", body)
 
     def get_job(self, job_id: str) -> dict[str, Any]:
         return self._get(f"/jobs/{job_id}")
