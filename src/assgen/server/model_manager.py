@@ -9,7 +9,6 @@ Responsible for:
 from __future__ import annotations
 
 import logging
-import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -44,10 +43,16 @@ def detect_device(preference: str = "auto") -> str:
 # ---------------------------------------------------------------------------
 
 class ModelManager:
-    def __init__(self, conn: sqlite3.Connection, device: str = "auto") -> None:
+    def __init__(
+        self,
+        conn: sqlite3.Connection,
+        device: str = "auto",
+        server_cfg: dict | None = None,
+    ) -> None:
         self.conn = conn
         self.device = detect_device(device)
         self._cache_dir = get_models_cache_dir()
+        self._server_cfg: dict = server_cfg or {}
         logger.info("ModelManager initialised", extra={"device": self.device})
 
     # ------------------------------------------------------------------
@@ -55,9 +60,16 @@ class ModelManager:
     # ------------------------------------------------------------------
 
     def ensure_model(self, model_id: str) -> Path:
-        """Download model if not already cached; return local path."""
+        """Download model if not already cached; return local path.
+
+        Raises ``ValueError`` if the model_id is not on the server allow_list.
+        """
         if model_id is None:
             raise ValueError("model_id is None — job type may not require a model")
+
+        # Enforce allow-list before any I/O
+        from assgen.server.validation import check_allow_list
+        check_allow_list(model_id, self._server_cfg)
 
         cache_path = self._cache_dir / _safe_name(model_id)
 

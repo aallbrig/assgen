@@ -47,16 +47,16 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         logger.info("assgen-server starting up", extra={"config": cfg})
 
         from assgen.config import get_db_path
-        import sqlite3 as _sqlite3
 
         conn: sqlite3.Connection = init_db()
         app.state.conn = conn
+        app.state.server_cfg = cfg
 
         stale = reset_stale_running_jobs(conn)
         if stale:
             logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
 
-        mm = ModelManager(conn, device=cfg.get("device", "auto"))
+        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg)
         app.state.model_manager = mm
 
         db_path = str(get_db_path())

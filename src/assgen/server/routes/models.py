@@ -7,7 +7,6 @@ GET    /models/{id}      — single model status
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from pydantic import BaseModel

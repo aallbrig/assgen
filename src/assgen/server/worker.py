@@ -22,7 +22,6 @@ from typing import Any, Callable
 
 from assgen.db import (
     JobStatus,
-    get_job,
     record_model_usage,
     update_job_status,
 )

@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import Optional
 import typer
 from assgen.client.commands.submit import submit_job
-from assgen.client.output import console
 
 app = typer.Typer(help="Asset validation, performance testing, and QA reporting.", no_args_is_help=True)
 

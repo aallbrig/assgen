@@ -6,7 +6,6 @@
 """
 from __future__ import annotations
 
-from typing import Optional
 
 import typer
 
@@ -48,7 +47,7 @@ def client_config_show() -> None:
 
     explicit_url = cfg.get("server_url")
     if explicit_url:
-        console.print(f"  mode:  [cyan]remote (configured)[/cyan]")
+        console.print("  mode:  [cyan]remote (configured)[/cyan]")
         console.print(f"  url:   {explicit_url}")
         _print_health(explicit_url)
     else:
@@ -61,16 +60,16 @@ def client_config_show() -> None:
             except (ProcessLookupError, PermissionError):
                 alive = False
             if alive:
-                console.print(f"  mode:  [yellow]local (auto-started, running)[/yellow]")
+                console.print("  mode:  [yellow]local (auto-started, running)[/yellow]")
                 console.print(f"  url:   {url}")
                 console.print(f"  pid:   {pid}")
                 _print_health(url)
             else:
-                console.print(f"  mode:  [dim]local (auto-start — not running yet)[/dim]")
-                console.print(f"  url:   http://127.0.0.1:8432  [dim](default)[/dim]")
+                console.print("  mode:  [dim]local (auto-start — not running yet)[/dim]")
+                console.print("  url:   http://127.0.0.1:8432  [dim](default)[/dim]")
         else:
-            console.print(f"  mode:  [dim]local (auto-start — will launch on first request)[/dim]")
-            console.print(f"  url:   http://127.0.0.1:8432  [dim](default)[/dim]")
+            console.print("  mode:  [dim]local (auto-start — will launch on first request)[/dim]")
+            console.print("  url:   http://127.0.0.1:8432  [dim](default)[/dim]")
 
     console.print()
     console.print("[dim]Set a remote server:  assgen client config set-server <url>[/dim]")
