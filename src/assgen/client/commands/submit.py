@@ -5,6 +5,7 @@ which enqueues the job and either waits or prints the job ID.
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Optional
 
 import typer
@@ -13,7 +14,8 @@ from assgen.client.api import APIError, get_client
 from assgen.client.output import (
     abort_with_error,
     console,
-    print_job,
+    download_job_output,
+    print_job_summary,
     wait_for_job,
 )
 from assgen.config import load_client_config
@@ -26,6 +28,7 @@ def submit_job(
     priority: int = 0,
     tags: list[str] | None = None,
     model_id: str | None = None,
+    output_path: str | None = None,
 ) -> None:
     """Enqueue a job and either wait for completion or print the job ID."""
     cfg = load_client_config()
@@ -44,9 +47,10 @@ def submit_job(
     job_id = job["id"]
 
     if not should_wait:
-        console.print(f"[green]Job enqueued[/green]  id={job_id}  type={job_type}")
-        console.print(f"[dim]Track with: assgen jobs status {job_id[:8]}[/dim]")
-        console.print(f"[dim]Or wait  with: assgen jobs wait {job_id[:8]}[/dim]")
+        console.print(f"[green]✓ Job enqueued[/green]  [dim]{job_id[:8]}[/dim]  [italic]{job_type}[/italic]")
+        console.print(f"[dim]  Track:    assgen jobs status {job_id[:8]}[/dim]")
+        console.print(f"[dim]  Wait:     assgen jobs wait {job_id[:8]}[/dim]")
+        console.print(f"[dim]  Download: assgen jobs download {job_id[:8]}[/dim]")
         return
 
     # Wait with a progress bar
@@ -58,5 +62,19 @@ def submit_job(
         except APIError as e:
             abort_with_error(str(e))
 
-    print_job(completed)
-    raise typer.Exit(0 if completed["status"] == "COMPLETED" else 1)
+    # Determine output destination
+    dest_dir: Path | None = None
+    if output_path:
+        dest_dir = Path(output_path)
+    elif cfg.get("output_dir"):
+        dest_dir = Path(cfg["output_dir"])
+    # else: download to cwd
+
+    if completed["status"] == "COMPLETED":
+        with get_client() as client:
+            saved = download_job_output(client, completed, dest_dir=dest_dir)
+        print_job_summary(completed, saved_files=saved)
+        raise typer.Exit(0)
+    else:
+        print_job_summary(completed, saved_files=[])
+        raise typer.Exit(1)

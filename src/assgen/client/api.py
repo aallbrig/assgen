@@ -90,6 +90,22 @@ class APIClient:
     def cancel_job(self, job_id: str) -> None:
         self._delete(f"/jobs/{job_id}")
 
+    def list_job_files(self, job_id: str) -> list[str]:
+        """Return the list of output filenames for a completed job."""
+        result = self._get(f"/jobs/{job_id}/files")
+        return result if isinstance(result, list) else []
+
+    def download_job_file(self, job_id: str, filename: str) -> bytes:
+        """Download the raw bytes of a specific output file."""
+        r = self._client.get(f"/jobs/{job_id}/files/{filename}")
+        if r.status_code == 200:
+            return r.content
+        try:
+            detail = r.json().get("detail", r.text)
+        except Exception:
+            detail = r.text
+        raise APIError(r.status_code, str(detail))
+
     # ------------------------------------------------------------------
     # Models
     # ------------------------------------------------------------------

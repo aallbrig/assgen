@@ -4,10 +4,12 @@
   assgen jobs status   <job-id>
   assgen jobs wait     <job-id> [--timeout N]
   assgen jobs cancel   <job-id>
+  assgen jobs download <job-id> [--output DIR]
   assgen jobs clean    [--status COMPLETED|FAILED|CANCELLED] [--days N]
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -16,7 +18,9 @@ from assgen.client.api import APIError, get_client
 from assgen.client.output import (
     abort_with_error,
     console,
+    download_job_output,
     print_job,
+    print_job_summary,
     print_jobs_table,
     wait_for_job,
 )
@@ -64,7 +68,6 @@ def jobs_wait(
     """Wait for a job to reach a terminal state, showing a live progress bar."""
     with get_client() as client:
         try:
-            # Fast-path: already terminal?
             job = client.get_job(job_id)
             if job["status"] in JobStatus.TERMINAL:
                 print_job(job)
@@ -78,6 +81,37 @@ def jobs_wait(
 
     print_job(job)
     raise typer.Exit(0 if job["status"] == JobStatus.COMPLETED else 1)
+
+
+@app.command("download")
+def jobs_download(
+    job_id: str = typer.Argument(..., help="Job ID to download files from"),
+    output: Optional[str] = typer.Option(
+        None, "--output", "-o",
+        help="Directory to save downloaded files (default: current directory)",
+    ),
+) -> None:
+    """Download the output files produced by a completed job."""
+    dest_dir = Path(output) if output else None
+    with get_client() as client:
+        try:
+            job = client.get_job(job_id)
+        except APIError as e:
+            abort_with_error(str(e))
+
+    if job["status"] != "COMPLETED":
+        abort_with_error(
+            f"Job {job_id[:8]} is {job['status']}, not COMPLETED. "
+            "Use `assgen jobs wait <id>` first."
+        )
+
+    with get_client() as client:
+        saved = download_job_output(client, job, dest_dir=dest_dir)
+
+    if saved:
+        print_job_summary(job, saved_files=saved)
+    else:
+        console.print(f"[yellow]No output files found for job {job_id[:8]}.[/yellow]")
 
 
 @app.command("cancel")
