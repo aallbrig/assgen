@@ -106,6 +106,45 @@ class APIClient:
             detail = r.text
         raise APIError(r.status_code, str(detail))
 
+    def stream_job_events(self, job_id: str, remaining_timeout: float | None = None):
+        """Yield parsed SSE event dicts from GET /jobs/{id}/events.
+
+        Each yielded dict has keys: ``progress`` (float), ``message`` (str),
+        ``status`` (str).
+
+        Raises :class:`APIError` if the server returns a non-200 response.
+        The stream ends naturally when the server closes it (job terminal).
+        """
+        import json as _json
+
+        stream_timeout = httpx.Timeout(
+            connect=10.0,
+            read=remaining_timeout or 3600.0,
+            write=10.0,
+            pool=10.0,
+        )
+        with self._client.stream(
+            "GET",
+            f"/jobs/{job_id}/events",
+            timeout=stream_timeout,
+        ) as response:
+            if response.status_code != 200:
+                response.read()
+                try:
+                    detail = response.json().get("detail", response.text)
+                except Exception:
+                    detail = response.text
+                raise APIError(response.status_code, str(detail))
+
+            for line in response.iter_lines():
+                if line.startswith("data: "):
+                    try:
+                        yield _json.loads(line[6:])
+                    except _json.JSONDecodeError:
+                        pass
+                elif line.startswith("event: error"):
+                    pass  # next data line will have the error payload
+
     # ------------------------------------------------------------------
     # Models
     # ------------------------------------------------------------------

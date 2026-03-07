@@ -343,3 +343,110 @@ class TestJobFiles:
             r = client.get(f"/jobs/{job_id}/files/../secret")
         # FastAPI URL-decodes paths; the router should either 404 or 400
         assert r.status_code in (400, 404)
+
+
+# ---------------------------------------------------------------------------
+# SSE — GET /jobs/{id}/events
+# ---------------------------------------------------------------------------
+
+class TestJobEvents:
+    """Tests for the SSE progress-streaming endpoint.
+
+    All tests use terminal-state jobs so the SSE stream always closes promptly.
+    """
+
+    def _make_terminal_job(self, client: TestClient, status: str = "COMPLETED") -> str:
+        """Enqueue a job and immediately set it to the requested terminal state."""
+        from assgen.db import update_job_status
+
+        r = client.post("/jobs", json={"job_type": "visual.model.create"})
+        assert r.status_code == 201
+        job_id = r.json()["id"]
+        conn = client.app.state.conn
+        update_job_status(conn, job_id, status, progress=1.0, output={"files": []})
+        return job_id
+
+    def _collect_events(self, client: TestClient, job_id: str) -> tuple[int, list[dict]]:
+        """Open the SSE stream, collect all events, and return (status_code, events)."""
+        import json as _json
+
+        events: list[dict] = []
+        with client.stream("GET", f"/jobs/{job_id}/events") as resp:
+            status_code = resp.status_code
+            for raw_line in resp.iter_lines():
+                if raw_line.startswith("data: "):
+                    try:
+                        events.append(_json.loads(raw_line[6:]))
+                    except _json.JSONDecodeError:
+                        pass
+                    # Stop reading once we see a terminal event (stream also closes naturally)
+                    if events and events[-1].get("status") in {"COMPLETED", "FAILED", "CANCELLED"}:
+                        break
+        return status_code, events
+
+    def test_events_returns_200_for_completed_job(self, client: TestClient) -> None:
+        """SSE stream returns 200 with correct content-type for a completed job."""
+        job_id = self._make_terminal_job(client, "COMPLETED")
+        with client.stream("GET", f"/jobs/{job_id}/events") as resp:
+            assert resp.status_code == 200
+            assert "text/event-stream" in resp.headers.get("content-type", "")
+
+    def test_events_unknown_job_emits_error_event(self, client: TestClient) -> None:
+        """Stream for an unknown job emits an error event and closes."""
+        import json as _json
+
+        events: list[dict] = []
+        error_events: list[dict] = []
+        with client.stream("GET", "/jobs/00000000-0000-0000-0000-000000000000/events") as resp:
+            assert resp.status_code == 200  # SSE always returns 200; error is in the event
+            for raw_line in resp.iter_lines():
+                if raw_line.startswith("data: "):
+                    try:
+                        events.append(_json.loads(raw_line[6:]))
+                    except _json.JSONDecodeError:
+                        pass
+                    break  # only need first event
+
+        assert events, "Expected at least one event"
+        # The error event contains an 'error' key
+        assert "error" in events[0], f"Expected error event, got: {events[0]}"
+
+    def test_events_emits_completed_event(self, client: TestClient) -> None:
+        """A COMPLETED job emits a COMPLETED status event."""
+        job_id = self._make_terminal_job(client, "COMPLETED")
+        _, events = self._collect_events(client, job_id)
+        assert events, f"No events received"
+        assert any(e.get("status") == "COMPLETED" for e in events), f"events: {events}"
+
+    def test_events_emits_failed_event(self, client: TestClient) -> None:
+        """A FAILED job emits a FAILED status event."""
+        from assgen.db import update_job_status
+
+        r = client.post("/jobs", json={"job_type": "audio.sfx.generate"})
+        job_id = r.json()["id"]
+        conn = client.app.state.conn
+        update_job_status(conn, job_id, "FAILED", error="intentional test failure")
+
+        _, events = self._collect_events(client, job_id)
+        assert any(e.get("status") == "FAILED" for e in events), f"events: {events}"
+
+    def test_events_payload_has_required_keys(self, client: TestClient) -> None:
+        """Every SSE event payload has progress, message, and status keys."""
+        job_id = self._make_terminal_job(client, "COMPLETED")
+        _, events = self._collect_events(client, job_id)
+
+        assert events, "Expected at least one event"
+        for event in events:
+            assert "progress" in event, f"Missing 'progress' in {event}"
+            assert "message" in event, f"Missing 'message' in {event}"
+            assert "status" in event, f"Missing 'status' in {event}"
+
+    def test_events_progress_values_are_valid_floats(self, client: TestClient) -> None:
+        """Progress values must be in the range [0.0, 1.0]."""
+        job_id = self._make_terminal_job(client, "COMPLETED")
+        _, events = self._collect_events(client, job_id)
+
+        for event in events:
+            p = event.get("progress", 0)
+            assert 0.0 <= p <= 1.0, f"Invalid progress value {p!r} in event: {event}"
+

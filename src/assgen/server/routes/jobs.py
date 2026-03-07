@@ -4,22 +4,25 @@ POST   /jobs                         — enqueue a new job
 GET    /jobs                         — list jobs (with optional status filter)
 GET    /jobs/{id}                    — get single job
 DELETE /jobs/{id}                    — cancel a queued or running job
+GET    /jobs/{id}/events             — SSE stream of progress events (text/event-stream)
 GET    /jobs/{id}/files              — list output files for a completed job
 GET    /jobs/{id}/files/{filename}   — download a specific output file
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
+import sqlite3
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, AsyncGenerator
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from assgen.catalog import get_model_for_job
-from assgen.config import get_outputs_dir
+from assgen.config import get_db_path, get_outputs_dir
 from assgen.db import (
     JobStatus,
     create_job,
@@ -189,6 +192,77 @@ async def cancel_job(job_id: str, request: Request) -> None:
         raise HTTPException(status_code=409, detail=f"Job already in terminal state: {job['status']}")
     update_job_status(conn, job_id, JobStatus.CANCELLED)
     logger.info("Job cancelled", extra={"job_id": job_id})
+
+
+@router.get(
+    "/{job_id}/events",
+    summary="Stream job progress via Server-Sent Events",
+    description=(
+        "Opens an SSE stream that emits a `data:` JSON event whenever the job's "
+        "progress or status changes.  The stream closes automatically when the job "
+        "reaches a terminal state (`COMPLETED`, `FAILED`, or `CANCELLED`).  "
+        "Clients should fall back to polling `GET /jobs/{id}` if SSE is not available."
+    ),
+    responses={
+        200: {
+            "description": "SSE stream — `text/event-stream`",
+            "content": {
+                "text/event-stream": {
+                    "example": (
+                        'data: {"progress": 0.5, "message": "Running inference…", "status": "RUNNING"}\n\n'
+                        'data: {"progress": 1.0, "message": "complete", "status": "COMPLETED"}\n\n'
+                    )
+                }
+            },
+        },
+        404: {"description": "Job not found"},
+    },
+)
+async def stream_job_events(job_id: str, request: Request) -> StreamingResponse:
+    """SSE stream of progress updates for a single job."""
+
+    db_path_str: str = getattr(request.app.state, "db_path", str(get_db_path()))
+
+    async def _generate() -> AsyncGenerator[str, None]:
+        # Own connection so we can poll without blocking other requests.
+        sconn = sqlite3.connect(db_path_str)
+        sconn.row_factory = sqlite3.Row
+        sconn.execute("PRAGMA journal_mode=WAL")
+
+        try:
+            last_snapshot: tuple | None = None
+
+            while True:
+                if await request.is_disconnected():
+                    return
+
+                job = get_job(sconn, job_id)
+                if not job:
+                    yield f"event: error\ndata: {json.dumps({'error': f'job {job_id!r} not found'})}\n\n"
+                    return
+
+                progress = float(job.get("progress") or 0.0)
+                status = job["status"]
+                msg = job.get("progress_message") or status.lower()
+
+                snapshot = (progress, status, msg)
+                if snapshot != last_snapshot:
+                    payload = json.dumps({"progress": progress, "message": msg, "status": status})
+                    yield f"data: {payload}\n\n"
+                    last_snapshot = snapshot
+
+                if status in JobStatus.TERMINAL:
+                    return
+
+                await asyncio.sleep(1.0)
+        finally:
+            sconn.close()
+
+    return StreamingResponse(
+        _generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
 
 
 @router.get(

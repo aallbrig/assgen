@@ -22,7 +22,11 @@ err_console = Console(stderr=True, highlight=False)
 # ---------------------------------------------------------------------------
 
 def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -> dict[str, Any]:
-    """Poll the server until the job reaches a terminal state.  Show a progress bar."""
+    """Poll (or stream via SSE) the server until the job reaches a terminal state.
+
+    Tries the SSE endpoint first for real-time updates.  Falls back to polling
+    on ``GET /jobs/{id}`` if the stream fails (e.g. network proxy, older server).
+    """
     cfg = load_client_config()
     poll = float(cfg.get("poll_interval", 2.0))
     deadline = time.monotonic() + (timeout or float(cfg.get("default_timeout", 300)))
@@ -38,6 +42,29 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
     ) as progress:
         task = progress.add_task(f"job {job_id[:8]}…", total=100)
 
+        # ---- Try SSE streaming (real-time progress) ----
+        try:
+            remaining = max(1.0, deadline - time.monotonic())
+            for event in client.stream_job_events(job_id, remaining_timeout=remaining):
+                pct = int((event.get("progress") or 0) * 100)
+                msg = event.get("message") or event.get("status", "").lower()
+                progress.update(task, completed=pct, description=msg)
+
+                if event.get("status") in JobStatus.TERMINAL:
+                    progress.update(task, completed=100)
+                    return client.get_job(job_id)
+
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(f"Timed out waiting for job {job_id} after {timeout}s")
+
+            # Stream ended without a terminal event — fetch final state
+            return client.get_job(job_id)
+
+        except (APIError, Exception):
+            # SSE unavailable or failed — fall back to polling
+            pass
+
+        # ---- Polling fallback ----
         while time.monotonic() < deadline:
             try:
                 job = client.get_job(job_id)
@@ -253,8 +280,3 @@ def _fmt_size(nbytes: int) -> str:
             return f"{nbytes:.0f} {unit}"
         nbytes //= 1024
     return f"{nbytes:.0f} TB"
-
-
-# ---------------------------------------------------------------------------
-# Progress / wait helper
-# ---------------------------------------------------------------------------
