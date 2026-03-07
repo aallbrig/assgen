@@ -71,10 +71,14 @@ class TestFetchHfPipelineTag:
         assert tag == "text-to-audio"
 
     @_network_available
-    def test_riffusion_returns_text_to_audio(self) -> None:
+    def test_audiogen_medium_has_no_pipeline_tag(self) -> None:
+        """AudioGen Medium has no HF pipeline_tag — validation auto-skips for tagless models."""
         from assgen.server.validation import fetch_hf_pipeline_tag
-        tag = fetch_hf_pipeline_tag("riffusion/riffusion-model-v1")
-        assert tag == "text-to-audio"
+        tag = fetch_hf_pipeline_tag("facebook/audiogen-medium")
+        # AudioGen Medium deliberately has no pipeline_tag on HF Hub.
+        # The validator returns True (pass) for models without a tag, so it is
+        # safe to use in the catalog with task: null.
+        assert tag is None
 
     @_network_available
     def test_bark_returns_text_to_speech(self) -> None:
@@ -133,10 +137,11 @@ class TestValidateModelTaskCompatibilityIntegration:
         assert ok, reason
 
     @_network_available
-    def test_riffusion_compatible_with_text_to_audio(self) -> None:
+    def test_audiogen_medium_passes_validation_with_null_task(self) -> None:
+        """AudioGen Medium passes validation when task is null (no pipeline_tag check)."""
         from assgen.server.validation import validate_model_task_compatibility
         ok, reason = validate_model_task_compatibility(
-            "riffusion/riffusion-model-v1", "text-to-audio", {}
+            "facebook/audiogen-medium", None, {}
         )
         assert ok, reason
 
