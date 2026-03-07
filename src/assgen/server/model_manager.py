@@ -22,6 +22,52 @@ logger = logging.getLogger(__name__)
 
 ProgressCallback = Callable[[float, str], None]
 
+
+# ---------------------------------------------------------------------------
+# HuggingFace download progress helpers
+# ---------------------------------------------------------------------------
+
+def _make_hf_tqdm_class(cb: ProgressCallback, start_frac: float, end_frac: float) -> type:
+    """Return a tqdm subclass that translates per-file download progress into *cb* calls.
+
+    Each ``snapshot_download`` creates one tqdm instance per file.  We track
+    how many files have been seen / completed to derive an overall 0–1 fraction
+    within the [start_frac, end_frac] window and forward it to *cb*.
+
+    Console output is suppressed (``disable=True``) — progress surfaces only
+    through the callback.
+    """
+    try:
+        from tqdm import tqdm as _TqdmBase
+    except ImportError:
+        return None  # type: ignore[return-value]
+
+    state: dict[str, int] = {"files_seen": 0, "files_done": 0}
+
+    class _HFTqdm(_TqdmBase):  # type: ignore[misc]
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            kwargs["disable"] = True
+            super().__init__(*args, **kwargs)
+            state["files_seen"] += 1
+            self._file_label: str = str(self.desc or "").split("/")[-1]
+
+        def update(self, n: int = 1) -> None:
+            super().update(n)
+            if self.total:
+                file_frac = min(1.0, self.n / self.total)
+                total = max(state["files_seen"], state["files_done"] + 1)
+                overall = (state["files_done"] + file_frac) / total
+                frac = start_frac + overall * (end_frac - start_frac)
+                label = self._file_label
+                msg = f"Downloading {label}…" if label else "Downloading model files…"
+                cb(round(frac, 4), msg)
+
+        def close(self) -> None:
+            super().close()
+            state["files_done"] += 1
+
+    return _HFTqdm
+
 # ---------------------------------------------------------------------------
 # Device detection
 # ---------------------------------------------------------------------------
@@ -125,12 +171,16 @@ class ModelManager:
         )
         try:
             from huggingface_hub import snapshot_download
-            snapshot_download(
+            tqdm_cls = _make_hf_tqdm_class(_cb, start_frac=0.05, end_frac=0.18)
+            dl_kwargs: dict = dict(
                 repo_id=model_id,
                 local_dir=str(cache_path),
                 local_dir_use_symlinks=False,
                 ignore_patterns=["*.msgpack", "*.h5", "flax_*"],
             )
+            if tqdm_cls is not None:
+                dl_kwargs["tqdm_class"] = tqdm_cls
+            snapshot_download(**dl_kwargs)
         except Exception as exc:
             logger.error("Model download failed", extra={"model_id": model_id, "error": str(exc)})
             raise
