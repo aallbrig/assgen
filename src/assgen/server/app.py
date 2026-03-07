@@ -16,8 +16,63 @@ from assgen.server.routes.health import router as health_router
 from assgen.server.routes.jobs import router as jobs_router
 from assgen.server.routes.models import router as models_router
 from assgen.server.worker import WorkerThread
+from assgen.version import get_version_info
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# OpenAPI tag descriptions — shown in the /docs UI sidebar
+# ---------------------------------------------------------------------------
+
+_OPENAPI_TAGS = [
+    {
+        "name": "health",
+        "description": "Server liveness and version check.",
+    },
+    {
+        "name": "jobs",
+        "description": (
+            "Enqueue, inspect, and cancel asset-generation jobs.  "
+            "Each job runs a HuggingFace model on the server GPU and "
+            "writes output files that can be downloaded once the job "
+            "reaches `COMPLETED` status."
+        ),
+    },
+    {
+        "name": "models",
+        "description": (
+            "Inspect the model catalog and trigger pre-download of "
+            "HuggingFace model weights to the server cache directory."
+        ),
+    },
+]
+
+_DESCRIPTION = """\
+## assgen-server
+
+REST API for the **assgen** AI game-asset generation pipeline.
+
+Clients enqueue *jobs* specifying a [game-dev task](../tasks) and optional parameters.
+The server downloads the required HuggingFace model (if not already cached),
+runs inference on the GPU, and stores the output files in the server's outputs
+directory.  Clients can poll for completion and then download the files.
+
+### Quick start
+
+```bash
+# Start the server (or let the client auto-start it)
+assgen-server start
+
+# Submit a job and wait for it
+assgen gen visual model create --prompt "low-poly sword" --wait
+```
+
+### Docs & source
+
+* Interactive docs: [`/docs`](/docs) (Swagger UI) or [`/redoc`](/redoc) (ReDoc)
+* OpenAPI schema: [`/openapi.json`](/openapi.json)
+* Source: <https://github.com/aallbrig/assgen>
+"""
 
 
 def create_app(server_config: dict | None = None) -> FastAPI:
@@ -66,12 +121,25 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         if c := getattr(application.state, "conn", None):
             c.close()
 
+    version = get_version_info()["version"] or "0.0.0.dev"
+
     app = FastAPI(
         title="assgen-server",
-        description="AI game asset generation server — part of the assgen pipeline",
-        version="0.1.0",
+        summary="AI game asset generation pipeline server",
+        description=_DESCRIPTION,
+        version=version,
         docs_url="/docs",
         redoc_url="/redoc",
+        openapi_url="/openapi.json",
+        openapi_tags=_OPENAPI_TAGS,
+        contact={
+            "name": "assgen project",
+            "url": "https://github.com/aallbrig/assgen",
+        },
+        license_info={
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT",
+        },
         lifespan=lifespan,
     )
 
