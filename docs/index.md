@@ -23,10 +23,10 @@ You describe what you want. assgen dispatches the work to a local server that do
 
 ```bash
 # Generate a 3D prop
-assgen visual model create --prompt "low-poly medieval sword" --wait
+assgen gen visual model create --prompt "low-poly medieval sword" --wait
 
 # Generate a sound effect
-assgen audio sfx generate "laser gun firing" --wait
+assgen gen audio sfx generate "laser gun firing" --wait
 
 # View all available tasks and their assigned AI models
 assgen tasks
@@ -83,6 +83,20 @@ assgen client config set-server http://my-gpu-desktop:8432
 - Python 3.11+
 - For inference: an NVIDIA GPU (RTX 4070 or better recommended — 12GB VRAM handles SDXL, TripoSR, AudioGen)
 - For check-only / orchestration: CPU is fine
+
+## Workflow Guides
+
+Jump straight to a guide written for your role:
+
+| Role | Engine | Guide |
+|---|---|---|
+| Solo indie dev | Godot | [Prop → texture → music in a lunch break](workflow-solo-indie.md) |
+| Environment / level artist | Unreal Engine 5 | [Biome textures, HDRI skies, seam inpainting](workflow-environment-artist.md) |
+| Character artist | Unity | [Concept → mesh → rig → animate](workflow-character-artist.md) |
+| Game audio designer | Any | [SFX variants, adaptive music, VO scratch](workflow-audio-designer.md) |
+| Pipeline TD / technical artist | Any (CI/CD) | [GitHub Actions, allow-list, QA validation](workflow-ci-pipeline.md) |
+
+---
 
 [Get started →](install.md){ .md-button .md-button--primary }
 [View source on GitHub →](https://github.com/aallbrig/assgen){ .md-button }

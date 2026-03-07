@@ -11,7 +11,7 @@ pip install "assgen[inference]"
 Verify:
 
 ```bash
-assgen version
+assgen --version
 ```
 
 ## 2. Start the server (optional)
