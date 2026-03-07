@@ -105,6 +105,19 @@ catalog:
     task: "text-to-image"
     notes: "Game UI icons and HUD elements; prompt for 'flat icon, isolated, game HUD element'"
 
+  # ── Visual / Texture (advanced) ──────────────────────────────────────────
+  visual.texture.inpaint:
+    model_id: "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+    name: "SDXL Inpainting"
+    task: "text-to-image"
+    notes: "Fill seams, holes, or damaged regions in a texture; pass --input + --mask; 359 likes, ungated"
+
+  visual.texture.upscale:
+    model_id: "ai-forever/Real-ESRGAN"
+    name: "Real-ESRGAN"
+    task: null
+    notes: "4× texture upscaling via Real-ESRGAN; no HF pipeline_tag (validation skipped); ~65 M params, very fast"
+
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:
     model_id: "riffusion/riffusion-model-v1"
@@ -130,6 +143,13 @@ catalog:
     name: "MusicGen Stereo Large"
     task: "text-to-audio"
     notes: "Best quality stereo; use continuation mode to generate adaptive stinger/transition layers"
+
+  # ── Audio / Ambient ──────────────────────────────────────────────────────
+  audio.ambient.generate:
+    model_id: "facebook/musicgen-stereo-large"
+    name: "MusicGen Stereo Large"
+    task: "text-to-audio"
+    notes: "Ambient soundscapes; prompt for 'atmospheric, ambient, no melody, looping, {biome}'; same model as adaptive but distinct intent"
 
   # ── Audio / Voice ────────────────────────────────────────────────────────
   audio.voice.tts:
@@ -158,9 +178,35 @@ catalog:
     task: "text-to-3d"
     notes: "Generates equirectangular 360° RGB+depth panoramas from text; HF pipeline_tag is text-to-3d"
 
+  # ── Scene / Depth ────────────────────────────────────────────────────────
+  scene.depth.estimate:
+    model_id: "Intel/dpt-large"
+    name: "DPT-Large (Depth Estimation)"
+    task: "depth-estimation"
+    notes: "Monocular depth estimation from a reference photo; useful for parallax, fog-of-war, and heightmap hints; Apache 2.0; 202 likes"
+
   # ── Pipeline / Integrate ─────────────────────────────────────────────────
   pipeline.integrate.export:
     model_id: null
     name: "Engine Exporter"
     task: "mesh-export"
     notes: "Format conversion — no AI model required"
+
+  # ── Narrative ─────────────────────────────────────────────────────────────
+  narrative.dialogue.npc:
+    model_id: "microsoft/Phi-3.5-mini-instruct"
+    name: "Phi-3.5 Mini Instruct"
+    task: "text-generation"
+    notes: "3.8B params; fits in ~2 GB VRAM at 4-bit; MIT license; ungated; excellent for NPC branching dialogue"
+
+  narrative.lore.generate:
+    model_id: "microsoft/Phi-3.5-mini-instruct"
+    name: "Phi-3.5 Mini Instruct"
+    task: "text-generation"
+    notes: "Same model as dialogue; system prompt adjusted for lore/codex/quest formats"
+
+  narrative.quest.design:
+    model_id: "microsoft/Phi-3.5-mini-instruct"
+    name: "Phi-3.5 Mini Instruct"
+    task: "text-generation"
+    notes: "Generates quest objectives, rewards, and NPC motivations from a brief premise"

@@ -47,6 +47,8 @@ _TASK_DESC: dict[str, str] = {
     "visual.texture.apply":    "Project / assign texture maps via UV layout",
     "visual.texture.bake":     "High-to-low poly transfer (normal, AO, curvature)",
     "visual.texture.pbr":      "Create or edit full PBR material sets",
+    "visual.texture.inpaint":  "Fill seams or damaged regions in a texture (SDXL Inpainting)",
+    "visual.texture.upscale":  "4× AI texture upscaling (Real-ESRGAN)",
     # visual / rig
     "visual.rig.auto":         "Auto-rig: place skeleton joints and bind (UniRig)",
     "visual.rig.skin":         "Automated weight painting and skinning",
@@ -72,6 +74,8 @@ _TASK_DESC: dict[str, str] = {
     "audio.music.compose":     "Text → full music track (MusicGen)",
     "audio.music.loop":        "Create seamless loops and variations",
     "audio.music.adaptive":    "Mood-responsive adaptive tracks",
+    # audio / ambient
+    "audio.ambient.generate":  "Text → ambient soundscape / atmospheric loop (MusicGen)",
     # audio / voice
     "audio.voice.tts":         "Text-to-speech with emotion (Bark)",
     "audio.voice.clone":       "Voice clone from reference audio sample",
@@ -85,6 +89,8 @@ _TASK_DESC: dict[str, str] = {
     "scene.lighting.probes":   "Reflection / light probe placement",
     "scene.lighting.volumetrics": "Fog, cloud, volumetric light volumes",
     "scene.lighting.bake":     "Lightmap / global illumination bake",
+    # scene / depth
+    "scene.depth.estimate":    "Monocular depth estimation from a reference image (DPT-Large)",
     # pipeline / workflow
     "pipeline.workflow.create":"Define a reusable asset pipeline (YAML config)",
     "pipeline.workflow.run":   "Execute a workflow with a given set of inputs",
@@ -103,6 +109,10 @@ _TASK_DESC: dict[str, str] = {
     # support / data
     "support.data.lightmap":      "Manage and trigger lightmap bake jobs",
     "support.data.proc":          "Procedural generation scripts / configs",
+    # narrative (top-level domain — maps to catalog job types)
+    "narrative.dialogue.npc":     "NPC dialog lines or branching trees (Phi-3.5 Mini)",
+    "narrative.lore.generate":    "World-building lore: codex entries, item text (Phi-3.5 Mini)",
+    "narrative.quest.design":     "Quest objectives, rewards, NPC motivations (Phi-3.5 Mini)",
     # qa
     "qa.validate": "Check mesh errors: normals, manifold, UV overlap, naming",
     "qa.perf":     "VRAM / polygon budget analysis, LOD preview",
@@ -123,7 +133,7 @@ _DOMAIN_TREE: dict[str, dict] = {
         "uv":       {"_icon": "🗺",  "_desc": "UV unwrapping & layout",
                      "_tasks": ["auto", "manual", "optimize"]},
         "texture":  {"_icon": "🖼",  "_desc": "PBR textures, baking, materials",
-                     "_tasks": ["generate", "apply", "bake", "pbr"]},
+                     "_tasks": ["generate", "apply", "bake", "pbr", "inpaint", "upscale"]},
         "rig":      {"_icon": "🦴", "_desc": "Rigging & skinning",
                      "_tasks": ["auto", "skin", "retarget"]},
         "animate":  {"_icon": "🎬", "_desc": "Animation generation",
@@ -137,8 +147,10 @@ _DOMAIN_TREE: dict[str, dict] = {
         "_icon": "🔊", "_desc": "Sound effects, music, voice synthesis",
         "sfx":   {"_icon": "💥", "_desc": "Sound effects",
                   "_tasks": ["generate", "edit", "library"]},
-        "music": {"_icon": "🎵", "_desc": "Music and ambient tracks",
+        "music": {"_icon": "🎵", "_desc": "Music and adaptive tracks",
                   "_tasks": ["compose", "loop", "adaptive"]},
+        "ambient": {"_icon": "🌊", "_desc": "Ambient soundscapes and loops",
+                    "_tasks": ["generate"]},
         "voice": {"_icon": "🗣",  "_desc": "Dialog and voice",
                   "_tasks": ["tts", "clone", "dialog"]},
     },
@@ -148,6 +160,8 @@ _DOMAIN_TREE: dict[str, dict] = {
                     "_tasks": ["collider", "rigid", "cloth"]},
         "lighting": {"_icon": "💡", "_desc": "Lighting & render environment",
                      "_tasks": ["hdri", "probes", "volumetrics", "bake"]},
+        "depth":    {"_icon": "📐", "_desc": "Depth estimation from images",
+                     "_tasks": ["estimate"]},
     },
     "pipeline": {
         "_icon": "⚙️",  "_desc": "Workflows, batching, engine integration",
@@ -164,6 +178,15 @@ _DOMAIN_TREE: dict[str, dict] = {
                       "_tasks": ["dialog", "lore"]},
         "data":      {"_icon": "📊", "_desc": "Baked & procedural data",
                       "_tasks": ["lightmap", "proc"]},
+    },
+    "narrative": {
+        "_icon": "📖", "_desc": "NPC dialogue, lore, and quest design (LLM)",
+        "dialogue": {"_icon": "💬", "_desc": "NPC dialog generation",
+                     "_tasks": ["npc"]},
+        "lore":     {"_icon": "📜", "_desc": "World-building lore text",
+                     "_tasks": ["generate"]},
+        "quest":    {"_icon": "⚔️",  "_desc": "Quest and mission design",
+                     "_tasks": ["design"]},
     },
     "qa": {
         "_icon": "✅", "_desc": "Asset validation & performance testing",
