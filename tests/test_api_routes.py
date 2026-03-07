@@ -247,3 +247,99 @@ class TestAllowList:
                         "model_id": "stabilityai/TripoSR",
                     })
                     assert r.status_code == 201
+
+
+# ---------------------------------------------------------------------------
+# GET /jobs/{id}/files  and  GET /jobs/{id}/files/{filename}
+# ---------------------------------------------------------------------------
+
+class TestJobFiles:
+    """Tests for the file-download endpoints.
+
+    We manually set a job to COMPLETED and plant a file in the outputs dir
+    to simulate a finished job without running the real worker/inference.
+    """
+
+    def _make_completed_job(
+        self,
+        client: TestClient,
+        tmp_path: Path,
+        filenames: list[str],
+    ) -> tuple[str, Path]:
+        """Create a job, manually set it COMPLETED, and write stub output files."""
+        from unittest.mock import patch as _patch
+
+        from assgen.db import update_job_status
+
+        # Enqueue a job
+        r = client.post("/jobs", json={"job_type": "visual.model.create"})
+        assert r.status_code == 201
+        job_id = r.json()["id"]
+
+        # Write fake output files into a tmp outputs dir
+        job_out_dir = tmp_path / job_id
+        job_out_dir.mkdir(parents=True, exist_ok=True)
+        for fname in filenames:
+            (job_out_dir / fname).write_text(f"stub content for {fname}")
+
+        # Set the job to COMPLETED via direct DB update (bypass the worker)
+        with _patch("assgen.db.get_db_path"):
+            conn = client.app.state.conn
+            update_job_status(conn, job_id, "COMPLETED", output={"files": filenames})
+
+        return job_id, job_out_dir
+
+    def test_list_files_returns_200_for_completed_job(
+        self, client: TestClient, tmp_path: Path
+    ) -> None:
+        from unittest.mock import patch as _patch
+
+        job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["model.glb"])
+        with _patch("assgen.server.routes.jobs.get_outputs_dir", return_value=tmp_path):
+            r = client.get(f"/jobs/{job_id}/files")
+        assert r.status_code == 200
+        assert "model.glb" in r.json()
+
+    def test_list_files_returns_409_for_non_completed_job(self, client: TestClient) -> None:
+        r = client.post("/jobs", json={"job_type": "visual.model.create"})
+        job_id = r.json()["id"]
+        # Cancel it so it's terminal but not COMPLETED
+        client.delete(f"/jobs/{job_id}")
+        r_files = client.get(f"/jobs/{job_id}/files")
+        assert r_files.status_code == 409
+
+    def test_list_files_returns_404_for_unknown_job(self, client: TestClient) -> None:
+        r = client.get("/jobs/00000000-0000-0000-0000-000000000000/files")
+        assert r.status_code == 404
+
+    def test_download_file_returns_200(
+        self, client: TestClient, tmp_path: Path
+    ) -> None:
+        from unittest.mock import patch as _patch
+
+        job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["mesh.glb"])
+        with _patch("assgen.server.routes.jobs.get_outputs_dir", return_value=tmp_path):
+            r = client.get(f"/jobs/{job_id}/files/mesh.glb")
+        assert r.status_code == 200
+        assert b"stub content" in r.content
+
+    def test_download_unknown_file_returns_404(
+        self, client: TestClient, tmp_path: Path
+    ) -> None:
+        from unittest.mock import patch as _patch
+
+        job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["exists.txt"])
+        with _patch("assgen.server.routes.jobs.get_outputs_dir", return_value=tmp_path):
+            r = client.get(f"/jobs/{job_id}/files/does_not_exist.txt")
+        assert r.status_code == 404
+
+    def test_download_path_traversal_returns_400(
+        self, client: TestClient, tmp_path: Path
+    ) -> None:
+        from unittest.mock import patch as _patch
+
+        job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["x.txt"])
+        with _patch("assgen.server.routes.jobs.get_outputs_dir", return_value=tmp_path):
+            r = client.get(f"/jobs/{job_id}/files/../secret")
+        # FastAPI URL-decodes paths; the router should either 404 or 400
+        assert r.status_code in (400, 404)

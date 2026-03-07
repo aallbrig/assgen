@@ -1,19 +1,25 @@
 """Jobs REST routes.
 
-POST   /jobs            — enqueue a new job
-GET    /jobs            — list jobs (with optional status filter)
-GET    /jobs/{id}       — get single job
-DELETE /jobs/{id}       — cancel a queued or running job
+POST   /jobs                         — enqueue a new job
+GET    /jobs                         — list jobs (with optional status filter)
+GET    /jobs/{id}                    — get single job
+DELETE /jobs/{id}                    — cancel a queued or running job
+GET    /jobs/{id}/files              — list output files for a completed job
+GET    /jobs/{id}/files/{filename}   — download a specific output file
 """
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from assgen.catalog import get_model_for_job
+from assgen.config import get_outputs_dir
 from assgen.db import (
     JobStatus,
     create_job,
@@ -154,6 +160,59 @@ async def cancel_job(job_id: str, request: Request) -> None:
         raise HTTPException(status_code=409, detail=f"Job already in terminal state: {job['status']}")
     update_job_status(conn, job_id, JobStatus.CANCELLED)
     logger.info("Job cancelled", extra={"job_id": job_id})
+
+
+@router.get("/{job_id}/files", response_model=list[str])
+async def list_job_files(job_id: str, request: Request) -> list[str]:
+    """List the names of output files produced by a completed job."""
+    conn = request.app.state.conn
+    job = get_job(conn, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found")
+    if job["status"] != JobStatus.COMPLETED:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Job is not completed (status={job['status']}). Output files are only available for COMPLETED jobs.",
+        )
+    output = job.get("output") or {}
+    if isinstance(output, str):
+        try:
+            output = json.loads(output)
+        except Exception:
+            output = {}
+    files: list[str] = output.get("files", [])
+    # Also check the filesystem in case the output record is stale
+    job_out_dir: Path = get_outputs_dir() / job_id
+    if job_out_dir.exists():
+        on_disk = {f.name for f in job_out_dir.iterdir() if f.is_file()}
+        # Merge: keep ordering from DB record, append any extras on disk
+        recorded = set(files)
+        files = files + [f for f in sorted(on_disk) if f not in recorded]
+    return files
+
+
+@router.get("/{job_id}/files/{filename}")
+async def download_job_file(job_id: str, filename: str, request: Request) -> FileResponse:
+    """Download a specific output file from a completed job.
+
+    The *filename* must be a plain filename (no path separators) to prevent
+    directory traversal attacks.
+    """
+    if "/" in filename or "\\" in filename or ".." in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    conn = request.app.state.conn
+    job = get_job(conn, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found")
+    if job["status"] != JobStatus.COMPLETED:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Job is not completed (status={job['status']})",
+        )
+    file_path: Path = get_outputs_dir() / job_id / filename
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail=f"File {filename!r} not found for job {job_id[:8]}")
+    return FileResponse(path=str(file_path), filename=filename)
 
 
 # ---------------------------------------------------------------------------

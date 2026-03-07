@@ -111,5 +111,6 @@ nav:
     - Model Validation: model-validation.md
   - API Reference: api-reference.md
   - Guides:
+    - UX Design & User Flows: ux-design.md
     - Server Setup (Remote GPU): server-setup.md
     - Adding Inference Handlers: contributing.md
