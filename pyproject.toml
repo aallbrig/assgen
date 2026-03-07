@@ -68,3 +68,6 @@ asyncio_mode = "auto"
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
+markers = [
+    "integration: tests that make real network calls (deselect with -m 'not integration')",
+]
