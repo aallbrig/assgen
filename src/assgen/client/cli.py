@@ -19,6 +19,8 @@ Command hierarchy (post-restructure)::
 """
 from __future__ import annotations
 
+import logging
+
 import typer
 from rich.console import Console
 
@@ -31,7 +33,7 @@ from assgen.client.commands.server     import app as server_app
 from assgen.client.commands.tasks      import app as tasks_app
 from assgen.client.commands.upgrade    import app as upgrade_app
 
-console = Console()
+console = Console(highlight=False)
 
 app = typer.Typer(
     name="assgen",
@@ -49,6 +51,28 @@ app.add_typer(server_app,  name="server",  help="Local server process management
 app.add_typer(client_app,  name="client",  help="Client configuration: server targeting and connection settings")
 app.add_typer(config_app,  name="config",  help="Configure job-type → model mappings")
 app.add_typer(upgrade_app, name="upgrade", help="Check for and install the latest assgen release")
+
+
+@app.callback()
+def _root_callback(
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v",
+        help="Enable debug logging (shows server communication, model resolution, etc.)",
+        is_eager=True,
+    ),
+) -> None:
+    """AI-driven game asset generation pipeline."""
+    if verbose:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
+            datefmt="%H:%M:%S",
+        )
+        # Quiet down extremely chatty libraries even in verbose mode
+        for noisy in ("httpcore", "httpx", "urllib3", "hpack"):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
+    else:
+        logging.disable(logging.CRITICAL)
 
 
 @app.command("version")
