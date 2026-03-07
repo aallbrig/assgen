@@ -1,0 +1,48 @@
+# assgen client — thin CLI image
+#
+# Use this to run assgen commands against a remote server (e.g. in CI,
+# scripts, or on machines where you don't want to install Python).
+#
+# Build:
+#   docker build -f docker/Dockerfile.client \
+#                --build-arg VERSION=$(git describe --tags --abbrev=0) \
+#                -t assgen-client .
+#
+# Run (point at a remote server):
+#   docker run --rm \
+#              -e ASSGEN_SERVER_URL=http://your-server:8432 \
+#              -v $(pwd)/output:/output \
+#              assgen-client gen visual model create --prompt "sword" --output /output
+
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+ARG VERSION=dev
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION}
+
+RUN pip install --no-cache-dir hatch hatch-vcs
+
+COPY pyproject.toml README.md ./
+COPY src/ src/
+
+RUN hatch build -t wheel
+
+# ── runtime stage ─────────────────────────────────────────────────────────────
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.source="https://github.com/aallbrig/assgen"
+LABEL org.opencontainers.image.description="assgen client CLI"
+LABEL org.opencontainers.image.licenses="MIT"
+
+COPY --from=builder /build/dist/*.whl /tmp/
+RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
+
+# Default output directory — mount a host directory here to retrieve generated assets
+VOLUME ["/output"]
+
+# Point at a running server; if unset the client will try to auto-start one
+# (which won't work well in a stateless container — set this for container use).
+ENV ASSGEN_SERVER_URL=""
+
+ENTRYPOINT ["assgen"]

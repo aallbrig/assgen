@@ -1,0 +1,59 @@
+# assgen server — GPU-accelerated image (CUDA 12.1 + PyTorch 2.3)
+#
+# Use this for actual ML inference on an NVIDIA GPU.
+# Requires NVIDIA Container Toolkit: https://docs.nvidia.com/datacenter/cloud-native/
+#
+# Build:
+#   docker build -f docker/Dockerfile.server-cuda \
+#                --build-arg VERSION=$(git describe --tags --abbrev=0) \
+#                -t assgen-server-cuda .
+#
+# Run:
+#   docker run --gpus all \
+#              -p 8432:8432 \
+#              -v assgen-data:/root/.local/share/assgen \
+#              -e ASSGEN_DEVICE=cuda \
+#              assgen-server-cuda
+
+# pytorch/pytorch already ships Python 3.11, CUDA 12.1, and PyTorch 2.3
+FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime AS builder
+
+WORKDIR /build
+
+ARG VERSION=dev
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION}
+
+RUN pip install --no-cache-dir hatch hatch-vcs
+
+COPY pyproject.toml README.md ./
+COPY src/ src/
+
+RUN hatch build -t wheel
+
+# ── runtime stage ─────────────────────────────────────────────────────────────
+FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime
+
+LABEL org.opencontainers.image.source="https://github.com/aallbrig/assgen"
+LABEL org.opencontainers.image.description="assgen server (GPU) — AI game asset generation pipeline"
+LABEL org.opencontainers.image.licenses="MIT"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/dist/*.whl /tmp/
+# Install base package, then ML inference extras (torch already in base image)
+RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl \
+    && pip install --no-cache-dir \
+        "transformers>=4.40" \
+        "diffusers>=0.28" \
+        "accelerate>=0.30"
+
+VOLUME ["/root/.local/share/assgen"]
+
+EXPOSE 8432
+
+ENV ASSGEN_DEVICE=cuda
+
+ENTRYPOINT ["assgen-server"]
+CMD ["start", "--host", "0.0.0.0", "--port", "8432", "--json-logs"]

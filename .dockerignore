@@ -1,0 +1,26 @@
+# ── build/cache artifacts ────────────────────────────────────────────────────
+.git
+.venv
+.venv/
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.ruff_cache
+
+# ── generated / built ────────────────────────────────────────────────────────
+dist/
+site/
+*.egg-info
+*.egg-info/
+
+# ── docs source (not needed in image) ────────────────────────────────────────
+docs/
+mkdocs.yml
+
+# ── dev / CI files ───────────────────────────────────────────────────────────
+.github/
+tests/
+*.md
+!README.md
+docker/
