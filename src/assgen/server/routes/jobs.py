@@ -85,7 +85,16 @@ def _get_conn(request: Any = None):  # noqa: ANN001
 # Routes
 # ---------------------------------------------------------------------------
 
-@router.post("", response_model=JobResponse, status_code=201)
+@router.post(
+    "",
+    response_model=JobResponse,
+    status_code=201,
+    summary="Enqueue a new asset-generation job",
+    responses={
+        201: {"description": "Job created and queued for processing"},
+        422: {"description": "Unknown job_type, model not in allow-list, or task/model mismatch"},
+    },
+)
 async def enqueue_job(body: JobRequest, request: Request) -> dict:
     conn = request.app.state.conn
     server_cfg: dict[str, Any] = getattr(request.app.state, "server_cfg", {})
@@ -130,7 +139,12 @@ async def enqueue_job(body: JobRequest, request: Request) -> dict:
     return _normalise(job)
 
 
-@router.get("", response_model=list[JobResponse])
+@router.get(
+    "",
+    response_model=list[JobResponse],
+    summary="List jobs",
+    description="Return jobs ordered by creation time descending. Filter by `status` (repeatable).",
+)
 async def list_jobs_route(
     request: Request,
     status: Annotated[list[str] | None, Query()] = None,
@@ -141,7 +155,13 @@ async def list_jobs_route(
     return [_normalise(j) for j in jobs]
 
 
-@router.get("/{job_id}", response_model=JobResponse)
+@router.get(
+    "/{job_id}",
+    response_model=JobResponse,
+    summary="Get a single job",
+    description="Look up a job by its full UUID or an 8-character prefix.",
+    responses={404: {"description": "Job not found"}},
+)
 async def get_job_route(job_id: str, request: Request) -> dict:
     conn = request.app.state.conn
     job = get_job(conn, job_id)
@@ -150,7 +170,16 @@ async def get_job_route(job_id: str, request: Request) -> dict:
     return _normalise(job)
 
 
-@router.delete("/{job_id}", status_code=204)
+@router.delete(
+    "/{job_id}",
+    status_code=204,
+    summary="Cancel a job",
+    responses={
+        204: {"description": "Job cancelled"},
+        404: {"description": "Job not found"},
+        409: {"description": "Job already in a terminal state"},
+    },
+)
 async def cancel_job(job_id: str, request: Request) -> None:
     conn = request.app.state.conn
     job = get_job(conn, job_id)
@@ -162,7 +191,17 @@ async def cancel_job(job_id: str, request: Request) -> None:
     logger.info("Job cancelled", extra={"job_id": job_id})
 
 
-@router.get("/{job_id}/files", response_model=list[str])
+@router.get(
+    "/{job_id}/files",
+    response_model=list[str],
+    summary="List output files",
+    description="Returns the filenames produced by a COMPLETED job. Use the download endpoint to retrieve each file.",
+    responses={
+        200: {"description": "List of output filenames"},
+        404: {"description": "Job not found"},
+        409: {"description": "Job is not yet COMPLETED"},
+    },
+)
 async def list_job_files(job_id: str, request: Request) -> list[str]:
     """List the names of output files produced by a completed job."""
     conn = request.app.state.conn
@@ -191,7 +230,16 @@ async def list_job_files(job_id: str, request: Request) -> list[str]:
     return files
 
 
-@router.get("/{job_id}/files/{filename}")
+@router.get(
+    "/{job_id}/files/{filename}",
+    summary="Download an output file",
+    responses={
+        200: {"description": "File bytes", "content": {"application/octet-stream": {}}},
+        400: {"description": "Invalid filename (path traversal attempt)"},
+        404: {"description": "Job or file not found"},
+        409: {"description": "Job is not COMPLETED"},
+    },
+)
 async def download_job_file(job_id: str, filename: str, request: Request) -> FileResponse:
     """Download a specific output file from a completed job.
 
