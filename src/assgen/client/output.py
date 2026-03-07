@@ -1,6 +1,8 @@
 """Shared CLI utilities: wait-with-progress, job result rendering, file download."""
 from __future__ import annotations
 
+import json
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -26,10 +28,42 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
 
     Tries the SSE endpoint first for real-time updates.  Falls back to polling
     on ``GET /jobs/{id}`` if the stream fails (e.g. network proxy, older server).
+
+    When ``--json`` mode is active, all Rich output is suppressed; the function
+    waits silently and returns the completed job dict.
     """
+    from assgen.client.context import is_json_mode
+
     cfg = load_client_config()
     poll = float(cfg.get("poll_interval", 2.0))
     deadline = time.monotonic() + (timeout or float(cfg.get("default_timeout", 300)))
+
+    def _wait_silent() -> dict[str, Any]:
+        """Polling loop with no Rich output — used in --json mode."""
+        try:
+            remaining = max(1.0, deadline - time.monotonic())
+            for event in client.stream_job_events(job_id, remaining_timeout=remaining):
+                if event.get("status") in JobStatus.TERMINAL:
+                    return client.get_job(job_id)
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(f"Timed out waiting for job {job_id}")
+            return client.get_job(job_id)
+        except (APIError, Exception):
+            pass
+
+        while time.monotonic() < deadline:
+            try:
+                job = client.get_job(job_id)
+            except APIError as e:
+                raise APIError(str(e)) from e
+            if job["status"] in JobStatus.TERMINAL:
+                return job
+            time.sleep(poll)
+
+        raise TimeoutError(f"Timed out waiting for job {job_id}")
+
+    if is_json_mode():
+        return _wait_silent()
 
     with Progress(
         SpinnerColumn(),
@@ -245,6 +279,38 @@ def print_jobs_table(jobs: list[dict[str, Any]]) -> None:
     console.print()
 
 
+# ---------------------------------------------------------------------------
+# JSON output helpers
+# ---------------------------------------------------------------------------
+
+def job_to_dict(job: dict[str, Any], saved_files: list[Path] | None = None) -> dict[str, Any]:
+    """Serialise a job + saved file list to a plain dict suitable for JSON output."""
+    result: dict[str, Any] = {
+        "job_id": job["id"],
+        "status": job["status"],
+        "job_type": job["job_type"],
+    }
+    if job.get("model_id"):
+        result["model_id"] = job["model_id"]
+    dur = _duration_seconds(job)
+    if dur is not None:
+        result["duration_s"] = dur
+    if saved_files:
+        result["output_files"] = [str(f) for f in saved_files]
+    elif job.get("output") and isinstance(job["output"], dict):
+        files = job["output"].get("files", [])
+        if files:
+            result["output_files"] = files
+    if job.get("error"):
+        result["error"] = job["error"]
+    return result
+
+
+def print_job_json(job: dict[str, Any], saved_files: list[Path] | None = None) -> None:
+    """Emit a single job result as a JSON line on stdout."""
+    print(json.dumps(job_to_dict(job, saved_files)), flush=True)
+
+
 def abort_with_error(msg: str, code: int = 1) -> None:
     err_console.print(f"[red]error:[/red] {msg}")
     raise typer.Exit(code)
@@ -272,6 +338,18 @@ def _duration(job: dict[str, Any]) -> str:
         return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
     except Exception:
         return ""
+
+
+def _duration_seconds(job: dict[str, Any]) -> int | None:
+    if not (job.get("started_at") and job.get("completed_at")):
+        return None
+    from datetime import datetime
+    try:
+        started  = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+        finished = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
+        return int((finished - started).total_seconds())
+    except Exception:
+        return None
 
 
 def _fmt_size(nbytes: int) -> str:

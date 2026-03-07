@@ -24,6 +24,7 @@ import logging
 import typer
 from rich.console import Console
 
+from assgen.client import context as _ctx
 from assgen.client.commands.client_cmd import app as client_app
 from assgen.client.commands.config     import app as config_app
 from assgen.client.commands.gen        import app as gen_app
@@ -73,8 +74,23 @@ def _root_callback(
         is_eager=True,
         help="Show version and exit.",
     ),
+    json_output: bool = typer.Option(
+        False, "--json",
+        help="Emit machine-readable JSON to stdout.  Disables progress bars. "
+             "Ideal for CI pipelines and scripting.",
+    ),
+    variants: int = typer.Option(
+        1, "--variants", "-n",
+        min=1,
+        help="Submit N identical jobs (batch generation).  "
+             "Use with --wait to collect all outputs.",
+    ),
 ) -> None:
     """AI-driven game asset generation pipeline."""
+    if json_output:
+        _ctx.set_json_mode(True)
+    if variants > 1:
+        _ctx.set_variants(variants)
     if verbose:
         logging.basicConfig(
             level=logging.DEBUG,

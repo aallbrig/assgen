@@ -201,3 +201,98 @@ class TestModelsCommand:
         with patch("assgen.client.api.APIClient", return_value=self._mock_api_client(mock_models)):
             result = invoke("models", "list")
         assert result.exit_code in (0, 1)  # may fail to connect — must not crash
+
+
+# ---------------------------------------------------------------------------
+# --json flag
+# ---------------------------------------------------------------------------
+
+class TestJsonFlag:
+    """--json emits valid JSON and suppresses Rich formatting."""
+
+    def _enqueue_mock(self) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = MagicMock(return_value=mc)
+        mc.__exit__ = MagicMock(return_value=False)
+        mc.enqueue_job.return_value = {
+            "id": "aaaabbbbccccdddd",
+            "status": "QUEUED",
+            "job_type": "audio.sfx.generate",
+        }
+        return mc
+
+    def test_json_flag_present_in_help(self) -> None:
+        result = invoke("--help")
+        assert "--json" in result.output
+
+    def test_json_flag_emits_valid_json(self) -> None:
+        import json as _json
+        from assgen.client import context
+        context.reset()
+        with patch("assgen.client.commands.submit.get_client", return_value=self._enqueue_mock()):
+            result = invoke("--json", "gen", "audio", "sfx", "generate", "laser gun")
+        context.reset()
+        assert result.exit_code == 0
+        parsed = _json.loads(result.output.strip())
+        assert parsed["status"] == "QUEUED"
+        assert parsed["job_type"] == "audio.sfx.generate"
+        assert "job_id" in parsed
+
+    def test_json_flag_no_rich_markup(self) -> None:
+        from assgen.client import context
+        context.reset()
+        with patch("assgen.client.commands.submit.get_client", return_value=self._enqueue_mock()):
+            result = invoke("--json", "gen", "audio", "sfx", "generate", "laser gun")
+        context.reset()
+        # Rich markup / decorations must not appear in JSON output
+        assert "[green]" not in result.output
+        assert "enqueued" not in result.output.lower()
+
+
+# ---------------------------------------------------------------------------
+# --variants flag
+# ---------------------------------------------------------------------------
+
+class TestVariantsFlag:
+    """--variants N submits N jobs."""
+
+    def _enqueue_mock(self, n: int) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = MagicMock(return_value=mc)
+        mc.__exit__ = MagicMock(return_value=False)
+        jobs = [
+            {"id": f"job{i:016d}", "status": "QUEUED", "job_type": "audio.sfx.generate"}
+            for i in range(n)
+        ]
+        mc.enqueue_job.side_effect = jobs
+        return mc
+
+    def test_variants_flag_present_in_help(self) -> None:
+        result = invoke("--help")
+        assert "--variants" in result.output
+
+    def test_variants_submits_n_jobs(self) -> None:
+        from assgen.client import context
+        context.reset()
+        mock_client = self._enqueue_mock(3)
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke("--variants", "3", "gen", "audio", "sfx", "generate", "explosion")
+        context.reset()
+        assert result.exit_code == 0
+        assert mock_client.enqueue_job.call_count == 3
+
+    def test_variants_json_emits_array(self) -> None:
+        import json as _json
+        from assgen.client import context
+        context.reset()
+        mock_client = self._enqueue_mock(2)
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke("--json", "--variants", "2", "gen", "audio", "sfx", "generate", "wind")
+        context.reset()
+        assert result.exit_code == 0
+        parsed = _json.loads(result.output.strip())
+        assert "jobs" in parsed
+        assert len(parsed["jobs"]) == 2
+        for job in parsed["jobs"]:
+            assert job["status"] == "QUEUED"
+
