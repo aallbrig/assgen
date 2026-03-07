@@ -24,6 +24,7 @@ def model_create(
     prompt: Optional[str] = typer.Option(None, "--prompt", "-p", help="Text description"),
     input_image: Optional[str] = typer.Option(None, "--input-image", "-i", help="Input image path or URL"),
     format: str = typer.Option("glb", "--format", "-f", help="Output format: glb obj fbx"),
+    target_faces: Optional[int] = typer.Option(None, "--target-faces", help="Max triangles after decimation (default 10 000)"),
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
     model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
@@ -36,6 +37,7 @@ def model_create(
         "prompt": prompt,
         "input_image": input_image,
         "format": format,
+        "target_faces": target_faces,
         "output": output,
     }, wait=wait, model_id=model_id)
 
@@ -76,7 +78,8 @@ def model_retopo(
 @app.command("splat")
 def model_splat(
     images: list[str] = typer.Argument(..., help="Multi-view input images"),
-    convert_mesh: bool = typer.Option(False, "--convert-mesh", help="Also export a triangle mesh"),
+    convert_mesh: bool = typer.Option(False, "--convert-mesh", help="Also export a .ply alongside the .glb"),
+    target_faces: int = typer.Option(10_000, "--target-faces", help="Max triangles after trimesh decimation"),
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
@@ -90,6 +93,7 @@ def model_splat(
     submit_job("visual.model.splat", {
         "images": list(images),
         "convert_mesh": convert_mesh,
+        "target_faces": target_faces,
         "output": output,
     }, wait=wait)
 
