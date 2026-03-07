@@ -53,12 +53,25 @@ app.add_typer(config_app,  name="config",  help="Configure job-type → model ma
 app.add_typer(upgrade_app, name="upgrade", help="Check for and install the latest assgen release")
 
 
+def _version_callback(value: bool) -> None:
+    if value:
+        from assgen.version import format_version_string
+        typer.echo(format_version_string("assgen"))
+        raise typer.Exit()
+
+
 @app.callback()
 def _root_callback(
     verbose: bool = typer.Option(
         False, "--verbose", "-v",
         help="Enable debug logging (shows server communication, model resolution, etc.)",
         is_eager=True,
+    ),
+    version: bool = typer.Option(  # noqa: ARG001
+        None, "--version", "-V",
+        callback=_version_callback,
+        is_eager=True,
+        help="Show version and exit.",
     ),
 ) -> None:
     """AI-driven game asset generation pipeline."""

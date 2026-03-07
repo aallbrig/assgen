@@ -36,6 +36,24 @@ app = typer.Typer(
 )
 
 
+def _version_callback(value: bool) -> None:
+    if value:
+        typer.echo(format_version_string("assgen-server"))
+        raise typer.Exit()
+
+
+@app.callback()
+def _root_callback(
+    version: bool = typer.Option(  # noqa: ARG001
+        None, "--version", "-V",
+        callback=_version_callback,
+        is_eager=True,
+        help="Show version and exit.",
+    ),
+) -> None:
+    """assgen asset generation server."""
+
+
 @app.command()
 def start(
     host: Optional[str] = typer.Option(None, help="Bind host (default from config)"),

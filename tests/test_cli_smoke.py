@@ -41,7 +41,19 @@ class TestVersionCommand:
 
     def test_version_prints_version_string(self) -> None:
         result = invoke("version")
-        # Output is "assgen <version> (python: ...)" — check for "assgen" and a number
+        assert "assgen" in result.output
+        assert any(c.isdigit() for c in result.output)
+
+    def test_version_flag_exits_0(self) -> None:
+        result = invoke("--version")
+        assert result.exit_code == 0
+
+    def test_version_short_flag_exits_0(self) -> None:
+        result = invoke("-V")
+        assert result.exit_code == 0
+
+    def test_version_flag_prints_name_and_number(self) -> None:
+        result = invoke("--version")
         assert "assgen" in result.output
         assert any(c.isdigit() for c in result.output)
 
