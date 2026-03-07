@@ -125,40 +125,12 @@ class ModelManager:
         )
         try:
             from huggingface_hub import snapshot_download
-            from tqdm import tqdm as _TqdmBase
-
-            # Subclass real tqdm so huggingface_hub's thread pool can call
-            # class-level methods like get_lock() that our shim was missing.
-            class _ProgressTqdm(_TqdmBase):  # type: ignore[misc]
-                """tqdm subclass that forwards file-level progress to the job callback."""
-
-                def update(self, n: int = 1) -> bool | None:  # type: ignore[override]
-                    result = super().update(n)
-                    total = self.total or 1
-                    frac = 0.05 + min(self.n / total, 1.0) * 0.13
-                    _cb(frac, f"Downloading {model_id} ({self.n}/{total} files)…")
-                    return result
-
             snapshot_download(
                 repo_id=model_id,
                 local_dir=str(cache_path),
                 local_dir_use_symlinks=False,
                 ignore_patterns=["*.msgpack", "*.h5", "flax_*"],
-                tqdm_class=_ProgressTqdm,
             )
-        except TypeError:
-            # Older huggingface_hub versions don't support tqdm_class
-            try:
-                from huggingface_hub import snapshot_download as _sd
-                _sd(
-                    repo_id=model_id,
-                    local_dir=str(cache_path),
-                    local_dir_use_symlinks=False,
-                    ignore_patterns=["*.msgpack", "*.h5", "flax_*"],
-                )
-            except Exception as exc:
-                logger.error("Model download failed", extra={"model_id": model_id, "error": str(exc)})
-                raise
         except Exception as exc:
             logger.error("Model download failed", extra={"model_id": model_id, "error": str(exc)})
             raise

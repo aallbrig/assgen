@@ -136,20 +136,28 @@ def _is_server_healthy(url: str) -> bool:
 
 
 def find_server_executable() -> str:
-    """Find assgen-server in PATH or the same venv as the current interpreter.
+    """Find assgen-server in the same venv as the current interpreter, then PATH.
+
+    Prefer the binary that lives next to the running Python so that the server
+    always uses the same package environment as the client (avoids version
+    mismatches when multiple installs exist, e.g. a dev .venv and a pipx venv).
 
     Works on Linux, macOS, and Windows (handles ``.exe`` extension).
     """
     import shutil
-    if exe := shutil.which("assgen-server"):
-        return exe
-    # Fallback: same bin/Scripts directory as the current Python interpreter.
+
+    # First choice: same bin/Scripts directory as the current Python interpreter.
     # Windows puts scripts in Scripts\; Linux/macOS use bin/.
     bin_dir = os.path.dirname(sys.executable)
     for name in ("assgen-server.exe", "assgen-server"):
         candidate = os.path.join(bin_dir, name)
         if os.path.isfile(candidate):
             return candidate
+
+    # Fallback: any assgen-server on PATH
+    if exe := shutil.which("assgen-server"):
+        return exe
+
     raise FileNotFoundError(
         "Could not find assgen-server. Make sure it is installed: pip install assgen"
     )
