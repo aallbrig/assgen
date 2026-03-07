@@ -42,8 +42,8 @@ def test_get_model_for_known_job() -> None:
 
     entry = get_model_for_job("visual.model.create")
     assert entry is not None
-    assert entry["model_id"] == "TencentARC/InstantMesh"
-    assert entry["name"] == "InstantMesh"
+    assert entry["model_id"] == "tencent/Hunyuan3D-2"
+    assert entry["name"] == "Hunyuan3D-2"
 
 
 def test_get_model_for_unknown_job_returns_none() -> None:

@@ -14,16 +14,16 @@ catalog:
 
   # ── Visual / Concept ──────────────────────────────────────────────────────
   visual.concept.generate:
-    model_id: "stabilityai/stable-diffusion-3-medium-diffusers"
-    name: "Stable Diffusion 3 Medium"
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
     task: "text-to-image"
-    notes: "2B params (~7 GB fp16); superior prompt adherence and art-style range over SDXL"
+    notes: "Ungated, 7 500+ likes; excellent prompt-to-concept generation; widely supported by diffusers"
 
   visual.concept.style:
     model_id: "h94/IP-Adapter"
     name: "IP-Adapter"
-    task: "image-to-image"
-    notes: "Reference-image style guidance via image prompts alongside SDXL backbone"
+    task: "text-to-image"
+    notes: "Reference-image style guidance via image prompts alongside SDXL backbone; HF tag is text-to-image"
 
   # ── Visual / Blockout ─────────────────────────────────────────────────────
   visual.blockout.create:
@@ -34,10 +34,10 @@ catalog:
 
   # ── Visual / Model (3D mesh) ──────────────────────────────────────────────
   visual.model.create:
-    model_id: "TencentARC/InstantMesh"
-    name: "InstantMesh"
+    model_id: "tencent/Hunyuan3D-2"
+    name: "Hunyuan3D-2"
     task: "image-to-3d"
-    notes: "Multi-view diffusion + sparse-view reconstruction; higher mesh quality than TripoSR"
+    notes: "State-of-the-art image-to-3D; 1 700+ likes; ungated; high-quality textured mesh output (.glb)"
 
   visual.model.splat:
     model_id: "stabilityai/TripoSR"
@@ -107,10 +107,10 @@ catalog:
 
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:
-    model_id: "facebook/audiogen-medium"
-    name: "AudioGen Medium"
+    model_id: "riffusion/riffusion-model-v1"
+    name: "Riffusion"
     task: "text-to-audio"
-    notes: "HF pipeline_tag is null (validation auto-skipped); best open-source SFX synthesis model"
+    notes: "Spectrogram-based diffusion model; text prompt → audio clip; ungated; good for short SFX bursts"
 
   # ── Audio / Music ────────────────────────────────────────────────────────
   audio.music.compose:
@@ -155,7 +155,7 @@ catalog:
   scene.lighting.hdri:
     model_id: "Intel/ldm3d-pano"
     name: "LDM3D Panorama"
-    task: "text-to-panorama"
+    task: "text-to-3d"
     notes: "Generates equirectangular 360° RGB+depth panoramas from text; HF pipeline_tag is text-to-3d"
 
   # ── Pipeline / Integrate ─────────────────────────────────────────────────
