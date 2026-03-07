@@ -29,6 +29,8 @@ inference = [
     "torch>=2.3",
     "diffusers>=0.28",
     "accelerate>=0.30",
+    "trimesh>=3.21",
+    "Pillow>=10.0",
 ]
 dev = [
     "pytest>=8",
