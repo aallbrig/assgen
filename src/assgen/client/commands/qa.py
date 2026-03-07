@@ -29,8 +29,7 @@ def qa_validate(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Run automated validation checks on an asset (normals, UVs, manifold, etc.)."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "validate",
+    submit_job("qa.validate", {
         "input": asset,
         "checks": [c.strip() for c in checks.split(",")],
         "strict": strict,
@@ -48,8 +47,7 @@ def qa_perf(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Analyse performance characteristics: poly count, VRAM, draw calls."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "perf",
+    submit_job("qa.perf", {
         "input": asset,
         "poly_budget": poly_budget,
         "vram_budget_mb": vram_budget_mb,
@@ -68,8 +66,7 @@ def qa_style(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Check assets for visual consistency with the project art style guide."""
-    submit_job("visual.concept.style", {
-        "mode": "check",
+    submit_job("qa.style", {
         "input": asset,
         "style_guide": style_guide,
         "threshold": threshold,
@@ -85,8 +82,7 @@ def qa_report(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Generate a full QA issues report for a set of assets."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "report",
+    submit_job("qa.report", {
         "input": asset_dir,
         "format": format,
         "output": output,

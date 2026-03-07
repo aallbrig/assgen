@@ -86,6 +86,7 @@ def create_app(server_config: dict | None = None) -> FastAPI:
 
         conn: sqlite3.Connection = init_db()
         application.state.conn = conn
+        application.state.db_path = str(get_db_path())
         application.state.server_cfg = cfg
 
         stale = reset_stale_running_jobs(conn)
