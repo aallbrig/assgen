@@ -125,32 +125,19 @@ class ModelManager:
         )
         try:
             from huggingface_hub import snapshot_download
+            from tqdm import tqdm as _TqdmBase
 
-            # Use a file-count based progress tracker
-            _file_counter: list[int] = [0]
+            # Subclass real tqdm so huggingface_hub's thread pool can call
+            # class-level methods like get_lock() that our shim was missing.
+            class _ProgressTqdm(_TqdmBase):  # type: ignore[misc]
+                """tqdm subclass that forwards file-level progress to the job callback."""
 
-            class _ProgressTqdm:
-                """Minimal tqdm-compatible shim that forwards file-level progress."""
-
-                def __init__(self, *args, **kwargs):  # noqa: ANN002, ANN003
-                    total = kwargs.get("total") or 0
-                    self._total = int(total) if total else 1
-                    self._n = 0
-
-                def update(self, n: int = 1) -> None:  # noqa: ANN001
-                    self._n += n
-                    # Map file-download fraction to 5%→18% of overall job
-                    frac = 0.05 + min(self._n / self._total, 1.0) * 0.13
-                    _cb(frac, f"Downloading {model_id} ({self._n}/{self._total} files)…")
-
-                def __enter__(self):  # noqa: ANN204
-                    return self
-
-                def __exit__(self, *_):  # noqa: ANN002
-                    pass
-
-                def close(self) -> None:
-                    pass
+                def update(self, n: int = 1) -> bool | None:  # type: ignore[override]
+                    result = super().update(n)
+                    total = self.total or 1
+                    frac = 0.05 + min(self.n / total, 1.0) * 0.13
+                    _cb(frac, f"Downloading {model_id} ({self.n}/{total} files)…")
+                    return result
 
             snapshot_download(
                 repo_id=model_id,
