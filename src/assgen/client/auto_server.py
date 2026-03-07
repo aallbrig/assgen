@@ -38,7 +38,18 @@ def get_or_start_server() -> str:
     if cfg.get("server_url"):
         return str(cfg["server_url"])
 
-    # 2. Check for a running local server via PID file
+    # 2. Fast-path: is any server already running at the default address?
+    #    This handles the case where the launcher PID has exited (daemonised)
+    #    but the actual server process is healthy.
+    srv_cfg = load_server_config()
+    host = srv_cfg.get("host", "127.0.0.1")
+    port = srv_cfg.get("port", 8432)
+    default_url = f"http://{host}:{port}"
+
+    if _is_server_healthy(default_url):
+        return default_url
+
+    # 3. Check for a running local server via PID file
     info = read_pid_file()
     if info:
         pid, url = info
@@ -48,18 +59,19 @@ def get_or_start_server() -> str:
         logger.debug("Stale PID file found — removing")
         remove_pid_file()
 
-    # 3. Start a new local server
-    return _start_local_server()
+    # 4. Start a new local server
+    return _start_local_server(host=host, port=port, url=default_url)
 
 
-def _start_local_server() -> str:
+def _start_local_server(host: str = "127.0.0.1", port: int = 8432, url: str | None = None) -> str:
     from rich.console import Console
     _console = Console(stderr=True)
 
     srv_cfg = load_server_config()
-    host = srv_cfg.get("host", "127.0.0.1")
-    port = srv_cfg.get("port", 8432)
-    url = f"http://{host}:{port}"
+    if url is None:
+        host = srv_cfg.get("host", "127.0.0.1")
+        port = srv_cfg.get("port", 8432)
+        url = f"http://{host}:{port}"
 
     _console.print(
         f"\n[yellow]⚡ No server detected — starting local assgen-server on {url}[/yellow]\n"
