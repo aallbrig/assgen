@@ -2,38 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/api-reference/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/cli-reference/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/configuration/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/contributing/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/install/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/model-validation/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/quickstart/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
     </url>
     <url>
          <loc>https://aallbrig.github.io/assgen/latest/server-setup/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-07</lastmod>
+    </url>
+    <url>
+         <loc>https://aallbrig.github.io/assgen/latest/ux-design/</loc>
+         <lastmod>2026-03-07</lastmod>
     </url>
 </urlset>

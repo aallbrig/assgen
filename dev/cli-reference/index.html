@@ -330,7 +330,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../server-setup/" class="md-tabs__link">
+        <a href="../ux-design/" class="md-tabs__link">
           
   
   
@@ -821,6 +821,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX Design & User Flows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1997,73 +2025,83 @@ not via the server API.</p>
 </span><span id="__span-182-3"><a id="__codelineno-182-3" name="__codelineno-182-3" href="#__codelineno-182-3"></a>  -d, --days INTEGER  Only delete jobs older than N days
 </span><span id="__span-182-4"><a id="__codelineno-182-4" name="__codelineno-182-4" href="#__codelineno-182-4"></a>  --dry-run           Show what would be deleted
 </span></code></pre></div>
+<h3 id="download">download<a class="headerlink" href="#download" title="Permanent link">&para;</a></h3>
+<p>Download the output files produced by a completed job.</p>
+<p>Usage:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-183-1"><a id="__codelineno-183-1" name="__codelineno-183-1" href="#__codelineno-183-1"></a>assgen jobs download [OPTIONS] JOB_ID
+</span></code></pre></div>
+<p>Options:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-184-1"><a id="__codelineno-184-1" name="__codelineno-184-1" href="#__codelineno-184-1"></a>  JOB_ID             Job ID to download files from  [required]
+</span><span id="__span-184-2"><a id="__codelineno-184-2" name="__codelineno-184-2" href="#__codelineno-184-2"></a>  -o, --output TEXT  Directory to save downloaded files (default: current
+</span><span id="__span-184-3"><a id="__codelineno-184-3" name="__codelineno-184-3" href="#__codelineno-184-3"></a>                     directory)
+</span></code></pre></div>
 <h3 id="list_2">list<a class="headerlink" href="#list_2" title="Permanent link">&para;</a></h3>
 <p>List enqueued and recent jobs.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-183-1"><a id="__codelineno-183-1" name="__codelineno-183-1" href="#__codelineno-183-1"></a>assgen jobs list [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-185-1"><a id="__codelineno-185-1" name="__codelineno-185-1" href="#__codelineno-185-1"></a>assgen jobs list [OPTIONS]
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-184-1"><a id="__codelineno-184-1" name="__codelineno-184-1" href="#__codelineno-184-1"></a>  -s, --status TEXT    Filter by status (repeatable): QUEUED RUNNING COMPLETED
-</span><span id="__span-184-2"><a id="__codelineno-184-2" name="__codelineno-184-2" href="#__codelineno-184-2"></a>                       FAILED CANCELLED
-</span><span id="__span-184-3"><a id="__codelineno-184-3" name="__codelineno-184-3" href="#__codelineno-184-3"></a>  -n, --limit INTEGER  Max number of jobs to show  [default: 50]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-186-1"><a id="__codelineno-186-1" name="__codelineno-186-1" href="#__codelineno-186-1"></a>  -s, --status TEXT    Filter by status (repeatable): QUEUED RUNNING COMPLETED
+</span><span id="__span-186-2"><a id="__codelineno-186-2" name="__codelineno-186-2" href="#__codelineno-186-2"></a>                       FAILED CANCELLED
+</span><span id="__span-186-3"><a id="__codelineno-186-3" name="__codelineno-186-3" href="#__codelineno-186-3"></a>  -n, --limit INTEGER  Max number of jobs to show  [default: 50]
 </span></code></pre></div>
 <h3 id="status_1">status<a class="headerlink" href="#status_1" title="Permanent link">&para;</a></h3>
 <p>Show the status of a single job.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-185-1"><a id="__codelineno-185-1" name="__codelineno-185-1" href="#__codelineno-185-1"></a>assgen jobs status [OPTIONS] JOB_ID
+<div class="language-text highlight"><pre><span></span><code><span id="__span-187-1"><a id="__codelineno-187-1" name="__codelineno-187-1" href="#__codelineno-187-1"></a>assgen jobs status [OPTIONS] JOB_ID
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-186-1"><a id="__codelineno-186-1" name="__codelineno-186-1" href="#__codelineno-186-1"></a>  JOB_ID  Job ID or prefix  [required]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-188-1"><a id="__codelineno-188-1" name="__codelineno-188-1" href="#__codelineno-188-1"></a>  JOB_ID  Job ID or prefix  [required]
 </span></code></pre></div>
 <h3 id="wait">wait<a class="headerlink" href="#wait" title="Permanent link">&para;</a></h3>
 <p>Wait for a job to reach a terminal state, showing a live progress bar.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-187-1"><a id="__codelineno-187-1" name="__codelineno-187-1" href="#__codelineno-187-1"></a>assgen jobs wait [OPTIONS] JOB_ID
+<div class="language-text highlight"><pre><span></span><code><span id="__span-189-1"><a id="__codelineno-189-1" name="__codelineno-189-1" href="#__codelineno-189-1"></a>assgen jobs wait [OPTIONS] JOB_ID
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-188-1"><a id="__codelineno-188-1" name="__codelineno-188-1" href="#__codelineno-188-1"></a>  JOB_ID               Job ID to wait for  [required]
-</span><span id="__span-188-2"><a id="__codelineno-188-2" name="__codelineno-188-2" href="#__codelineno-188-2"></a>  -t, --timeout FLOAT  Max wait seconds
+<div class="language-text highlight"><pre><span></span><code><span id="__span-190-1"><a id="__codelineno-190-1" name="__codelineno-190-1" href="#__codelineno-190-1"></a>  JOB_ID               Job ID to wait for  [required]
+</span><span id="__span-190-2"><a id="__codelineno-190-2" name="__codelineno-190-2" href="#__codelineno-190-2"></a>  -t, --timeout FLOAT  Max wait seconds
 </span></code></pre></div>
 <h2 id="models">models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
 <p>Model catalog and installation</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-189-1"><a id="__codelineno-189-1" name="__codelineno-189-1" href="#__codelineno-189-1"></a>assgen models [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-191-1"><a id="__codelineno-191-1" name="__codelineno-191-1" href="#__codelineno-191-1"></a>assgen models [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <h3 id="install">install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h3>
 <p>Download and cache models from HuggingFace Hub.</p>
 <p>Without arguments, installs all models configured in the catalog.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-190-1"><a id="__codelineno-190-1" name="__codelineno-190-1" href="#__codelineno-190-1"></a>assgen models install [OPTIONS] [MODEL_IDS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-192-1"><a id="__codelineno-192-1" name="__codelineno-192-1" href="#__codelineno-192-1"></a>assgen models install [OPTIONS] [MODEL_IDS]...
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-191-1"><a id="__codelineno-191-1" name="__codelineno-191-1" href="#__codelineno-191-1"></a>  [MODEL_IDS]...  Model IDs to install. Omit to install all catalog models.
-</span><span id="__span-191-2"><a id="__codelineno-191-2" name="__codelineno-191-2" href="#__codelineno-191-2"></a>  -a, --all       Install every model in the catalog
+<div class="language-text highlight"><pre><span></span><code><span id="__span-193-1"><a id="__codelineno-193-1" name="__codelineno-193-1" href="#__codelineno-193-1"></a>  [MODEL_IDS]...  Model IDs to install. Omit to install all catalog models.
+</span><span id="__span-193-2"><a id="__codelineno-193-2" name="__codelineno-193-2" href="#__codelineno-193-2"></a>  -a, --all       Install every model in the catalog
 </span></code></pre></div>
 <h3 id="list_3">list<a class="headerlink" href="#list_3" title="Permanent link">&para;</a></h3>
 <p>List all models in the catalog with their installation status.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-192-1"><a id="__codelineno-192-1" name="__codelineno-192-1" href="#__codelineno-192-1"></a>assgen models list [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-194-1"><a id="__codelineno-194-1" name="__codelineno-194-1" href="#__codelineno-194-1"></a>assgen models list [OPTIONS]
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-193-1"><a id="__codelineno-193-1" name="__codelineno-193-1" href="#__codelineno-193-1"></a>  --installed  Show only installed models
+<div class="language-text highlight"><pre><span></span><code><span id="__span-195-1"><a id="__codelineno-195-1" name="__codelineno-195-1" href="#__codelineno-195-1"></a>  --installed  Show only installed models
 </span></code></pre></div>
 <h3 id="status_2">status<a class="headerlink" href="#status_2" title="Permanent link">&para;</a></h3>
 <p>Show installation status and usage history for a specific model.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-194-1"><a id="__codelineno-194-1" name="__codelineno-194-1" href="#__codelineno-194-1"></a>assgen models status [OPTIONS] MODEL_ID
+<div class="language-text highlight"><pre><span></span><code><span id="__span-196-1"><a id="__codelineno-196-1" name="__codelineno-196-1" href="#__codelineno-196-1"></a>assgen models status [OPTIONS] MODEL_ID
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-195-1"><a id="__codelineno-195-1" name="__codelineno-195-1" href="#__codelineno-195-1"></a>  MODEL_ID  HuggingFace model ID  [required]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-197-1"><a id="__codelineno-197-1" name="__codelineno-197-1" href="#__codelineno-197-1"></a>  MODEL_ID  HuggingFace model ID  [required]
 </span></code></pre></div>
 <h2 id="server">server<a class="headerlink" href="#server" title="Permanent link">&para;</a></h2>
 <p>Local server process management</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-196-1"><a id="__codelineno-196-1" name="__codelineno-196-1" href="#__codelineno-196-1"></a>assgen server [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-198-1"><a id="__codelineno-198-1" name="__codelineno-198-1" href="#__codelineno-198-1"></a>assgen server [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <h3 id="config_2">config<a class="headerlink" href="#config_2" title="Permanent link">&para;</a></h3>
 <p>View and update assgen-server runtime configuration.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-197-1"><a id="__codelineno-197-1" name="__codelineno-197-1" href="#__codelineno-197-1"></a>assgen server config [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-199-1"><a id="__codelineno-199-1" name="__codelineno-199-1" href="#__codelineno-199-1"></a>assgen server config [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <h4 id="models_1">models<a class="headerlink" href="#models_1" title="Permanent link">&para;</a></h4>
 <p>Show and manage the task → model catalog used by the server.</p>
@@ -2073,10 +2111,10 @@ so it's discoverable under server configuration.</p>
   assgen server config models --domain visual
   assgen config set <job-type> [--model-id <id>]</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-198-1"><a id="__codelineno-198-1" name="__codelineno-198-1" href="#__codelineno-198-1"></a>assgen server config models [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-200-1"><a id="__codelineno-200-1" name="__codelineno-200-1" href="#__codelineno-200-1"></a>assgen server config models [OPTIONS]
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-199-1"><a id="__codelineno-199-1" name="__codelineno-199-1" href="#__codelineno-199-1"></a>  -d, --domain TEXT  Filter by domain (visual, audio, scene…)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-201-1"><a id="__codelineno-201-1" name="__codelineno-201-1" href="#__codelineno-201-1"></a>  -d, --domain TEXT  Filter by domain (visual, audio, scene…)
 </span></code></pre></div>
 <h4 id="set_1">set<a class="headerlink" href="#set_1" title="Permanent link">&para;</a></h4>
 <p>Persist a server configuration setting to ~/.config/assgen/server.yaml.</p>
@@ -2086,76 +2124,76 @@ so it's discoverable under server configuration.</p>
   assgen server config set port 9000
   assgen server config set log_level debug</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-200-1"><a id="__codelineno-200-1" name="__codelineno-200-1" href="#__codelineno-200-1"></a>assgen server config set [OPTIONS] KEY VALUE
+<div class="language-text highlight"><pre><span></span><code><span id="__span-202-1"><a id="__codelineno-202-1" name="__codelineno-202-1" href="#__codelineno-202-1"></a>assgen server config set [OPTIONS] KEY VALUE
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-201-1"><a id="__codelineno-201-1" name="__codelineno-201-1" href="#__codelineno-201-1"></a>  KEY     Config key, e.g. device or port  [required]
-</span><span id="__span-201-2"><a id="__codelineno-201-2" name="__codelineno-201-2" href="#__codelineno-201-2"></a>  VALUE   New value  [required]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-203-1"><a id="__codelineno-203-1" name="__codelineno-203-1" href="#__codelineno-203-1"></a>  KEY     Config key, e.g. device or port  [required]
+</span><span id="__span-203-2"><a id="__codelineno-203-2" name="__codelineno-203-2" href="#__codelineno-203-2"></a>  VALUE   New value  [required]
 </span></code></pre></div>
 <h4 id="show_2">show<a class="headerlink" href="#show_2" title="Permanent link">&para;</a></h4>
 <p>Show the resolved assgen-server runtime configuration.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-202-1"><a id="__codelineno-202-1" name="__codelineno-202-1" href="#__codelineno-202-1"></a>assgen server config show [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-204-1"><a id="__codelineno-204-1" name="__codelineno-204-1" href="#__codelineno-204-1"></a>assgen server config show [OPTIONS]
 </span></code></pre></div>
 <h3 id="start">start<a class="headerlink" href="#start" title="Permanent link">&para;</a></h3>
 <p>Start a local assgen-server.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-203-1"><a id="__codelineno-203-1" name="__codelineno-203-1" href="#__codelineno-203-1"></a>assgen server start [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-205-1"><a id="__codelineno-205-1" name="__codelineno-205-1" href="#__codelineno-205-1"></a>assgen server start [OPTIONS]
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-204-1"><a id="__codelineno-204-1" name="__codelineno-204-1" href="#__codelineno-204-1"></a>  --daemon / --foreground  Run as background daemon  [default: daemon]
-</span><span id="__span-204-2"><a id="__codelineno-204-2" name="__codelineno-204-2" href="#__codelineno-204-2"></a>  --host TEXT              Override server host
-</span><span id="__span-204-3"><a id="__codelineno-204-3" name="__codelineno-204-3" href="#__codelineno-204-3"></a>  --port INTEGER           Override server port
+<div class="language-text highlight"><pre><span></span><code><span id="__span-206-1"><a id="__codelineno-206-1" name="__codelineno-206-1" href="#__codelineno-206-1"></a>  --daemon / --foreground  Run as background daemon  [default: daemon]
+</span><span id="__span-206-2"><a id="__codelineno-206-2" name="__codelineno-206-2" href="#__codelineno-206-2"></a>  --host TEXT              Override server host
+</span><span id="__span-206-3"><a id="__codelineno-206-3" name="__codelineno-206-3" href="#__codelineno-206-3"></a>  --port INTEGER           Override server port
 </span></code></pre></div>
 <h3 id="status_3">status<a class="headerlink" href="#status_3" title="Permanent link">&para;</a></h3>
 <p>Show whether a local assgen-server is running.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-205-1"><a id="__codelineno-205-1" name="__codelineno-205-1" href="#__codelineno-205-1"></a>assgen server status [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-207-1"><a id="__codelineno-207-1" name="__codelineno-207-1" href="#__codelineno-207-1"></a>assgen server status [OPTIONS]
 </span></code></pre></div>
 <h3 id="stop">stop<a class="headerlink" href="#stop" title="Permanent link">&para;</a></h3>
 <p>Stop the local assgen-server.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-206-1"><a id="__codelineno-206-1" name="__codelineno-206-1" href="#__codelineno-206-1"></a>assgen server stop [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-208-1"><a id="__codelineno-208-1" name="__codelineno-208-1" href="#__codelineno-208-1"></a>assgen server stop [OPTIONS]
 </span></code></pre></div>
 <h3 id="unset">unset<a class="headerlink" href="#unset" title="Permanent link">&para;</a></h3>
 <p>Remove the configured server URL — revert to auto-start mode. (Alias for: assgen client config unset-server)</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-207-1"><a id="__codelineno-207-1" name="__codelineno-207-1" href="#__codelineno-207-1"></a>assgen server unset [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-209-1"><a id="__codelineno-209-1" name="__codelineno-209-1" href="#__codelineno-209-1"></a>assgen server unset [OPTIONS]
 </span></code></pre></div>
 <h3 id="use">use<a class="headerlink" href="#use" title="Permanent link">&para;</a></h3>
 <p>Point the client at a specific server URL. (Alias for: assgen client config set-server)</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-208-1"><a id="__codelineno-208-1" name="__codelineno-208-1" href="#__codelineno-208-1"></a>assgen server use [OPTIONS] URL
+<div class="language-text highlight"><pre><span></span><code><span id="__span-210-1"><a id="__codelineno-210-1" name="__codelineno-210-1" href="#__codelineno-210-1"></a>assgen server use [OPTIONS] URL
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-209-1"><a id="__codelineno-209-1" name="__codelineno-209-1" href="#__codelineno-209-1"></a>  URL     Server URL, e.g. http://192.168.1.100:8432  [required]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-211-1"><a id="__codelineno-211-1" name="__codelineno-211-1" href="#__codelineno-211-1"></a>  URL     Server URL, e.g. http://192.168.1.100:8432  [required]
 </span></code></pre></div>
 <h2 id="tasks">tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
 <p>Browse all game dev tasks and their configured models</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-210-1"><a id="__codelineno-210-1" name="__codelineno-210-1" href="#__codelineno-210-1"></a>assgen tasks [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-212-1"><a id="__codelineno-212-1" name="__codelineno-212-1" href="#__codelineno-212-1"></a>assgen tasks [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-211-1"><a id="__codelineno-211-1" name="__codelineno-211-1" href="#__codelineno-211-1"></a>  -d, --domain TEXT  Filter to a single domain: visual audio scene pipeline
-</span><span id="__span-211-2"><a id="__codelineno-211-2" name="__codelineno-211-2" href="#__codelineno-211-2"></a>                     support qa
-</span><span id="__span-211-3"><a id="__codelineno-211-3" name="__codelineno-211-3" href="#__codelineno-211-3"></a>  --json             Output as JSON (job-type list)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-213-1"><a id="__codelineno-213-1" name="__codelineno-213-1" href="#__codelineno-213-1"></a>  -d, --domain TEXT  Filter to a single domain: visual audio scene pipeline
+</span><span id="__span-213-2"><a id="__codelineno-213-2" name="__codelineno-213-2" href="#__codelineno-213-2"></a>                     support qa
+</span><span id="__span-213-3"><a id="__codelineno-213-3" name="__codelineno-213-3" href="#__codelineno-213-3"></a>  --json             Output as JSON (job-type list)
 </span></code></pre></div>
 <h2 id="upgrade">upgrade<a class="headerlink" href="#upgrade" title="Permanent link">&para;</a></h2>
 <p>Check for and install the latest assgen release</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-212-1"><a id="__codelineno-212-1" name="__codelineno-212-1" href="#__codelineno-212-1"></a>assgen upgrade [OPTIONS] COMMAND [ARGS]...
+<div class="language-text highlight"><pre><span></span><code><span id="__span-214-1"><a id="__codelineno-214-1" name="__codelineno-214-1" href="#__codelineno-214-1"></a>assgen upgrade [OPTIONS] COMMAND [ARGS]...
 </span></code></pre></div>
 <p>Options:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-213-1"><a id="__codelineno-213-1" name="__codelineno-213-1" href="#__codelineno-213-1"></a>  --check    Only check — do not install
-</span><span id="__span-213-2"><a id="__codelineno-213-2" name="__codelineno-213-2" href="#__codelineno-213-2"></a>  --pre      Include pre-release versions
-</span><span id="__span-213-3"><a id="__codelineno-213-3" name="__codelineno-213-3" href="#__codelineno-213-3"></a>  -y, --yes  Skip confirmation prompt
+<div class="language-text highlight"><pre><span></span><code><span id="__span-215-1"><a id="__codelineno-215-1" name="__codelineno-215-1" href="#__codelineno-215-1"></a>  --check    Only check — do not install
+</span><span id="__span-215-2"><a id="__codelineno-215-2" name="__codelineno-215-2" href="#__codelineno-215-2"></a>  --pre      Include pre-release versions
+</span><span id="__span-215-3"><a id="__codelineno-215-3" name="__codelineno-215-3" href="#__codelineno-215-3"></a>  -y, --yes  Skip confirmation prompt
 </span></code></pre></div>
 <h2 id="version">version<a class="headerlink" href="#version" title="Permanent link">&para;</a></h2>
 <p>Print version information and exit.</p>
 <p>Usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-214-1"><a id="__codelineno-214-1" name="__codelineno-214-1" href="#__codelineno-214-1"></a>assgen version [OPTIONS]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-216-1"><a id="__codelineno-216-1" name="__codelineno-216-1" href="#__codelineno-216-1"></a>assgen version [OPTIONS]
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-215-1"><a id="__codelineno-215-1" name="__codelineno-215-1" href="#__codelineno-215-1"></a>assgen [OPTIONS] COMMAND
+<div class="language-text highlight"><pre><span></span><code><span id="__span-217-1"><a id="__codelineno-217-1" name="__codelineno-217-1" href="#__codelineno-217-1"></a>assgen [OPTIONS] COMMAND
 </span></code></pre></div>
 <table>
 <thead>
@@ -2225,7 +2263,7 @@ so it's discoverable under server configuration.</p>
 </table>
 <hr />
 <h2 id="assgen-tasks">assgen tasks<a class="headerlink" href="#assgen-tasks" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-216-1"><a id="__codelineno-216-1" name="__codelineno-216-1" href="#__codelineno-216-1"></a>assgen<span class="w"> </span>tasks<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--json<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-218-1"><a id="__codelineno-218-1" name="__codelineno-218-1" href="#__codelineno-218-1"></a>assgen<span class="w"> </span>tasks<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--json<span class="o">]</span>
 </span></code></pre></div>
 <p>Displays a rich tree of all 50+ game development tasks with their assigned AI models.</p>
 <table>
@@ -2249,77 +2287,77 @@ so it's discoverable under server configuration.</p>
 <hr />
 <h2 id="assgen-visual">assgen visual<a class="headerlink" href="#assgen-visual" title="Permanent link">&para;</a></h2>
 <h3 id="assgen-visual-model"><code>assgen visual model</code><a class="headerlink" href="#assgen-visual-model" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-217-1"><a id="__codelineno-217-1" name="__codelineno-217-1" href="#__codelineno-217-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>create<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;medieval sword&quot;</span><span class="w"> </span><span class="o">[</span>--input-image<span class="w"> </span>img.png<span class="o">]</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-217-2"><a id="__codelineno-217-2" name="__codelineno-217-2" href="#__codelineno-217-2"></a><span class="w">    </span><span class="o">[</span>--format<span class="w"> </span>glb<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-217-3"><a id="__codelineno-217-3" name="__codelineno-217-3" href="#__codelineno-217-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>retopo<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--target-faces<span class="w"> </span><span class="m">5000</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-217-4"><a id="__codelineno-217-4" name="__codelineno-217-4" href="#__codelineno-217-4"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>splat<span class="w"> </span><span class="o">[</span>--input-dir<span class="w"> </span>./frames<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-217-5"><a id="__codelineno-217-5" name="__codelineno-217-5" href="#__codelineno-217-5"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>optimize<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--lod-levels<span class="w"> </span><span class="m">3</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-217-6"><a id="__codelineno-217-6" name="__codelineno-217-6" href="#__codelineno-217-6"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span><span class="nb">export</span><span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--engine<span class="w"> </span>unity<span class="p">|</span>unreal<span class="p">|</span>godot<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-219-1"><a id="__codelineno-219-1" name="__codelineno-219-1" href="#__codelineno-219-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>create<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;medieval sword&quot;</span><span class="w"> </span><span class="o">[</span>--input-image<span class="w"> </span>img.png<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-219-2"><a id="__codelineno-219-2" name="__codelineno-219-2" href="#__codelineno-219-2"></a><span class="w">    </span><span class="o">[</span>--format<span class="w"> </span>glb<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-219-3"><a id="__codelineno-219-3" name="__codelineno-219-3" href="#__codelineno-219-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>retopo<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--target-faces<span class="w"> </span><span class="m">5000</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-219-4"><a id="__codelineno-219-4" name="__codelineno-219-4" href="#__codelineno-219-4"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>splat<span class="w"> </span><span class="o">[</span>--input-dir<span class="w"> </span>./frames<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-219-5"><a id="__codelineno-219-5" name="__codelineno-219-5" href="#__codelineno-219-5"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>optimize<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--lod-levels<span class="w"> </span><span class="m">3</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-219-6"><a id="__codelineno-219-6" name="__codelineno-219-6" href="#__codelineno-219-6"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span><span class="nb">export</span><span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--engine<span class="w"> </span>unity<span class="p">|</span>unreal<span class="p">|</span>godot<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="assgen-visual-texture"><code>assgen visual texture</code><a class="headerlink" href="#assgen-visual-texture" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-218-1"><a id="__codelineno-218-1" name="__codelineno-218-1" href="#__codelineno-218-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>generate<span class="w"> </span>input.glb<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;worn leather&quot;</span><span class="w"> </span><span class="o">[</span>--resolution<span class="w"> </span><span class="m">2048</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-218-2"><a id="__codelineno-218-2" name="__codelineno-218-2" href="#__codelineno-218-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>bake<span class="w"> </span>high.glb<span class="w"> </span>low.glb<span class="w"> </span><span class="o">[</span>--map-types<span class="w"> </span>all<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-218-3"><a id="__codelineno-218-3" name="__codelineno-218-3" href="#__codelineno-218-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>pbr<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--style<span class="w"> </span><span class="s2">&quot;sci-fi metal&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-220-1"><a id="__codelineno-220-1" name="__codelineno-220-1" href="#__codelineno-220-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>generate<span class="w"> </span>input.glb<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;worn leather&quot;</span><span class="w"> </span><span class="o">[</span>--resolution<span class="w"> </span><span class="m">2048</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-220-2"><a id="__codelineno-220-2" name="__codelineno-220-2" href="#__codelineno-220-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>bake<span class="w"> </span>high.glb<span class="w"> </span>low.glb<span class="w"> </span><span class="o">[</span>--map-types<span class="w"> </span>all<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-220-3"><a id="__codelineno-220-3" name="__codelineno-220-3" href="#__codelineno-220-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>texture<span class="w"> </span>pbr<span class="w"> </span>input.glb<span class="w"> </span><span class="o">[</span>--style<span class="w"> </span><span class="s2">&quot;sci-fi metal&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="assgen-visual-rig"><code>assgen visual rig</code><a class="headerlink" href="#assgen-visual-rig" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-219-1"><a id="__codelineno-219-1" name="__codelineno-219-1" href="#__codelineno-219-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>auto<span class="w"> </span>character.glb<span class="w"> </span><span class="o">[</span>--skeleton<span class="w"> </span>humanoid<span class="p">|</span>animal<span class="p">|</span>custom<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-219-2"><a id="__codelineno-219-2" name="__codelineno-219-2" href="#__codelineno-219-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>skin<span class="w"> </span>character.glb<span class="w"> </span><span class="o">[</span>--bone-influence<span class="w"> </span><span class="m">4</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-219-3"><a id="__codelineno-219-3" name="__codelineno-219-3" href="#__codelineno-219-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>retarget<span class="w"> </span>source.glb<span class="w"> </span>target.glb<span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-221-1"><a id="__codelineno-221-1" name="__codelineno-221-1" href="#__codelineno-221-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>auto<span class="w"> </span>character.glb<span class="w"> </span><span class="o">[</span>--skeleton<span class="w"> </span>humanoid<span class="p">|</span>animal<span class="p">|</span>custom<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-221-2"><a id="__codelineno-221-2" name="__codelineno-221-2" href="#__codelineno-221-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>skin<span class="w"> </span>character.glb<span class="w"> </span><span class="o">[</span>--bone-influence<span class="w"> </span><span class="m">4</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-221-3"><a id="__codelineno-221-3" name="__codelineno-221-3" href="#__codelineno-221-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>rig<span class="w"> </span>retarget<span class="w"> </span>source.glb<span class="w"> </span>target.glb<span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="assgen-visual-animate"><code>assgen visual animate</code><a class="headerlink" href="#assgen-visual-animate" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-220-1"><a id="__codelineno-220-1" name="__codelineno-220-1" href="#__codelineno-220-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>keyframe<span class="w"> </span>character.glb<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;walk cycle&quot;</span><span class="w"> </span><span class="o">[</span>--frames<span class="w"> </span><span class="m">60</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-220-2"><a id="__codelineno-220-2" name="__codelineno-220-2" href="#__codelineno-220-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>mocap<span class="w"> </span>video.mp4<span class="w"> </span><span class="o">[</span>--target<span class="w"> </span>character.glb<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-220-3"><a id="__codelineno-220-3" name="__codelineno-220-3" href="#__codelineno-220-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>blend<span class="w"> </span>anim1.glb<span class="w"> </span>anim2.glb<span class="w"> </span><span class="o">[</span>--weight<span class="w"> </span><span class="m">0</span>.5<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-222-1"><a id="__codelineno-222-1" name="__codelineno-222-1" href="#__codelineno-222-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>keyframe<span class="w"> </span>character.glb<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;walk cycle&quot;</span><span class="w"> </span><span class="o">[</span>--frames<span class="w"> </span><span class="m">60</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-222-2"><a id="__codelineno-222-2" name="__codelineno-222-2" href="#__codelineno-222-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>mocap<span class="w"> </span>video.mp4<span class="w"> </span><span class="o">[</span>--target<span class="w"> </span>character.glb<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-222-3"><a id="__codelineno-222-3" name="__codelineno-222-3" href="#__codelineno-222-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>animate<span class="w"> </span>blend<span class="w"> </span>anim1.glb<span class="w"> </span>anim2.glb<span class="w"> </span><span class="o">[</span>--weight<span class="w"> </span><span class="m">0</span>.5<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="other-visual-subcommands">Other visual subcommands<a class="headerlink" href="#other-visual-subcommands" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-221-1"><a id="__codelineno-221-1" name="__codelineno-221-1" href="#__codelineno-221-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>concept<span class="w"> </span>generate<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;fantasy castle&quot;</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-221-2"><a id="__codelineno-221-2" name="__codelineno-221-2" href="#__codelineno-221-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>uv<span class="w"> </span>auto<span class="w"> </span>mesh.glb<span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-221-3"><a id="__codelineno-221-3" name="__codelineno-221-3" href="#__codelineno-221-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>vfx<span class="w"> </span>particle<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;fire explosion&quot;</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-221-4"><a id="__codelineno-221-4" name="__codelineno-221-4" href="#__codelineno-221-4"></a>assgen<span class="w"> </span>visual<span class="w"> </span>ui<span class="w"> </span>icon<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;health potion&quot;</span><span class="w"> </span><span class="o">[</span>--size<span class="w"> </span><span class="m">256</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-223-1"><a id="__codelineno-223-1" name="__codelineno-223-1" href="#__codelineno-223-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>concept<span class="w"> </span>generate<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;fantasy castle&quot;</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-223-2"><a id="__codelineno-223-2" name="__codelineno-223-2" href="#__codelineno-223-2"></a>assgen<span class="w"> </span>visual<span class="w"> </span>uv<span class="w"> </span>auto<span class="w"> </span>mesh.glb<span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-223-3"><a id="__codelineno-223-3" name="__codelineno-223-3" href="#__codelineno-223-3"></a>assgen<span class="w"> </span>visual<span class="w"> </span>vfx<span class="w"> </span>particle<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;fire explosion&quot;</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-223-4"><a id="__codelineno-223-4" name="__codelineno-223-4" href="#__codelineno-223-4"></a>assgen<span class="w"> </span>visual<span class="w"> </span>ui<span class="w"> </span>icon<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">&quot;health potion&quot;</span><span class="w"> </span><span class="o">[</span>--size<span class="w"> </span><span class="m">256</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-audio">assgen audio<a class="headerlink" href="#assgen-audio" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-222-1"><a id="__codelineno-222-1" name="__codelineno-222-1" href="#__codelineno-222-1"></a>assgen<span class="w"> </span>audio<span class="w"> </span>sfx<span class="w"> </span>generate<span class="w"> </span><span class="s2">&quot;laser gun firing&quot;</span><span class="w"> </span><span class="o">[</span>--duration<span class="w"> </span><span class="m">2</span>.0<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-222-2"><a id="__codelineno-222-2" name="__codelineno-222-2" href="#__codelineno-222-2"></a>assgen<span class="w"> </span>audio<span class="w"> </span>music<span class="w"> </span>compose<span class="w"> </span><span class="s2">&quot;epic battle theme&quot;</span><span class="w"> </span><span class="o">[</span>--duration<span class="w"> </span><span class="m">30</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-222-3"><a id="__codelineno-222-3" name="__codelineno-222-3" href="#__codelineno-222-3"></a>assgen<span class="w"> </span>audio<span class="w"> </span>music<span class="w"> </span>loop<span class="w"> </span>input.wav<span class="w"> </span><span class="o">[</span>--target-duration<span class="w"> </span><span class="m">60</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-222-4"><a id="__codelineno-222-4" name="__codelineno-222-4" href="#__codelineno-222-4"></a>assgen<span class="w"> </span>audio<span class="w"> </span>voice<span class="w"> </span>tts<span class="w"> </span><span class="s2">&quot;Welcome, hero.&quot;</span><span class="w"> </span><span class="o">[</span>--voice<span class="w"> </span>en_default<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
-</span><span id="__span-222-5"><a id="__codelineno-222-5" name="__codelineno-222-5" href="#__codelineno-222-5"></a>assgen<span class="w"> </span>audio<span class="w"> </span>voice<span class="w"> </span>dialog<span class="w"> </span>dialog.json<span class="w"> </span><span class="o">[</span>--voice<span class="w"> </span>npcs.yaml<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-224-1"><a id="__codelineno-224-1" name="__codelineno-224-1" href="#__codelineno-224-1"></a>assgen<span class="w"> </span>audio<span class="w"> </span>sfx<span class="w"> </span>generate<span class="w"> </span><span class="s2">&quot;laser gun firing&quot;</span><span class="w"> </span><span class="o">[</span>--duration<span class="w"> </span><span class="m">2</span>.0<span class="o">]</span><span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-224-2"><a id="__codelineno-224-2" name="__codelineno-224-2" href="#__codelineno-224-2"></a>assgen<span class="w"> </span>audio<span class="w"> </span>music<span class="w"> </span>compose<span class="w"> </span><span class="s2">&quot;epic battle theme&quot;</span><span class="w"> </span><span class="o">[</span>--duration<span class="w"> </span><span class="m">30</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-224-3"><a id="__codelineno-224-3" name="__codelineno-224-3" href="#__codelineno-224-3"></a>assgen<span class="w"> </span>audio<span class="w"> </span>music<span class="w"> </span>loop<span class="w"> </span>input.wav<span class="w"> </span><span class="o">[</span>--target-duration<span class="w"> </span><span class="m">60</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-224-4"><a id="__codelineno-224-4" name="__codelineno-224-4" href="#__codelineno-224-4"></a>assgen<span class="w"> </span>audio<span class="w"> </span>voice<span class="w"> </span>tts<span class="w"> </span><span class="s2">&quot;Welcome, hero.&quot;</span><span class="w"> </span><span class="o">[</span>--voice<span class="w"> </span>en_default<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
+</span><span id="__span-224-5"><a id="__codelineno-224-5" name="__codelineno-224-5" href="#__codelineno-224-5"></a>assgen<span class="w"> </span>audio<span class="w"> </span>voice<span class="w"> </span>dialog<span class="w"> </span>dialog.json<span class="w"> </span><span class="o">[</span>--voice<span class="w"> </span>npcs.yaml<span class="o">]</span><span class="w"> </span><span class="o">[</span>--wait<span class="o">]</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-jobs">assgen jobs<a class="headerlink" href="#assgen-jobs" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-223-1"><a id="__codelineno-223-1" name="__codelineno-223-1" href="#__codelineno-223-1"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--status<span class="w"> </span>queued<span class="p">|</span>running<span class="p">|</span>completed<span class="p">|</span>failed<span class="o">]</span><span class="w"> </span><span class="o">[</span>--limit<span class="w"> </span><span class="m">50</span><span class="o">]</span>
-</span><span id="__span-223-2"><a id="__codelineno-223-2" name="__codelineno-223-2" href="#__codelineno-223-2"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>status<span class="w"> </span>&lt;id&gt;<span class="w">        </span><span class="c1"># full 36-char UUID or 8-char prefix</span>
-</span><span id="__span-223-3"><a id="__codelineno-223-3" name="__codelineno-223-3" href="#__codelineno-223-3"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span><span class="nb">wait</span><span class="w"> </span>&lt;id&gt;<span class="w">          </span><span class="c1"># block with live progress bar</span>
-</span><span id="__span-223-4"><a id="__codelineno-223-4" name="__codelineno-223-4" href="#__codelineno-223-4"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>cancel<span class="w"> </span>&lt;id&gt;
-</span><span id="__span-223-5"><a id="__codelineno-223-5" name="__codelineno-223-5" href="#__codelineno-223-5"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>clean<span class="w"> </span><span class="o">[</span>--days<span class="w"> </span><span class="m">30</span><span class="o">]</span><span class="w">  </span><span class="c1"># remove completed jobs older than N days</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-225-1"><a id="__codelineno-225-1" name="__codelineno-225-1" href="#__codelineno-225-1"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--status<span class="w"> </span>queued<span class="p">|</span>running<span class="p">|</span>completed<span class="p">|</span>failed<span class="o">]</span><span class="w"> </span><span class="o">[</span>--limit<span class="w"> </span><span class="m">50</span><span class="o">]</span>
+</span><span id="__span-225-2"><a id="__codelineno-225-2" name="__codelineno-225-2" href="#__codelineno-225-2"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>status<span class="w"> </span>&lt;id&gt;<span class="w">        </span><span class="c1"># full 36-char UUID or 8-char prefix</span>
+</span><span id="__span-225-3"><a id="__codelineno-225-3" name="__codelineno-225-3" href="#__codelineno-225-3"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span><span class="nb">wait</span><span class="w"> </span>&lt;id&gt;<span class="w">          </span><span class="c1"># block with live progress bar</span>
+</span><span id="__span-225-4"><a id="__codelineno-225-4" name="__codelineno-225-4" href="#__codelineno-225-4"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>cancel<span class="w"> </span>&lt;id&gt;
+</span><span id="__span-225-5"><a id="__codelineno-225-5" name="__codelineno-225-5" href="#__codelineno-225-5"></a>assgen<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>clean<span class="w"> </span><span class="o">[</span>--days<span class="w"> </span><span class="m">30</span><span class="o">]</span><span class="w">  </span><span class="c1"># remove completed jobs older than N days</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-models">assgen models<a class="headerlink" href="#assgen-models" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-224-1"><a id="__codelineno-224-1" name="__codelineno-224-1" href="#__codelineno-224-1"></a>assgen<span class="w"> </span>models<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--installed<span class="o">]</span>
-</span><span id="__span-224-2"><a id="__codelineno-224-2" name="__codelineno-224-2" href="#__codelineno-224-2"></a>assgen<span class="w"> </span>models<span class="w"> </span>status<span class="w"> </span>&lt;model-id&gt;
-</span><span id="__span-224-3"><a id="__codelineno-224-3" name="__codelineno-224-3" href="#__codelineno-224-3"></a>assgen<span class="w"> </span>models<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>model-id<span class="w"> </span>...<span class="o">]</span><span class="w">   </span><span class="c1"># download from HuggingFace</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-226-1"><a id="__codelineno-226-1" name="__codelineno-226-1" href="#__codelineno-226-1"></a>assgen<span class="w"> </span>models<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--installed<span class="o">]</span>
+</span><span id="__span-226-2"><a id="__codelineno-226-2" name="__codelineno-226-2" href="#__codelineno-226-2"></a>assgen<span class="w"> </span>models<span class="w"> </span>status<span class="w"> </span>&lt;model-id&gt;
+</span><span id="__span-226-3"><a id="__codelineno-226-3" name="__codelineno-226-3" href="#__codelineno-226-3"></a>assgen<span class="w"> </span>models<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>model-id<span class="w"> </span>...<span class="o">]</span><span class="w">   </span><span class="c1"># download from HuggingFace</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-config">assgen config<a class="headerlink" href="#assgen-config" title="Permanent link">&para;</a></h2>
 <p>Manages the task → HuggingFace model catalog. User overrides are saved to
 <code>~/.config/assgen/models.yaml</code> and sent with each job submission.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-225-1"><a id="__codelineno-225-1" name="__codelineno-225-1" href="#__codelineno-225-1"></a>assgen<span class="w"> </span>config<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--installed<span class="o">]</span>
-</span><span id="__span-225-2"><a id="__codelineno-225-2" name="__codelineno-225-2" href="#__codelineno-225-2"></a>assgen<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span>&lt;job-type&gt;
-</span><span id="__span-225-3"><a id="__codelineno-225-3" name="__codelineno-225-3" href="#__codelineno-225-3"></a>assgen<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>&lt;job-type&gt;<span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w">   </span><span class="c1"># interactive if no --model-id</span>
-</span><span id="__span-225-4"><a id="__codelineno-225-4" name="__codelineno-225-4" href="#__codelineno-225-4"></a>assgen<span class="w"> </span>config<span class="w"> </span>remove<span class="w"> </span>&lt;job-type&gt;<span class="w">                       </span><span class="c1"># revert to built-in default</span>
-</span><span id="__span-225-5"><a id="__codelineno-225-5" name="__codelineno-225-5" href="#__codelineno-225-5"></a>assgen<span class="w"> </span>config<span class="w"> </span>search<span class="w"> </span>&lt;query&gt;<span class="w">                          </span><span class="c1"># search HuggingFace</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-227-1"><a id="__codelineno-227-1" name="__codelineno-227-1" href="#__codelineno-227-1"></a>assgen<span class="w"> </span>config<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>--domain<span class="w"> </span>DOMAIN<span class="o">]</span><span class="w"> </span><span class="o">[</span>--installed<span class="o">]</span>
+</span><span id="__span-227-2"><a id="__codelineno-227-2" name="__codelineno-227-2" href="#__codelineno-227-2"></a>assgen<span class="w"> </span>config<span class="w"> </span>show<span class="w"> </span>&lt;job-type&gt;
+</span><span id="__span-227-3"><a id="__codelineno-227-3" name="__codelineno-227-3" href="#__codelineno-227-3"></a>assgen<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>&lt;job-type&gt;<span class="w"> </span><span class="o">[</span>--model-id<span class="w"> </span>org/repo<span class="o">]</span><span class="w">   </span><span class="c1"># interactive if no --model-id</span>
+</span><span id="__span-227-4"><a id="__codelineno-227-4" name="__codelineno-227-4" href="#__codelineno-227-4"></a>assgen<span class="w"> </span>config<span class="w"> </span>remove<span class="w"> </span>&lt;job-type&gt;<span class="w">                       </span><span class="c1"># revert to built-in default</span>
+</span><span id="__span-227-5"><a id="__codelineno-227-5" name="__codelineno-227-5" href="#__codelineno-227-5"></a>assgen<span class="w"> </span>config<span class="w"> </span>search<span class="w"> </span>&lt;query&gt;<span class="w">                          </span><span class="c1"># search HuggingFace</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-client-config">assgen client config<a class="headerlink" href="#assgen-client-config" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-226-1"><a id="__codelineno-226-1" name="__codelineno-226-1" href="#__codelineno-226-1"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>show<span class="w">              </span><span class="c1"># show resolved server URL + live health check</span>
-</span><span id="__span-226-2"><a id="__codelineno-226-2" name="__codelineno-226-2" href="#__codelineno-226-2"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>set-server<span class="w"> </span>&lt;url&gt;<span class="w">  </span><span class="c1"># point client at a remote server</span>
-</span><span id="__span-226-3"><a id="__codelineno-226-3" name="__codelineno-226-3" href="#__codelineno-226-3"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>unset-server<span class="w">      </span><span class="c1"># revert to auto-start local server</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-228-1"><a id="__codelineno-228-1" name="__codelineno-228-1" href="#__codelineno-228-1"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>show<span class="w">              </span><span class="c1"># show resolved server URL + live health check</span>
+</span><span id="__span-228-2"><a id="__codelineno-228-2" name="__codelineno-228-2" href="#__codelineno-228-2"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>set-server<span class="w"> </span>&lt;url&gt;<span class="w">  </span><span class="c1"># point client at a remote server</span>
+</span><span id="__span-228-3"><a id="__codelineno-228-3" name="__codelineno-228-3" href="#__codelineno-228-3"></a>assgen<span class="w"> </span>client<span class="w"> </span>config<span class="w"> </span>unset-server<span class="w">      </span><span class="c1"># revert to auto-start local server</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-server-config">assgen server config<a class="headerlink" href="#assgen-server-config" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-227-1"><a id="__codelineno-227-1" name="__codelineno-227-1" href="#__codelineno-227-1"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span>show<span class="w">              </span><span class="c1"># show all resolved server settings</span>
-</span><span id="__span-227-2"><a id="__codelineno-227-2" name="__codelineno-227-2" href="#__codelineno-227-2"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>&lt;key&gt;<span class="w"> </span>&lt;val&gt;<span class="w">   </span><span class="c1"># persist to ~/.config/assgen/server.yaml</span>
-</span><span id="__span-227-3"><a id="__codelineno-227-3" name="__codelineno-227-3" href="#__codelineno-227-3"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span>models<span class="w"> </span><span class="o">[</span>--domain<span class="o">]</span><span class="w"> </span><span class="c1"># view task → model catalog</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-229-1"><a id="__codelineno-229-1" name="__codelineno-229-1" href="#__codelineno-229-1"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span>show<span class="w">              </span><span class="c1"># show all resolved server settings</span>
+</span><span id="__span-229-2"><a id="__codelineno-229-2" name="__codelineno-229-2" href="#__codelineno-229-2"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>&lt;key&gt;<span class="w"> </span>&lt;val&gt;<span class="w">   </span><span class="c1"># persist to ~/.config/assgen/server.yaml</span>
+</span><span id="__span-229-3"><a id="__codelineno-229-3" name="__codelineno-229-3" href="#__codelineno-229-3"></a>assgen<span class="w"> </span>server<span class="w"> </span>config<span class="w"> </span>models<span class="w"> </span><span class="o">[</span>--domain<span class="o">]</span><span class="w"> </span><span class="c1"># view task → model catalog</span>
 </span></code></pre></div>
 <h3 id="configurable-keys">Configurable keys<a class="headerlink" href="#configurable-keys" title="Permanent link">&para;</a></h3>
 <table>
@@ -2390,30 +2428,30 @@ so it's discoverable under server configuration.</p>
 </table>
 <hr />
 <h2 id="assgen-server">assgen server<a class="headerlink" href="#assgen-server" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-228-1"><a id="__codelineno-228-1" name="__codelineno-228-1" href="#__codelineno-228-1"></a>assgen<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>--daemon<span class="o">]</span><span class="w">    </span><span class="c1"># start local assgen-server</span>
-</span><span id="__span-228-2"><a id="__codelineno-228-2" name="__codelineno-228-2" href="#__codelineno-228-2"></a>assgen<span class="w"> </span>server<span class="w"> </span>stop<span class="w">                </span><span class="c1"># stop local assgen-server</span>
-</span><span id="__span-228-3"><a id="__codelineno-228-3" name="__codelineno-228-3" href="#__codelineno-228-3"></a>assgen<span class="w"> </span>server<span class="w"> </span>status<span class="w">              </span><span class="c1"># check if server is healthy</span>
-</span><span id="__span-228-4"><a id="__codelineno-228-4" name="__codelineno-228-4" href="#__codelineno-228-4"></a>assgen<span class="w"> </span>server<span class="w"> </span>use<span class="w"> </span>&lt;url&gt;<span class="w">           </span><span class="c1"># alias for: assgen client config set-server</span>
-</span><span id="__span-228-5"><a id="__codelineno-228-5" name="__codelineno-228-5" href="#__codelineno-228-5"></a>assgen<span class="w"> </span>server<span class="w"> </span><span class="nb">unset</span><span class="w">               </span><span class="c1"># alias for: assgen client config unset-server</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-230-1"><a id="__codelineno-230-1" name="__codelineno-230-1" href="#__codelineno-230-1"></a>assgen<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>--daemon<span class="o">]</span><span class="w">    </span><span class="c1"># start local assgen-server</span>
+</span><span id="__span-230-2"><a id="__codelineno-230-2" name="__codelineno-230-2" href="#__codelineno-230-2"></a>assgen<span class="w"> </span>server<span class="w"> </span>stop<span class="w">                </span><span class="c1"># stop local assgen-server</span>
+</span><span id="__span-230-3"><a id="__codelineno-230-3" name="__codelineno-230-3" href="#__codelineno-230-3"></a>assgen<span class="w"> </span>server<span class="w"> </span>status<span class="w">              </span><span class="c1"># check if server is healthy</span>
+</span><span id="__span-230-4"><a id="__codelineno-230-4" name="__codelineno-230-4" href="#__codelineno-230-4"></a>assgen<span class="w"> </span>server<span class="w"> </span>use<span class="w"> </span>&lt;url&gt;<span class="w">           </span><span class="c1"># alias for: assgen client config set-server</span>
+</span><span id="__span-230-5"><a id="__codelineno-230-5" name="__codelineno-230-5" href="#__codelineno-230-5"></a>assgen<span class="w"> </span>server<span class="w"> </span><span class="nb">unset</span><span class="w">               </span><span class="c1"># alias for: assgen client config unset-server</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-upgrade">assgen upgrade<a class="headerlink" href="#assgen-upgrade" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-229-1"><a id="__codelineno-229-1" name="__codelineno-229-1" href="#__codelineno-229-1"></a>assgen<span class="w"> </span>upgrade<span class="w">               </span><span class="c1"># check and prompt to upgrade</span>
-</span><span id="__span-229-2"><a id="__codelineno-229-2" name="__codelineno-229-2" href="#__codelineno-229-2"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--check<span class="w">       </span><span class="c1"># exit 0 if up-to-date, exit 1 if outdated</span>
-</span><span id="__span-229-3"><a id="__codelineno-229-3" name="__codelineno-229-3" href="#__codelineno-229-3"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--yes<span class="w">         </span><span class="c1"># skip confirmation prompt</span>
-</span><span id="__span-229-4"><a id="__codelineno-229-4" name="__codelineno-229-4" href="#__codelineno-229-4"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--pre<span class="w">         </span><span class="c1"># include pre-release versions</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-231-1"><a id="__codelineno-231-1" name="__codelineno-231-1" href="#__codelineno-231-1"></a>assgen<span class="w"> </span>upgrade<span class="w">               </span><span class="c1"># check and prompt to upgrade</span>
+</span><span id="__span-231-2"><a id="__codelineno-231-2" name="__codelineno-231-2" href="#__codelineno-231-2"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--check<span class="w">       </span><span class="c1"># exit 0 if up-to-date, exit 1 if outdated</span>
+</span><span id="__span-231-3"><a id="__codelineno-231-3" name="__codelineno-231-3" href="#__codelineno-231-3"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--yes<span class="w">         </span><span class="c1"># skip confirmation prompt</span>
+</span><span id="__span-231-4"><a id="__codelineno-231-4" name="__codelineno-231-4" href="#__codelineno-231-4"></a>assgen<span class="w"> </span>upgrade<span class="w"> </span>--pre<span class="w">         </span><span class="c1"># include pre-release versions</span>
 </span></code></pre></div>
 <hr />
 <h2 id="assgen-version">assgen version<a class="headerlink" href="#assgen-version" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-230-1"><a id="__codelineno-230-1" name="__codelineno-230-1" href="#__codelineno-230-1"></a>assgen<span class="w"> </span>version
-</span><span id="__span-230-2"><a id="__codelineno-230-2" name="__codelineno-230-2" href="#__codelineno-230-2"></a><span class="c1"># assgen  version: 0.0.1  python: 3.12.3  platform: Linux-6.8.0  build: v0.0.1-0-gabcdef0</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-232-1"><a id="__codelineno-232-1" name="__codelineno-232-1" href="#__codelineno-232-1"></a>assgen<span class="w"> </span>version
+</span><span id="__span-232-2"><a id="__codelineno-232-2" name="__codelineno-232-2" href="#__codelineno-232-2"></a><span class="c1"># assgen  version: 0.0.1  python: 3.12.3  platform: Linux-6.8.0  build: v0.0.1-0-gabcdef0</span>
 </span></code></pre></div>
 <hr />
 <h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h2>
 <p>All commands support <code>--help</code>. The <code>--wait</code> / <code>-w</code> flag is available on all asset
 generation commands and blocks until the job completes, showing a progress bar.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-231-1"><a id="__codelineno-231-1" name="__codelineno-231-1" href="#__codelineno-231-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>create<span class="w"> </span>--help
-</span><span id="__span-231-2"><a id="__codelineno-231-2" name="__codelineno-231-2" href="#__codelineno-231-2"></a>assgen<span class="w"> </span>audio<span class="w"> </span>sfx<span class="w"> </span>generate<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-233-1"><a id="__codelineno-233-1" name="__codelineno-233-1" href="#__codelineno-233-1"></a>assgen<span class="w"> </span>visual<span class="w"> </span>model<span class="w"> </span>create<span class="w"> </span>--help
+</span><span id="__span-233-2"><a id="__codelineno-233-2" name="__codelineno-233-2" href="#__codelineno-233-2"></a>assgen<span class="w"> </span>audio<span class="w"> </span>sfx<span class="w"> </span>generate<span class="w"> </span>--help
 </span></code></pre></div>
 
 
