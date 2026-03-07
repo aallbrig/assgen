@@ -110,6 +110,12 @@ nav:
     - Overview: configuration.md
     - Model Validation: model-validation.md
   - API Reference: api-reference.md
+  - Workflow Guides:
+    - Solo Indie Dev (Godot): workflow-solo-indie.md
+    - Environment Artist (UE5): workflow-environment-artist.md
+    - Character Artist (Unity): workflow-character-artist.md
+    - Audio Designer: workflow-audio-designer.md
+    - CI/CD Pipeline TD: workflow-ci-pipeline.md
   - Guides:
     - UX Design & User Flows: ux-design.md
     - Server Setup (Remote GPU): server-setup.md

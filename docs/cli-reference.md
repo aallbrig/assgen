@@ -53,62 +53,62 @@ Displays a rich tree of all 50+ game development tasks with their assigned AI mo
 
 ---
 
-## assgen visual
+## assgen gen visual
 
-### `assgen visual model`
+### `assgen gen visual model`
 
 ```bash
-assgen visual model create --prompt "medieval sword" [--input-image img.png] \
+assgen gen visual model create --prompt "medieval sword" [--input-image img.png] \
     [--format glb] [--model-id org/repo] [--wait]
-assgen visual model retopo input.glb [--target-faces 5000] [--wait]
-assgen visual model splat [--input-dir ./frames] [--wait]
-assgen visual model optimize input.glb [--lod-levels 3] [--wait]
-assgen visual model export input.glb [--engine unity|unreal|godot] [--wait]
+assgen gen visual model retopo input.glb [--target-faces 5000] [--wait]
+assgen gen visual model splat [--input-dir ./frames] [--wait]
+assgen gen visual model optimize input.glb [--lod-levels 3] [--wait]
+assgen gen visual model export input.glb [--engine unity|unreal|godot] [--wait]
 ```
 
-### `assgen visual texture`
+### `assgen gen visual texture`
 
 ```bash
-assgen visual texture generate input.glb --prompt "worn leather" [--resolution 2048] [--wait]
-assgen visual texture bake high.glb low.glb [--map-types all] [--wait]
-assgen visual texture pbr input.glb [--style "sci-fi metal"] [--wait]
+assgen gen visual texture generate input.glb --prompt "worn leather" [--resolution 2048] [--wait]
+assgen gen visual texture bake high.glb low.glb [--map-types all] [--wait]
+assgen gen visual texture pbr input.glb [--style "sci-fi metal"] [--wait]
 ```
 
-### `assgen visual rig`
+### `assgen gen visual rig`
 
 ```bash
-assgen visual rig auto character.glb [--skeleton humanoid|animal|custom] [--wait]
-assgen visual rig skin character.glb [--bone-influence 4] [--wait]
-assgen visual rig retarget source.glb target.glb [--wait]
+assgen gen visual rig auto character.glb [--skeleton humanoid|animal|custom] [--wait]
+assgen gen visual rig skin character.glb [--bone-influence 4] [--wait]
+assgen gen visual rig retarget source.glb target.glb [--wait]
 ```
 
-### `assgen visual animate`
+### `assgen gen visual animate`
 
 ```bash
-assgen visual animate keyframe character.glb --prompt "walk cycle" [--frames 60] [--wait]
-assgen visual animate mocap video.mp4 [--target character.glb] [--wait]
-assgen visual animate blend anim1.glb anim2.glb [--weight 0.5] [--wait]
+assgen gen visual animate keyframe character.glb --prompt "walk cycle" [--frames 60] [--wait]
+assgen gen visual animate mocap video.mp4 [--target character.glb] [--wait]
+assgen gen visual animate blend anim1.glb anim2.glb [--weight 0.5] [--wait]
 ```
 
 ### Other visual subcommands
 
 ```bash
-assgen visual concept generate --prompt "fantasy castle" [--wait]
-assgen visual uv auto mesh.glb [--wait]
-assgen visual vfx particle --prompt "fire explosion" [--wait]
-assgen visual ui icon --prompt "health potion" [--size 256] [--wait]
+assgen gen visual concept generate --prompt "fantasy castle" [--wait]
+assgen gen visual uv auto mesh.glb [--wait]
+assgen gen visual vfx particle --prompt "fire explosion" [--wait]
+assgen gen visual ui icon --prompt "health potion" [--size 256] [--wait]
 ```
 
 ---
 
-## assgen audio
+## assgen gen audio
 
 ```bash
-assgen audio sfx generate "laser gun firing" [--duration 2.0] [--model-id org/repo] [--wait]
-assgen audio music compose "epic battle theme" [--duration 30] [--wait]
-assgen audio music loop input.wav [--target-duration 60] [--wait]
-assgen audio voice tts "Welcome, hero." [--voice en_default] [--wait]
-assgen audio voice dialog dialog.json [--voice npcs.yaml] [--wait]
+assgen gen audio sfx generate "laser gun firing" [--duration 2.0] [--model-id org/repo] [--wait]
+assgen gen audio music compose "epic battle theme" [--duration 30] [--wait]
+assgen gen audio music loop input.wav [--target-duration 60] [--wait]
+assgen gen audio voice tts "Welcome, hero." [--voice en_default] [--wait]
+assgen gen audio voice dialog dialog.json [--voice npcs.yaml] [--wait]
 ```
 
 ---
@@ -222,6 +222,6 @@ All commands support `--help`. The `--wait` / `-w` flag is available on all asse
 generation commands and blocks until the job completes, showing a progress bar.
 
 ```bash
-assgen visual model create --help
-assgen audio sfx generate --help
+assgen gen visual model create --help
+assgen gen audio sfx generate --help
 ```
