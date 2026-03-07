@@ -26,7 +26,13 @@ def animate_keyframe(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate animation keyframes from a text prompt."""
+    """Generate a 2D animation preview video from a text prompt (AnimateDiff).
+
+    NOTE: Output is a short video clip or sprite-sheet reference — NOT a 3D
+    skeletal animation (BVH/FBX).  Use the output as a visual reference when
+    hand-keying or to drive a 2D sprite animation.  No open model currently
+    produces importable 3D keyframe data.
+    """
     submit_job("visual.animate.keyframe", {
         "prompt": prompt,
         "rig": rig,

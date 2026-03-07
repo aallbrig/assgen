@@ -80,7 +80,13 @@ def model_splat(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate a Gaussian Splat (3DGS) from multi-view images."""
+    """Generate a triangle mesh from multi-view images (TripoSR).
+
+    NOTE: Output is a triangle mesh (PLY/GLB), NOT a Gaussian Splat (3DGS).
+    True 3DGS training requires a separate pipeline such as nerfstudio or the
+    original gaussian-splatting trainer.  The mesh output can be fed into a
+    downstream 3DGS trainer as a point-cloud initialisation.
+    """
     submit_job("visual.model.splat", {
         "images": list(images),
         "convert_mesh": convert_mesh,

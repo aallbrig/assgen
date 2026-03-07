@@ -30,7 +30,7 @@ catalog:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
-    notes: "Generates blockout reference sheets; prompt for 'greybox / wireframe / white model'"
+    notes: "Generates a 2D layout sketch / greybox reference image — NOT a 3D mesh. Use the output as a visual reference when manually building 3D blockout geometry in your engine."
 
   # ── Visual / Model (3D mesh) ──────────────────────────────────────────────
   visual.model.create:
@@ -43,7 +43,7 @@ catalog:
     model_id: "stabilityai/TripoSR"
     name: "TripoSR"
     task: "image-to-3d"
-    notes: "No HF-hosted 3DGS model has a pipeline_tag; TripoSR output (PLY/mesh) feeds downstream GS pipelines"
+    notes: "Produces a triangle mesh (PLY/GLB) from multi-view images — NOT a Gaussian Splat (3DGS). True 3DGS training requires a separate pipeline (nerfstudio, gaussian-splatting). Output mesh can feed into a downstream GS trainer."
 
   visual.model.retopo:
     model_id: null
@@ -63,7 +63,7 @@ catalog:
     model_id: "stabilityai/stable-diffusion-xl-base-1.0"
     name: "Stable Diffusion XL"
     task: "text-to-image"
-    notes: "Pair with ControlNet Tile for seamless PBR albedo/roughness/normal sheet generation"
+    notes: "Outputs an albedo/diffuse texture image only. Full PBR maps (normal, roughness, metallic) require post-processing in Materialize / Substance or a ControlNet Normal+Depth pipeline."
 
   visual.texture.bake:
     model_id: null
@@ -83,7 +83,7 @@ catalog:
     model_id: "guoyww/animatediff-motion-adapter-v1-5-2"
     name: "AnimateDiff"
     task: "text-to-video"
-    notes: "SD 1.5 motion adapter; HF pipeline_tag is text-to-video; good for 2-D sprite/preview animations"
+    notes: "Outputs a short 2D animation video / sprite preview — NOT a skeletal animation (BVH/FBX). Use as a visual reference or sprite-sheet source. No open model can generate 3D keyframe animation data yet."
 
   visual.animate.mocap:
     model_id: "facebook/sapiens-pose-0.3b"
@@ -120,10 +120,10 @@ catalog:
 
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:
-    model_id: "riffusion/riffusion-model-v1"
-    name: "Riffusion"
-    task: "text-to-audio"
-    notes: "Spectrogram-based diffusion model; text prompt → audio clip; ungated; good for short SFX bursts"
+    model_id: "facebook/audiogen-medium"
+    name: "AudioGen Medium"
+    task: null
+    notes: "Meta AudioGen 1.5B — purpose-built for sound effects (footsteps, explosions, UI clicks, ambience). No HF pipeline_tag (validation auto-skipped). Requires AudioCraft; output is a WAV clip."
 
   # ── Audio / Music ────────────────────────────────────────────────────────
   audio.music.compose:

@@ -23,7 +23,12 @@ def blockout_create(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate a low-fidelity blockout mesh for layout and scale testing."""
+    """Generate a 2D blockout layout sketch for scene planning (SDXL).
+
+    NOTE: Output is a 2D image reference (top-down or perspective sketch),
+    NOT a 3D mesh.  Use the output as a visual guide when building blockout
+    geometry manually in your game engine or in Blender.
+    """
     submit_job("visual.blockout.create", {
         "prompt": prompt,
         "scale": scale,

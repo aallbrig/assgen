@@ -30,7 +30,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.concept.ref":      "Compile reference sheets (expressions, poses, weapons)",
     "visual.concept.style":    "Generate or enforce a project style guide",
     # visual / blockout
-    "visual.blockout.create":  "Text/image → low-fi placeholder mesh for layout",
+    "visual.blockout.create":  "2D layout sketch / greybox reference image (NOT a 3D mesh)",
     "visual.blockout.assemble":"Compose and scale a scene from blockout pieces",
     "visual.blockout.iterate": "Rapid variant generation for gameplay feedback",
     # visual / model
@@ -43,7 +43,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.uv.manual":        "Edit seams and packing manually",
     "visual.uv.optimize":      "Texel density normalisation, atlas packing",
     # visual / texture
-    "visual.texture.generate": "Text/image → albedo, normal, roughness, metallic",
+    "visual.texture.generate": "Text/image → albedo/diffuse texture (output is NOT a full PBR set)",
     "visual.texture.apply":    "Project / assign texture maps via UV layout",
     "visual.texture.bake":     "High-to-low poly transfer (normal, AO, curvature)",
     "visual.texture.pbr":      "Create or edit full PBR material sets",
@@ -54,7 +54,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.rig.skin":         "Automated weight painting and skinning",
     "visual.rig.retarget":     "Transfer rig structure to a new mesh",
     # visual / animate
-    "visual.animate.keyframe": "Text/video → keyframe clip (AnimateDiff, Motion)",
+    "visual.animate.keyframe": "2D animation preview video (NOT skeletal BVH/FBX — no open model exists yet)",
     "visual.animate.mocap":    "Video pose estimation → BVH/animation clip",
     "visual.animate.blend":    "Mix, layer, or loop animation clips",
     "visual.animate.retarget": "Apply clip to a different skeleton",
@@ -67,7 +67,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.ui.hud":           "Health bars, minimaps, crosshairs, buttons",
     "visual.ui.overlay":       "2D screen-space elements for 3D canvas",
     # audio / sfx
-    "audio.sfx.generate":      "Text → sound effect (AudioGen)",
+    "audio.sfx.generate":      "Text → discrete sound effect WAV (AudioGen — footsteps, explosions, UI)",
     "audio.sfx.edit":          "Pitch, reverb, trim, mix effects",
     "audio.sfx.library":       "Build / index a local SFX library",
     # audio / music
