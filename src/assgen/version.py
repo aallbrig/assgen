@@ -1,7 +1,31 @@
 """Version introspection for assgen.
 
-At build time, hatch-vcs writes version info into _version.py.
-At development time (editable installs), we fall back to querying git directly.
+Canonical approach:
+  1. ``importlib.metadata.version("assgen")`` is the *installed* version —
+     the single source of truth.  hatch-vcs writes this from the git tag at
+     ``pip install`` / ``pip install -e .`` time.
+  2. ``git describe --tags --long --dirty`` surfaces the *current source state*
+     so you can tell whether the working tree has changed since the install.
+  3. The ``--version`` / ``-V`` flag on both CLIs combines these two pieces so
+     you always know exactly what code is running.
+
+Version string examples
+-----------------------
+* Production install from a tagged release wheel::
+
+      assgen 0.1.0
+
+* Editable install from a clean dev checkout (16 commits after v0.0.1)::
+
+      assgen 0.0.2.dev16+gc9ee176
+        source  v0.0.1-16-gc9ee176 (clean)
+        python  3.12.2
+
+* Editable install with uncommitted changes in the working tree::
+
+      assgen 0.0.2.dev16+gc9ee176
+        source  v0.0.1-16-gc9ee176-dirty  ⚠  uncommitted changes
+        python  3.12.2
 """
 from __future__ import annotations
 
@@ -13,69 +37,88 @@ from pathlib import Path
 
 @lru_cache(maxsize=1)
 def get_version_info() -> dict[str, str | None]:
-    """Return a dict with version, commit, tag, and python fields."""
-    version, commit, tag = _resolve_version()
+    """Return a dict with ``version``, ``git_describe``, ``dirty``, and ``python`` fields.
+
+    * ``version``      — installed package version from :mod:`importlib.metadata`.
+    * ``git_describe`` — output of ``git describe --tags --long --dirty``, or *None*
+                         when git is unavailable (e.g. running from a wheel install).
+    * ``dirty``        — ``True`` if the git working tree has uncommitted changes.
+    * ``python``       — Python version string.
+    """
+    version = _installed_version()
+    git_desc = _git_describe()
+    dirty = git_desc.endswith("-dirty") if git_desc else False
     return {
         "version": version,
-        "commit": commit,
-        "tag": tag,
+        "git_describe": git_desc,
+        "dirty": dirty,
         "python": sys.version.split()[0],
     }
 
 
 def format_version_string(name: str = "assgen") -> str:
-    """Return a human-readable version string suitable for --version output."""
+    """Return a human-readable version string for ``--version`` output."""
     info = get_version_info()
-    parts = [f"{name} {info['version']}"]
-    details = []
-    if info["commit"]:
-        details.append(f"commit: {info['commit'][:8]}")
-    if info["tag"]:
-        details.append(f"tag: {info['tag']}")
-    details.append(f"python: {info['python']}")
-    if details:
-        parts.append(f"({', '.join(details)})")
-    return " ".join(parts)
+    ver = info["version"] or "0.0.0.dev"
+    lines = [f"{name} {ver}"]
+
+    git_desc = info.get("git_describe")
+    if git_desc:
+        dirty_note = "  ⚠  uncommitted changes" if info["dirty"] else " (clean)"
+        lines.append(f"  source  {git_desc}{dirty_note}")
+
+    lines.append(f"  python  {info['python']}")
+    return "\n".join(lines)
 
 
-def _resolve_version() -> tuple[str, str | None, str | None]:
-    """Try _version.py first, then git, then a safe fallback."""
-    # 1. Try the build-generated _version.py
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+def _installed_version() -> str:
+    """Read the version from installed package metadata (canonical source).
+
+    hatch-vcs writes this from the git tag at install time.  Works for both
+    regular and editable installs as long as the package is installed in the
+    active Python environment.
+    """
+    try:
+        from importlib.metadata import version, PackageNotFoundError
+        return version("assgen")
+    except Exception:
+        pass
+
+    # Last-resort: read the build-generated _version.py written by hatch-vcs
     try:
         from assgen._version import __version__  # type: ignore[import]
-        if __version__ and __version__ != "0+unknown":
-            commit = _git_commit()
-            tag = _git_tag()
-            return __version__, commit, tag
+        if __version__ and __version__ not in ("0+unknown", ""):
+            return __version__
     except ImportError:
         pass
 
-    # 2. Try git directly (works in an editable / source checkout)
-    commit = _git_commit()
-    tag = _git_tag()
-    version = tag.lstrip("v") if tag else (f"0.0.0.dev+{commit[:8]}" if commit else "0.0.0.dev")
-    return version, commit, tag
+    return "0.0.0.dev"
 
 
-def _run_git(*args: str) -> str | None:
-    """Run a git command from the repo root; return stdout or None on failure."""
-    repo_root = Path(__file__).resolve().parents[3]  # src/assgen → repo root (4 levels up)
+def _git_describe() -> str | None:
+    """Run ``git describe --tags --long --dirty`` and return the output.
+
+    Returns *None* when:
+    - git is not installed
+    - the current directory is not inside a git repository (e.g. wheel install)
+    - the repo has no tags yet
+    """
+    repo_root = Path(__file__).resolve().parents[2]
     try:
         result = subprocess.run(
-            ["git", "-C", str(repo_root), *args],
+            ["git", "-C", str(repo_root), "describe", "--tags", "--long", "--dirty"],
             capture_output=True,
             text=True,
             timeout=3,
+            stdin=subprocess.DEVNULL,
         )
-        return result.stdout.strip() if result.returncode == 0 else None
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
     except Exception:
-        return None
+        pass
+    return None
 
-
-def _git_commit() -> str | None:
-    return _run_git("rev-parse", "--short", "HEAD")
-
-
-def _git_tag() -> str | None:
-    """Return the most recent tag that points at HEAD, or None."""
-    return _run_git("describe", "--tags", "--exact-match", "--abbrev=0")

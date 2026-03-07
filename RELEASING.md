@@ -16,6 +16,52 @@ aborts before doing any work if the tag is malformed (e.g. `v0.1` will fail).
 The version is derived automatically from Git tags by `hatch-vcs` —
 there is no version field to edit manually.
 
+### How `--version` / `-V` works at runtime
+
+Both `assgen --version` and `assgen-server --version` print three pieces of
+information:
+
+```
+assgen 0.1.0           ← installed version (from importlib.metadata)
+  source  v0.0.1-16-gc9ee176-dirty  ⚠  uncommitted changes
+  python  3.12.3
+```
+
+| Field | Source | Meaning |
+|---|---|---|
+| `assgen <ver>` | `importlib.metadata.version("assgen")` | Version baked in at `pip install` time by hatch-vcs |
+| `source` line | `git describe --tags --long --dirty` | Current state of the source tree |
+| `⚠  uncommitted changes` | `-dirty` suffix in git describe | Working tree has unstaged/staged changes |
+| `(clean)` | No `-dirty` suffix | Source matches the installed commit |
+
+**Production release (installed from a tagged wheel)** — no `source` line appears
+(git is not available in a deployed environment):
+
+```
+assgen 0.1.0
+  python  3.12.3
+```
+
+**Dev editable install, clean** — 16 commits past tag `v0.0.1`:
+
+```
+assgen 0.0.2.dev16+gc9ee176
+  source  v0.0.1-16-gc9ee176 (clean)
+  python  3.12.3
+```
+
+**Dev editable install, dirty working tree**:
+
+```
+assgen 0.0.2.dev16+gc9ee176
+  source  v0.0.1-16-gc9ee176-dirty  ⚠  uncommitted changes
+  python  3.12.3
+```
+
+The `.dev` suffix and `+gHASH` local identifier are [PEP 440](https://peps.python.org/pep-0440/)
+version strings written by hatch-vcs / setuptools-scm.
+
+
 ## Pre-release checklist
 
 - [ ] All CI checks pass on `main` (lint, tests, docker build)
