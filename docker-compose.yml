@@ -1,0 +1,90 @@
+# assgen — docker-compose.yml
+#
+# Starts the assgen server locally.  The client (assgen CLI) on your host
+# machine can connect to it by setting:
+#   export ASSGEN_SERVER_URL=http://localhost:8432
+#
+# Quick start (CPU):
+#   docker compose up server
+#
+# With GPU (requires NVIDIA Container Toolkit):
+#   docker compose --profile gpu up server-cuda
+
+services:
+
+  # ── CPU server (default) ──────────────────────────────────────────────────
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+      args:
+        VERSION: "${VERSION:-dev}"
+    image: ghcr.io/aallbrig/assgen-server:${VERSION:-dev}
+    ports:
+      - "8432:8432"
+    volumes:
+      - assgen-data:/root/.local/share/assgen
+      - assgen-config:/root/.config/assgen
+    environment:
+      ASSGEN_DEVICE: cpu
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8432/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── GPU server (requires NVIDIA Container Toolkit) ─────────────────────────
+  server-cuda:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server-cuda
+      args:
+        VERSION: "${VERSION:-dev}"
+    image: ghcr.io/aallbrig/assgen-server-cuda:${VERSION:-dev}
+    ports:
+      - "8432:8432"
+    volumes:
+      - assgen-data:/root/.local/share/assgen
+      - assgen-config:/root/.config/assgen
+    environment:
+      ASSGEN_DEVICE: cuda
+    restart: unless-stopped
+    profiles: ["gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8432/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # ── Client (for scripting / CI use) ──────────────────────────────────────
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+      args:
+        VERSION: "${VERSION:-dev}"
+    image: ghcr.io/aallbrig/assgen-client:${VERSION:-dev}
+    volumes:
+      - ./output:/output
+    environment:
+      ASSGEN_SERVER_URL: http://server:8432
+    profiles: ["client"]
+    depends_on:
+      server:
+        condition: service_healthy
+
+volumes:
+  assgen-data:
+  assgen-config:
