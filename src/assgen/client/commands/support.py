@@ -36,8 +36,7 @@ def narrative_dialog(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Generate NPC dialog lines or a branching dialog tree."""
-    submit_job("audio.voice.dialog" if not branching else "pipeline.integrate.export", {
-        "mode": "dialog",
+    submit_job("narrative.dialogue.npc", {
         "character": character,
         "context": context,
         "lines": lines,
@@ -54,9 +53,8 @@ def narrative_lore(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate world-building lore text."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "lore",
+    """Generate world-building lore text (codex entries, item descriptions, quest text)."""
+    submit_job("narrative.lore.generate", {
         "topic": topic,
         "length": length,
         "format": format,
@@ -93,7 +91,7 @@ def data_proc(
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
     """Generate a procedural asset generation script from a description."""
-    submit_job("pipeline.integrate.export", {
+    submit_job("narrative.quest.design", {
         "mode": "proc-gen",
         "description": description,
         "language": language,
