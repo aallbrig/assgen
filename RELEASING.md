@@ -10,6 +10,9 @@ assgen follows [Semantic Versioning](https://semver.org):
 | New backwards-compatible feature | **Minor** | `0.1.0 → 0.2.0` |
 | Bug fix, dependency update | **Patch** | `0.1.0 → 0.1.1` |
 
+Tags **must** be valid semver — the release workflow validates the format and
+aborts before doing any work if the tag is malformed (e.g. `v0.1` will fail).
+
 The version is derived automatically from Git tags by `hatch-vcs` —
 there is no version field to edit manually.
 
@@ -31,21 +34,42 @@ git tag -a v0.1.0 -m "Release v0.1.0"
 git push origin v0.1.0
 ```
 
-That's it. The `release` workflow triggers automatically and:
+## What the release workflow does automatically
 
-1. Runs ruff lint + pytest
-2. Builds the Python wheel and sdist via `hatch build`
-3. Builds the MkDocs site and zips it as `assgen-docs-v*.zip`
-4. Creates a GitHub Release with the wheel, sdist, and docs zip attached
-5. Builds CPU server and client Docker images and pushes them to `ghcr.io`:
-   - `ghcr.io/aallbrig/assgen-server:v0.1.0` (and `:latest`)
-   - `ghcr.io/aallbrig/assgen-client:v0.1.0` (and `:latest`)
+1. **Validates** the tag is proper semver — aborts if malformed
+2. **Lints + tests** (offline tests only; integration tests run separately)
+3. Builds the Python **wheel and sdist** via `hatch build`
+4. Builds the **MkDocs site** and zips it as `assgen-docs-v*.zip`
+5. Creates a **GitHub Release** with wheel, sdist, docs zip, and binaries attached
+6. Builds standalone **client binaries** with PyInstaller in parallel on 3 platforms:
+   - `assgen-v*-linux-x64`
+   - `assgen-v*-windows-x64.exe`
+   - `assgen-v*-macos-x64`
+7. Builds CPU server + client **Docker images** and pushes to `ghcr.io` with full
+   semver tags (e.g. `:1.2.3`, `:1.2`, `:1`, `:latest`).
+   Pre-release tags (e.g. `v1.2.3-rc.1`) get only `:1.2.3-rc.1` — no `:latest`.
+
+## Pre-release tags
+
+```bash
+git tag -a v0.2.0-rc.1 -m "Release candidate 1 for v0.2.0"
+git push origin v0.2.0-rc.1
+```
+
+Pre-releases get a GitHub Release marked as pre-release but **no `:latest` Docker tag**
+and no `:major` / `:major.minor` shortcuts.
 
 ## After the release
 
 ```bash
 # Verify Docker images
-docker pull ghcr.io/aallbrig/assgen-server:v0.1.0
+docker pull ghcr.io/aallbrig/assgen-server:v0.1.0   # specific
+docker pull ghcr.io/aallbrig/assgen-server:0.1       # minor alias
+docker pull ghcr.io/aallbrig/assgen-server:latest    # latest stable
+
+# Test the standalone binary (Linux)
+curl -LO https://github.com/aallbrig/assgen/releases/latest/download/assgen-v0.1.0-linux-x64
+chmod +x assgen-v0.1.0-linux-x64 && ./assgen-v0.1.0-linux-x64 --version
 
 # Check the GitHub Release page
 gh release view v0.1.0

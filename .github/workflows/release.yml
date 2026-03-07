@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - "v[0-9]+.[0-9]+.[0-9]+"        # strict semver: v1.2.3
+      - "v[0-9]+.[0-9]+.[0-9]+-*"      # pre-releases: v1.2.3-rc.1, v1.2.3-beta.1
 
 permissions:
   contents: write
@@ -11,10 +12,31 @@ permissions:
   id-token: write
   packages: write   # needed to push Docker images to ghcr.io
 
+# ---------------------------------------------------------------------------
+# Validate the tag is proper semver before we do any real work.
+# A typo like "v0.1" will abort here rather than produce a broken release.
+# ---------------------------------------------------------------------------
 jobs:
+  validate-tag:
+    name: Validate semver tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check tag format
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if ! echo "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+            echo "ERROR: Tag '$TAG' is not valid semver (expected vMAJOR.MINOR.PATCH[-prerelease])"
+            exit 1
+          fi
+          echo "Tag '$TAG' is valid semver ✓"
+
+  # ---------------------------------------------------------------------------
+  # Build wheel + sdist, run tests, build and attach docs
+  # ---------------------------------------------------------------------------
   release:
     name: Build & Publish Release
     runs-on: ubuntu-latest
+    needs: validate-tag
 
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +56,7 @@ jobs:
         run: ruff check src/ tests/
 
       - name: Run tests
-        run: pytest -v --tb=short
+        run: pytest -v --tb=short -m "not integration"
 
       - name: Build distribution packages
         run: hatch build
@@ -57,7 +79,7 @@ jobs:
           body: |
             ## assgen ${{ github.ref_name }}
 
-            ### Install
+            ### Install via pip
             ```bash
             pip install assgen==${{ github.ref_name }}
             ```
@@ -67,10 +89,78 @@ jobs:
             assgen upgrade
             ```
 
+            ### Standalone binaries
+            Grab the pre-built binary for your platform from the assets below —
+            no Python installation required.
+
+            | Platform | File |
+            |---|---|
+            | Windows (x64) | `assgen-${{ github.ref_name }}-windows-x64.exe` |
+            | Linux (x64)   | `assgen-${{ github.ref_name }}-linux-x64` |
+            | macOS (x64)   | `assgen-${{ github.ref_name }}-macos-x64` |
+
+            ### Docker (server)
+            ```bash
+            docker pull ghcr.io/${{ github.repository_owner }}/assgen-server:${{ github.ref_name }}
+            ```
+
             See the [README](https://github.com/${{ github.repository }}/blob/main/README.md)
             for full usage documentation.  Offline docs are attached as
             `assgen-docs-${{ github.ref_name }}.zip`.
 
+  # ---------------------------------------------------------------------------
+  # Build standalone client binaries with PyInstaller
+  # ---------------------------------------------------------------------------
+  binaries:
+    name: Build binary (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: validate-tag
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: assgen
+            asset_suffix: linux-x64
+          - os: windows-latest
+            artifact_name: assgen.exe
+            asset_suffix: windows-x64
+          - os: macos-latest
+            artifact_name: assgen
+            asset_suffix: macos-x64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package + PyInstaller
+        run: pip install -e "." pyinstaller
+
+      - name: Build standalone binary
+        run: pyinstaller pyinstaller/assgen-client.spec
+
+      - name: Rename artifact with platform suffix
+        shell: bash
+        run: |
+          VERSION="${{ github.ref_name }}"
+          mv dist/${{ matrix.artifact_name }} \
+             dist/assgen-${VERSION}-${{ matrix.asset_suffix }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+
+      - name: Upload binary to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/assgen-${{ github.ref_name }}-${{ matrix.asset_suffix }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+
+  # ---------------------------------------------------------------------------
+  # Build & push Docker images with full semver tags
+  # ---------------------------------------------------------------------------
   docker:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
@@ -95,6 +185,31 @@ jobs:
         id: ver
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
+      # docker/metadata-action generates all semver tag variants automatically:
+      #   v1.2.3  → :1.2.3, :1.2, :1, :latest  (stable)
+      #   v1.2.3-rc.1 → :1.2.3-rc.1             (pre-release, no :latest)
+      - name: Generate Docker metadata — server
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/assgen-server
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+
+      - name: Generate Docker metadata — client
+        id: meta-client
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/assgen-client
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+
       - name: Build and push server image (CPU)
         uses: docker/build-push-action@v6
         with:
@@ -102,9 +217,8 @@ jobs:
           file: docker/Dockerfile.server
           push: true
           build-args: VERSION=${{ steps.ver.outputs.version }}
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/assgen-server:${{ github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/assgen-server:latest
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -115,9 +229,9 @@ jobs:
           file: docker/Dockerfile.client
           push: true
           build-args: VERSION=${{ steps.ver.outputs.version }}
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/assgen-client:${{ github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/assgen-client:latest
+          tags: ${{ steps.meta-client.outputs.tags }}
+          labels: ${{ steps.meta-client.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
 
