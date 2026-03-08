@@ -85,12 +85,26 @@ def _root_callback(
         help="Submit N identical jobs (batch generation).  "
              "Use with --wait to collect all outputs.",
     ),
+    quality: str = typer.Option(
+        "standard", "--quality", "-q",
+        help="Model quality tier: draft (fastest/smallest), standard, high (best/largest).  "
+             "Maps to model size variants where available.",
+    ),
+    from_job: str | None = typer.Option(
+        None, "--from-job",
+        help="Chain from a completed job's outputs.  Pass the upstream job ID; "
+             "its output files are forwarded as inputs to this job.",
+    ),
 ) -> None:
     """AI-driven game asset generation pipeline."""
     if json_output:
         _ctx.set_json_mode(True)
     if variants > 1:
         _ctx.set_variants(variants)
+    if quality != "standard":
+        _ctx.set_quality(quality)
+    if from_job:
+        _ctx.set_from_job(from_job)
     if verbose:
         logging.basicConfig(
             level=logging.DEBUG,

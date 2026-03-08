@@ -66,6 +66,16 @@ class JobDispatcher:
         job_type: str = job["job_type"]
         params: dict[str, Any] = job.get("params") or {}
 
+        # Quality tier resolution — if client passed _quality, remap to the
+        # appropriate size variant *before* model resolution runs.
+        quality = params.get("_quality")
+        if quality and not params.get("_model_id_override"):
+            from assgen.catalog import get_model_for_job_quality
+            qmodel = get_model_for_job_quality(job_type, quality)
+            if qmodel:
+                params = dict(params)
+                params["_model_id_override"] = qmodel
+
         # Per-job output directory — created here, passed to handler
         output_dir: Path = get_outputs_dir() / job["id"]
         output_dir.mkdir(parents=True, exist_ok=True)

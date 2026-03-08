@@ -296,3 +296,185 @@ class TestVariantsFlag:
         for job in parsed["jobs"]:
             assert job["status"] == "QUEUED"
 
+
+# ---------------------------------------------------------------------------
+# --quality flag
+# ---------------------------------------------------------------------------
+
+class TestQualityFlag:
+    """--quality injects _quality into job params."""
+
+    def _enqueue_mock(self) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = MagicMock(return_value=mc)
+        mc.__exit__ = MagicMock(return_value=False)
+        mc.enqueue_job.return_value = {
+            "id": "qualityjob00000001",
+            "status": "QUEUED",
+            "job_type": "audio.music.compose",
+        }
+        return mc
+
+    def test_quality_flag_present_in_help(self) -> None:
+        result = invoke("--help")
+        assert "--quality" in result.output
+
+    def test_quality_draft_sets_param(self) -> None:
+        from assgen.client import context
+        context.reset()
+        mock_client = self._enqueue_mock()
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke("--quality", "draft", "gen", "audio", "music", "compose", "battle")
+        context.reset()
+        assert result.exit_code == 0
+        call_kwargs = mock_client.enqueue_job.call_args
+        params_sent = call_kwargs[0][1]  # second positional arg is params dict
+        assert params_sent.get("_quality") == "draft"
+
+    def test_quality_standard_omits_param(self) -> None:
+        """standard is the default — should NOT inject _quality (saves bandwidth)."""
+        from assgen.client import context
+        context.reset()
+        mock_client = self._enqueue_mock()
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke("gen", "audio", "music", "compose", "battle")
+        context.reset()
+        assert result.exit_code == 0
+        call_kwargs = mock_client.enqueue_job.call_args
+        params_sent = call_kwargs[0][1]
+        assert "_quality" not in params_sent
+
+    def test_quality_high_sets_param(self) -> None:
+        import json as _json
+        from assgen.client import context
+        context.reset()
+        mock_client = self._enqueue_mock()
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke("--json", "--quality", "high", "gen", "audio", "music", "compose", "epic")
+        context.reset()
+        assert result.exit_code == 0
+        parsed = _json.loads(result.output.strip())
+        assert parsed["status"] == "QUEUED"
+        params_sent = mock_client.enqueue_job.call_args[0][1]
+        assert params_sent.get("_quality") == "high"
+
+
+# ---------------------------------------------------------------------------
+# --from-job chaining
+# ---------------------------------------------------------------------------
+
+class TestFromJobFlag:
+    """--from-job adds upstream job info to params."""
+
+    def _make_clients(self, upstream_id: str) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = MagicMock(return_value=mc)
+        mc.__exit__ = MagicMock(return_value=False)
+        mc.get_job.return_value = {
+            "id": upstream_id,
+            "status": "COMPLETED",
+            "job_type": "visual.model.create",
+            "result": {"files": ["model.glb"]},
+        }
+        mc.enqueue_job.return_value = {
+            "id": "downstream00001",
+            "status": "QUEUED",
+            "job_type": "visual.texture.generate",
+        }
+        return mc
+
+    def test_from_job_flag_present_in_help(self) -> None:
+        result = invoke("--help")
+        assert "--from-job" in result.output
+
+    def test_from_job_injects_upstream_info(self) -> None:
+        from assgen.client import context
+        context.reset()
+        upstream_id = "upstream0000001"
+        mock_client = self._make_clients(upstream_id)
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke(
+                "--from-job", upstream_id,
+                "gen", "visual", "texture", "generate", "--prompt", "mossy stone",
+            )
+        context.reset()
+        assert result.exit_code == 0
+        params_sent = mock_client.enqueue_job.call_args[0][1]
+        assert params_sent["upstream_job_id"] == upstream_id
+        assert params_sent["upstream_files"] == ["model.glb"]
+
+
+# ---------------------------------------------------------------------------
+# Handler import smoke — verify module-level ImportError → stub fallback
+# ---------------------------------------------------------------------------
+
+class TestHandlerImportFallback:
+    """Handlers degrade gracefully when optional deps are absent."""
+
+    def test_audio_sfx_generate_importable(self) -> None:
+        """Module must import cleanly even without audiocraft installed."""
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.audio_sfx_generate")
+        assert hasattr(mod, "run")
+
+    def test_audio_music_compose_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.audio_music_compose")
+        assert hasattr(mod, "run")
+
+    def test_audio_music_loop_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.audio_music_loop")
+        assert hasattr(mod, "run")
+
+    def test_narrative_dialogue_npc_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.narrative_dialogue_npc")
+        assert hasattr(mod, "run")
+
+    def test_visual_texture_pbr_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.visual_texture_pbr")
+        assert hasattr(mod, "run")
+
+
+# ---------------------------------------------------------------------------
+# Catalog quality_variants
+# ---------------------------------------------------------------------------
+
+class TestCatalogQualityVariants:
+    """get_model_for_job_quality resolves tier variants correctly."""
+
+    def test_draft_resolves_to_small(self) -> None:
+        from assgen.catalog import get_model_for_job_quality
+        mid = get_model_for_job_quality("audio.music.compose", "draft")
+        assert mid == "facebook/musicgen-small"
+
+    def test_high_resolves_to_large(self) -> None:
+        from assgen.catalog import get_model_for_job_quality
+        mid = get_model_for_job_quality("audio.music.compose", "high")
+        assert mid == "facebook/musicgen-large"
+
+    def test_standard_resolves_to_medium(self) -> None:
+        from assgen.catalog import get_model_for_job_quality
+        mid = get_model_for_job_quality("audio.music.compose", "standard")
+        assert mid == "facebook/musicgen-medium"
+
+    def test_no_variants_returns_default(self) -> None:
+        from assgen.catalog import get_model_for_job_quality
+        mid = get_model_for_job_quality("visual.model.create", "draft")
+        # Hunyuan3D-2 has no quality_variants — should return the default model_id
+        assert mid == "tencent/Hunyuan3D-2"
+
+    def test_loop_draft_resolves_stereo_small(self) -> None:
+        from assgen.catalog import get_model_for_job_quality
+        mid = get_model_for_job_quality("audio.music.loop", "draft")
+        assert mid == "facebook/musicgen-stereo-small"
+
+    def test_pbr_entry_in_catalog(self) -> None:
+        from assgen.catalog import get_model_for_job
+        entry = get_model_for_job("visual.texture.pbr")
+        assert entry is not None
+        assert entry["model_id"] is None  # algorithmic — no ML model
+
+

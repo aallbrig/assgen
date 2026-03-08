@@ -72,6 +72,30 @@ def get_model_for_job(job_type: str) -> dict[str, Any] | None:
     return load_catalog().get(job_type)
 
 
+def get_model_for_job_quality(job_type: str, quality: str) -> str | None:
+    """Return the model_id for *job_type* at the given *quality* tier.
+
+    Looks up the ``quality_variants`` dict in the catalog entry.  Falls back
+    to the entry's default ``model_id`` if the tier isn't listed.
+
+    Args:
+        job_type: Dot-separated task identifier.
+        quality: One of ``"draft"``, ``"standard"``, or ``"high"``.
+
+    Returns:
+        A HuggingFace model ID string, or ``None`` if the job type is unknown.
+
+    Example:
+        >>> get_model_for_job_quality("audio.music.compose", "draft")
+        'facebook/musicgen-small'
+    """
+    entry = get_model_for_job(job_type)
+    if not entry:
+        return None
+    variants: dict[str, str] = entry.get("quality_variants") or {}
+    return variants.get(quality) or entry.get("model_id")
+
+
 def all_job_types() -> list[str]:
     """Return a sorted list of every job type in the catalog.
 
