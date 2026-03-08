@@ -76,18 +76,24 @@ def texture_bake(
 
 @app.command("pbr")
 def texture_pbr(
-    prompt: str = typer.Argument(..., help="Material description, e.g. 'aged bronze'"),
-    resolution: int = typer.Option(1024, "--resolution", "-r"),
-    seamless: bool = typer.Option(True, "--seamless/--non-seamless"),
+    albedo: str = typer.Argument(..., help="Source albedo/diffuse image (PNG or JPEG)"),
+    maps: str = typer.Option(
+        "normal,roughness,metallic,ao,height",
+        "--maps",
+        help="Comma-separated PBR maps to derive: normal roughness metallic ao height",
+    ),
+    resolution: int = typer.Option(None, "--resolution", "-r",
+                                    help="Resize albedo before processing (e.g. 1024)"),
+    normal_strength: float = typer.Option(2.0, "--normal-strength",
+                                           help="Strength multiplier for normal map gradient"),
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Create a full seamless PBR material set from a text description."""
-    submit_job("visual.texture.generate", {
-        "mode": "pbr",
-        "prompt": prompt,
+    """Derive a full PBR material set (normal, roughness, metallic, AO, height) from an albedo image."""
+    submit_job("visual.texture.pbr", {
+        "albedo": albedo,
+        "maps": [m.strip() for m in maps.split(",")],
         "resolution": resolution,
-        "seamless": seamless,
-        "maps": ["albedo", "normal", "roughness", "metallic", "height", "ao"],
+        "normal_strength": normal_strength,
         "output": output,
     }, wait=wait)

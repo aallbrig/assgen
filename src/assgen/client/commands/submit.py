@@ -12,7 +12,7 @@ from typing import Any, Optional
 import typer
 
 from assgen.client.api import APIError, get_client
-from assgen.client.context import get_variants, is_json_mode
+from assgen.client.context import get_from_job, get_quality, get_variants, is_json_mode
 from assgen.client.output import (
     abort_with_error,
     console,
@@ -23,6 +23,21 @@ from assgen.client.output import (
     wait_for_job,
 )
 from assgen.config import load_client_config
+
+
+def _resolve_upstream(client: Any, job_id: str) -> dict[str, Any]:
+    """Look up *job_id*, assert it completed, return its metadata."""
+    try:
+        job = client.get_job(job_id)
+    except APIError as e:
+        abort_with_error(f"--from-job: could not find job {job_id!r}: {e}")
+
+    if job.get("status") != "COMPLETED":
+        abort_with_error(
+            f"--from-job: upstream job {job_id!r} has status "
+            f"'{job.get('status')}' — must be COMPLETED before chaining."
+        )
+    return job
 
 
 def submit_job(
@@ -39,6 +54,22 @@ def submit_job(
     should_wait = wait if wait is not None else cfg.get("default_wait", False)
     n_variants = get_variants()
     json_mode = is_json_mode()
+
+    # Inject global context flags into params so the worker can see them
+    params = dict(params)
+    quality = get_quality()
+    if quality != "standard":
+        params["_quality"] = quality
+
+    from_job = get_from_job()
+
+    # --- Resolve upstream job for chaining ---
+    if from_job:
+        with get_client() as client:
+            upstream_job = _resolve_upstream(client, from_job)
+        result = upstream_job.get("result") or {}
+        params["upstream_job_id"] = from_job
+        params["upstream_files"] = result.get("files", [])
 
     # --- Enqueue N jobs ---
     job_ids: list[str] = []

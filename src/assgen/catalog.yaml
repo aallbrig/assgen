@@ -18,6 +18,10 @@ catalog:
     name: "Stable Diffusion XL"
     task: "text-to-image"
     notes: "Ungated, 7 500+ likes; excellent prompt-to-concept generation; widely supported by diffusers"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
 
   visual.concept.style:
     model_id: "h94/IP-Adapter"
@@ -71,6 +75,12 @@ catalog:
     task: "texture-bake"
     notes: "Rasterisation-based ray-cast bake — no ML model required"
 
+  visual.texture.pbr:
+    model_id: null
+    name: "PBR Map Generator (algorithmic)"
+    task: "texture-generation"
+    notes: "Derives a full PBR set (normal, roughness, metallic, AO, height) from an albedo image using gradient and luminance analysis. No ML model — fully algorithmic; fast on CPU. Works best with tileable, high-contrast albedo inputs."
+
   # ── Visual / Rig ─────────────────────────────────────────────────────────
   visual.rig.auto:
     model_id: "VAST-AI/UniRig"
@@ -104,6 +114,10 @@ catalog:
     name: "Stable Diffusion XL"
     task: "text-to-image"
     notes: "Game UI icons and HUD elements; prompt for 'flat icon, isolated, game HUD element'"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
 
   # ── Visual / Texture (advanced) ──────────────────────────────────────────
   visual.texture.inpaint:
@@ -131,18 +145,30 @@ catalog:
     name: "MusicGen Large"
     task: "text-to-audio"
     notes: "3.3B params (~6.6 GB fp16); best single-stem music quality that fits in 12 GB"
+    quality_variants:
+      draft: "facebook/musicgen-small"
+      standard: "facebook/musicgen-medium"
+      high: "facebook/musicgen-large"
 
   audio.music.loop:
     model_id: "facebook/musicgen-stereo-medium"
     name: "MusicGen Stereo Medium"
     task: "text-to-audio"
     notes: "Stereo output essential for loop playback; 1.5B params; prompt for 'seamless loop'"
+    quality_variants:
+      draft: "facebook/musicgen-stereo-small"
+      standard: "facebook/musicgen-stereo-medium"
+      high: "facebook/musicgen-stereo-large"
 
   audio.music.adaptive:
     model_id: "facebook/musicgen-stereo-large"
     name: "MusicGen Stereo Large"
     task: "text-to-audio"
     notes: "Best quality stereo; use continuation mode to generate adaptive stinger/transition layers"
+    quality_variants:
+      draft: "facebook/musicgen-stereo-small"
+      standard: "facebook/musicgen-stereo-medium"
+      high: "facebook/musicgen-stereo-large"
 
   # ── Audio / Ambient ──────────────────────────────────────────────────────
   audio.ambient.generate:
@@ -150,6 +176,10 @@ catalog:
     name: "MusicGen Stereo Large"
     task: "text-to-audio"
     notes: "Ambient soundscapes; prompt for 'atmospheric, ambient, no melody, looping, {biome}'; same model as adaptive but distinct intent"
+    quality_variants:
+      draft: "facebook/musicgen-small"
+      standard: "facebook/musicgen-stereo-medium"
+      high: "facebook/musicgen-stereo-large"
 
   # ── Audio / Voice ────────────────────────────────────────────────────────
   audio.voice.tts:
