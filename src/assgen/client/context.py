@@ -11,6 +11,7 @@ on the client side so this is safe.
 from __future__ import annotations
 
 _json_mode: bool = False
+_yaml_mode: bool = False
 _variants: int = 1
 _quality: str = "standard"
 _from_job: str | None = None
@@ -26,6 +27,17 @@ def set_json_mode(enabled: bool) -> None:
 def is_json_mode() -> bool:
     """Return True when ``--json`` was passed on the command line."""
     return _json_mode
+
+
+def set_yaml_mode(enabled: bool) -> None:
+    """Enable or disable YAML output mode (``--yaml`` flag)."""
+    global _yaml_mode
+    _yaml_mode = bool(enabled)
+
+
+def is_yaml_mode() -> bool:
+    """Return True when ``--yaml`` was passed on the command line."""
+    return _yaml_mode
 
 
 def set_variants(n: int) -> None:
@@ -94,6 +106,7 @@ def reset() -> None:
     """Reset all context flags to defaults.  Used in tests."""
     global _json_mode, _variants, _quality, _from_job, _context_map
     _json_mode = False
+    _yaml_mode = False
     _variants = 1
     _quality = "standard"
     _from_job = None

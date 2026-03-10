@@ -12,13 +12,14 @@ from typing import Any, Optional
 import typer
 
 from assgen.client.api import APIError, get_client
-from assgen.client.context import get_context_map, get_from_job, get_quality, get_variants, is_json_mode
+from assgen.client.context import get_context_map, get_from_job, get_quality, get_variants, is_json_mode, is_yaml_mode
 from assgen.client.output import (
     abort_with_error,
     console,
     download_job_output,
     job_to_dict,
     print_job_json,
+    print_job_yaml,
     print_job_summary,
     wait_for_job,
 )
@@ -87,6 +88,7 @@ def submit_job(
     should_wait = wait if wait is not None else cfg.get("default_wait", False)
     n_variants = get_variants()
     json_mode = is_json_mode()
+    yaml_mode = is_yaml_mode()
 
     # Inject global context flags into params so the worker can see them
     params = dict(params)
@@ -129,13 +131,17 @@ def submit_job(
                 abort_with_error(str(e))
 
     if not should_wait:
-        if json_mode:
+        if json_mode or yaml_mode:
             results = [
                 {"job_id": jid, "status": "QUEUED", "job_type": job_type}
                 for jid in job_ids
             ]
             out = results[0] if n_variants == 1 else {"jobs": results}
-            print(json.dumps(out), flush=True)
+            if yaml_mode:
+                import yaml
+                print(yaml.dump(out, default_flow_style=False, sort_keys=False), end="", flush=True)
+            else:
+                print(json.dumps(out), flush=True)
         else:
             for jid in job_ids:
                 console.print(
@@ -173,7 +179,15 @@ def submit_job(
         completed_results.append((completed, saved))
 
     # --- Render output ---
-    if json_mode:
+    if yaml_mode:
+        import yaml
+        if n_variants == 1:
+            job, saved = completed_results[0]
+            print_job_yaml(job, saved)
+        else:
+            items = [job_to_dict(j, s) for j, s in completed_results]
+            print(yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False), end="", flush=True)
+    elif json_mode:
         if n_variants == 1:
             job, saved = completed_results[0]
             print_job_json(job, saved)

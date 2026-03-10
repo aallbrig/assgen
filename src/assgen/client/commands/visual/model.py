@@ -29,7 +29,14 @@ def model_create(
     wait: Optional[bool] = _WAIT_OPT,
     model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
-    """Generate a 3D mesh from text or an image using InstantMesh (multi-view diffusion)."""
+    """Generate a 3D mesh from text or an image using InstantMesh (multi-view diffusion).
+
+    Examples:
+        assgen gen visual model create "low-poly medieval sword" --wait
+        assgen gen visual model create "cartoon treasure chest" --format glb --wait
+        assgen gen visual model create "sci-fi pistol" --format obj --triangulate --wait
+        assgen gen visual model create "wooden barrel" --from-job <concept-job-id> --wait
+    """
     if not prompt and not input_image:
         typer.echo("Provide at least --prompt or --input-image", err=True)
         raise typer.Exit(1)

@@ -24,7 +24,14 @@ def sfx_generate(
     wait: Optional[bool] = _WAIT_OPT,
     model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
-    """Generate a sound effect from a text description (AudioGen)."""
+    """Generate a sound effect from a text description (AudioGen).
+
+    Examples:
+        assgen gen audio sfx generate "laser gun firing, futuristic" --wait
+        assgen gen audio sfx generate "heavy footsteps on gravel" -d 3.0 --wait
+        assgen gen audio sfx generate "explosion, distant, muffled" -n 3 --wait
+        assgen gen audio sfx generate "UI button click, satisfying" -d 0.5 --wait
+    """
     submit_job("audio.sfx.generate", {
         "prompt": prompt,
         "duration": duration,

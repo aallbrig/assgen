@@ -25,7 +25,13 @@ def voice_tts(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Convert text to speech with optional emotion (Bark)."""
+    """Convert text to speech with optional emotion (Bark).
+
+    Examples:
+        assgen gen audio voice tts "Hello adventurer, welcome to my shop!" --wait
+        assgen gen audio voice tts "I will have my revenge!" --preset v2/en_speaker_6 --wait
+        assgen gen audio voice tts "The ancient tome speaks of dark prophecy..." --preset v2/en_speaker_9 --wait
+    """
     submit_job("audio.voice.tts", {
         "text": text,
         "emotion": emotion,

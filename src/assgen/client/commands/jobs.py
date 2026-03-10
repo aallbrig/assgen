@@ -57,7 +57,16 @@ def jobs_status(job_id: str = typer.Argument(..., help="Job ID or prefix")) -> N
             job = client.get_job(job_id)
         except APIError as e:
             abort_with_error(str(e))
-    print_job(job)
+
+    from assgen.client.context import is_json_mode, is_yaml_mode
+    if is_yaml_mode():
+        from assgen.client.output import print_job_yaml
+        print_job_yaml(job)
+    elif is_json_mode():
+        from assgen.client.output import print_job_json
+        print_job_json(job)
+    else:
+        print_job(job)
 
 
 @app.command("wait")

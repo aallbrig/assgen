@@ -24,7 +24,14 @@ def music_compose(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Compose a music track from a text prompt (MusicGen)."""
+    """Compose a music track from a text prompt (MusicGen).
+
+    Examples:
+        assgen gen audio music compose "epic orchestral battle music, dramatic" --wait
+        assgen gen audio music compose "ambient forest, birds, peaceful" -d 30 --wait
+        assgen gen audio music compose "upbeat 8-bit chiptune, adventure" --genre chiptune --wait
+        assgen gen audio music compose "tense stealth theme, low bass" -d 60 --wait
+    """
     submit_job("audio.music.compose", {
         "prompt": prompt,
         "duration": duration,

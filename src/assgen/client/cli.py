@@ -79,6 +79,11 @@ def _root_callback(
         help="Emit machine-readable JSON to stdout.  Disables progress bars. "
              "Ideal for CI pipelines and scripting.",
     ),
+    yaml_output: bool = typer.Option(
+        False, "--yaml",
+        help="Emit machine-readable YAML to stdout.  Disables progress bars. "
+             "Human-friendly alternative to --json.",
+    ),
     variants: int = typer.Option(
         1, "--variants", "-n",
         min=1,
@@ -105,6 +110,8 @@ def _root_callback(
     """AI-driven game asset generation pipeline."""
     if json_output:
         _ctx.set_json_mode(True)
+    if yaml_output:
+        _ctx.set_yaml_mode(True)
     if variants > 1:
         _ctx.set_variants(variants)
     if quality != "standard":
