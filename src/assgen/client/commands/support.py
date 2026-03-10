@@ -97,3 +97,57 @@ def data_proc(
         "language": language,
         "output": output,
     }, wait=wait)
+
+
+# ---------------------------------------------------------------------------
+# narrative — algorithmic validation and i18n
+# ---------------------------------------------------------------------------
+
+@narrative_app.command("validate-dialogue")
+def narrative_validate_dialogue(
+    input_file: str = typer.Argument(..., help="Dialogue JSON file to validate"),
+    output: Optional[str] = _OUT_OPT,
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Lint a dialogue JSON: orphan nodes, dead ends, missing keys."""
+    submit_job("narrative.dialogue.validate", {
+        "input": input_file, "output": output,
+    }, wait=wait)
+
+
+@narrative_app.command("validate-quest")
+def narrative_validate_quest(
+    input_file: str = typer.Argument(..., help="Quest JSON file to validate"),
+    output: Optional[str] = _OUT_OPT,
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Check a quest JSON graph for cycles and unreachable nodes."""
+    submit_job("narrative.quest.validate", {
+        "input": input_file, "output": output,
+    }, wait=wait)
+
+
+# ---------------------------------------------------------------------------
+# i18n sub-app
+# ---------------------------------------------------------------------------
+i18n_app = typer.Typer(help="Internationalisation (i18n) string extraction.")
+app.add_typer(i18n_app, name="i18n")
+
+
+@i18n_app.command("extract")
+def i18n_extract(
+    directory: str = typer.Argument(..., help="Directory to scan for translatable strings"),
+    pattern: str = typer.Option("**/*.json", "--pattern", "-p",
+                                 help="Glob pattern for files to scan"),
+    key_field: str = typer.Option("text", "--key-field", "-k",
+                                   help="JSON field to extract as translatable string"),
+    output: Optional[str] = _OUT_OPT,
+    wait: Optional[bool] = _WAIT_OPT,
+) -> None:
+    """Extract localisation string keys from JSON files (outputs JSON + CSV)."""
+    submit_job("narrative.i18n.extract", {
+        "directory": directory,
+        "pattern": pattern,
+        "key_field": key_field,
+        "output": output,
+    }, wait=wait)
