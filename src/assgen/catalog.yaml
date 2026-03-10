@@ -119,6 +119,70 @@ catalog:
       standard: "stabilityai/stable-diffusion-xl-base-1.0"
       high: "stabilityai/stable-diffusion-xl-base-1.0"
 
+  visual.ui.button:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Styled game buttons and interactive controls; generates isolated PNG with transparent background"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
+
+  visual.ui.panel:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Dialog boxes, inventory frames, tooltip panels, and chrome elements for game UIs"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
+
+  visual.ui.widget:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Individual UI controls (sliders, toggles, checkboxes, progress bars) matching a given visual style"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
+
+  visual.ui.mockup:
+    model_id: "diffusers/controlnet-canny-sdxl-1.0"
+    name: "ControlNet Canny SDXL"
+    task: "image-to-image"
+    notes: "Full-screen UI mockups (main menu, pause screen, inventory layout) guided by a canny edge reference sketch; falls back to SDXL text-to-image if no reference provided"
+
+  visual.ui.layout:
+    model_id: "diffusers/controlnet-depth-sdxl-1.0"
+    name: "ControlNet Depth SDXL"
+    task: "image-to-image"
+    notes: "Grid-based UI layout generation from a depth/structural reference; use for HUD compositions and menu grids; falls back to SDXL if no reference"
+
+  visual.ui.iconset:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Generates a themed set of 4–24 icons in a consistent visual language using IP-Adapter style lock; requires a style_image reference for coherence"
+
+  visual.ui.theme:
+    model_id: "h94/IP-Adapter"
+    name: "IP-Adapter SDXL"
+    task: "image-to-image"
+    notes: "Generates a coordinated UI theme kit (icons + buttons + panels) derived from a reference image using IP-Adapter style transfer on SDXL"
+
+  visual.ui.screen:
+    model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+    name: "Stable Diffusion XL"
+    task: "text-to-image"
+    notes: "Complete game screen composition (HUD + gameplay + UI chrome) at high resolution; prompt should describe screen type (gameplay, main menu, cutscene, loading)"
+    quality_variants:
+      draft: "stabilityai/sdxl-turbo"
+      standard: "stabilityai/stable-diffusion-xl-base-1.0"
+      high: "stabilityai/stable-diffusion-xl-base-1.0"
+
   # ── Visual / Texture (advanced) ──────────────────────────────────────────
   visual.texture.inpaint:
     model_id: "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
