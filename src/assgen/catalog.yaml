@@ -378,43 +378,43 @@ catalog:
     notes: "Generate a waveform PNG preview via pydub + Pillow. No model required."
 
   # ── Proc / Terrain (algorithmic) ─────────────────────────────────────────
-  proc.terrain.heightmap:
+  procedural.terrain.heightmap:
     model_id: null
     name: "Heightmap Generator (algorithmic)"
     task: "algorithmic"
     notes: "Perlin/fractal/ridged heightmap PNG via noise library (numpy fallback). No model required."
 
-  proc.texture.noise:
+  procedural.texture.noise:
     model_id: null
     name: "Noise Texture Generator (algorithmic)"
     task: "algorithmic"
     notes: "Tileable noise texture (perlin/voronoi/fBm) via noise+scipy (numpy fallback). No model required."
 
-  proc.level.dungeon:
+  procedural.level.dungeon:
     model_id: null
     name: "Dungeon Generator (algorithmic)"
     task: "algorithmic"
     notes: "BSP or cellular automata dungeon layout. Pure Python. Outputs PNG + JSON."
 
-  proc.level.voronoi:
+  procedural.level.voronoi:
     model_id: null
     name: "Voronoi Region Map (algorithmic)"
     task: "algorithmic"
     notes: "Voronoi region map via scipy (numpy fallback). Outputs colour PNG + regions JSON."
 
-  proc.foliage.scatter:
+  procedural.foliage.scatter:
     model_id: null
     name: "Foliage Scatter (algorithmic)"
     task: "algorithmic"
     notes: "Poisson disk foliage scatter from a density map. Uses scipy or pure Python fallback."
 
-  proc.tileset.wfc:
+  procedural.tileset.wfc:
     model_id: null
     name: "Wave Function Collapse (algorithmic)"
     task: "algorithmic"
     notes: "Overlapping WFC tileset synthesis from a sample image. Pure Python + Pillow."
 
-  proc.plant.lsystem:
+  procedural.plant.lsystem:
     model_id: null
     name: "L-System Plant Generator (algorithmic)"
     task: "algorithmic"

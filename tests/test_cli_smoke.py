@@ -645,13 +645,13 @@ class TestAlgorithmicHandlers:
     def test_audio_process_resample_importable(self)      : self._assert_handler("audio_process_resample")
     def test_audio_process_waveform_importable(self)      : self._assert_handler("audio_process_waveform")
     # proc
-    def test_proc_terrain_heightmap_importable(self)  : self._assert_handler("proc_terrain_heightmap")
-    def test_proc_texture_noise_importable(self)      : self._assert_handler("proc_texture_noise")
-    def test_proc_level_dungeon_importable(self)      : self._assert_handler("proc_level_dungeon")
-    def test_proc_level_voronoi_importable(self)      : self._assert_handler("proc_level_voronoi")
-    def test_proc_foliage_scatter_importable(self)    : self._assert_handler("proc_foliage_scatter")
-    def test_proc_tileset_wfc_importable(self)        : self._assert_handler("proc_tileset_wfc")
-    def test_proc_plant_lsystem_importable(self)      : self._assert_handler("proc_plant_lsystem")
+    def test_proc_terrain_heightmap_importable(self)  : self._assert_handler("procedural_terrain_heightmap")
+    def test_proc_texture_noise_importable(self)      : self._assert_handler("procedural_texture_noise")
+    def test_proc_level_dungeon_importable(self)      : self._assert_handler("procedural_level_dungeon")
+    def test_proc_level_voronoi_importable(self)      : self._assert_handler("procedural_level_voronoi")
+    def test_proc_foliage_scatter_importable(self)    : self._assert_handler("procedural_foliage_scatter")
+    def test_proc_tileset_wfc_importable(self)        : self._assert_handler("procedural_tileset_wfc")
+    def test_proc_plant_lsystem_importable(self)      : self._assert_handler("procedural_plant_lsystem")
     # pipeline
     def test_pipeline_asset_manifest_importable(self) : self._assert_handler("pipeline_asset_manifest")
     def test_pipeline_asset_validate_importable(self) : self._assert_handler("pipeline_asset_validate")
@@ -707,16 +707,16 @@ class TestNewCLICommands:
         assert "normalize" in r.output or "audio" in r.output.lower()
 
     def test_gen_proc_help(self) -> None:
-        r = invoke("gen", "proc", "--help")
+        r = invoke("gen", "procedural", "--help")
         assert r.exit_code == 0
-        assert "proc" in r.output.lower() or "terrain" in r.output.lower()
+        assert "procedural" in r.output.lower() or "terrain" in r.output.lower()
 
     def test_gen_proc_terrain_help(self) -> None:
-        r = invoke("gen", "proc", "terrain", "--help")
+        r = invoke("gen", "procedural", "terrain", "--help")
         assert r.exit_code == 0
 
     def test_gen_proc_level_help(self) -> None:
-        r = invoke("gen", "proc", "level", "--help")
+        r = invoke("gen", "procedural", "level", "--help")
         assert r.exit_code == 0
 
     def test_gen_pipeline_asset_help(self) -> None:
@@ -755,7 +755,7 @@ class TestProceduralHandlers:
 
     @_pil_required
     def test_proc_level_dungeon_run(self, tmp_path) -> None:
-        from assgen.server.handlers.proc_level_dungeon import run
+        from assgen.server.handlers.procedural_level_dungeon import run
         result = run("proc.level.dungeon", {"width": 16, "height": 16, "rooms": 3, "seed": 1},
                      None, None, "cpu", lambda f, m: None, str(tmp_path))
         assert "files" in result
@@ -763,14 +763,14 @@ class TestProceduralHandlers:
 
     @_pil_required
     def test_proc_level_voronoi_run(self, tmp_path) -> None:
-        from assgen.server.handlers.proc_level_voronoi import run
+        from assgen.server.handlers.procedural_level_voronoi import run
         result = run("proc.level.voronoi", {"width": 64, "height": 64, "regions": 4, "seed": 1},
                      None, None, "cpu", lambda f, m: None, str(tmp_path))
         assert any("voronoi.png" in f for f in result["files"])
         assert any("regions.json" in f for f in result["files"])
 
     def test_proc_plant_lsystem_run(self, tmp_path) -> None:
-        from assgen.server.handlers.proc_plant_lsystem import run
+        from assgen.server.handlers.procedural_plant_lsystem import run
         result = run("proc.plant.lsystem",
                      {"axiom": "F", "rules": '{"F":"F[+F][-F]"}', "iterations": 3},
                      None, None, "cpu", lambda f, m: None, str(tmp_path))
