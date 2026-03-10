@@ -72,38 +72,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if _NOISE_LIB:
         import noise as _noise
         arr = np.zeros((height, width), dtype=np.float32)
-        offset_x = seed * 1000.0
-        offset_y = seed * 777.0
         for y in range(height):
+            ny = (y / height * scale + seed * 777.0) / scale
             for x in range(width):
-                nx = (x / width) * scale + offset_x
-                ny = (y / height) * scale + offset_y
-                if noise_type == "perlin":
-                    val = _noise.pnoise2(nx / scale, ny / scale, octaves=octaves,
-                                         repeatx=width, repeaty=height)
-                elif noise_type == "ridged":
-                    val = 1.0 - abs(_noise.pnoise2(nx / scale, ny / scale, octaves=octaves,
+                nx = (x / width * scale + seed * 1000.0) / scale
+                if noise_type == "ridged":
+                    val = 1.0 - abs(_noise.pnoise2(nx, ny, octaves=octaves,
                                                     repeatx=width, repeaty=height))
-                else:  # fractal (fBm)
-                    val = _noise.pnoise2(nx / scale, ny / scale, octaves=octaves,
+                else:  # fractal (fBm) or perlin
+                    val = _noise.pnoise2(nx, ny, octaves=octaves,
                                          persistence=0.5, lacunarity=2.0,
                                          repeatx=width, repeaty=height)
+                arr[y, x] = val
             progress_cb(0.05 + 0.85 * (y + 1) / height, "")
-            arr[y, :] = [
-                (1.0 - abs(_noise.pnoise2(
-                    (x / width * scale + seed * 1000.0) / scale,
-                    (y / height * scale + seed * 777.0) / scale,
-                    octaves=octaves,
-                    repeatx=width, repeaty=height,
-                ))) if noise_type == "ridged" else _noise.pnoise2(
-                    (x / width * scale + seed * 1000.0) / scale,
-                    (y / height * scale + seed * 777.0) / scale,
-                    octaves=octaves,
-                    persistence=0.5, lacunarity=2.0,
-                    repeatx=width, repeaty=height,
-                )
-                for x in range(width)
-            ]
     else:
         progress_cb(0.1, "noise library not found — using numpy fallback")
         arr = _numpy_noise(width, height, seed, scale, octaves)
