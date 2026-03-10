@@ -42,7 +42,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     nodes = data.get("nodes")
     if nodes is None:
         errors.append("Top-level key 'nodes' is missing")
-        _finish(errors, warnings, 0, output_dir)
         return _result(errors, warnings, 0, output_dir)
 
     if not isinstance(nodes, list):
