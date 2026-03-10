@@ -12,6 +12,7 @@ we patch the HTTP layer so tests stay fast and hermetic.
 """
 from __future__ import annotations
 
+import re
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -21,6 +22,8 @@ from assgen.client.cli import app
 
 runner = CliRunner()
 
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -29,6 +32,11 @@ runner = CliRunner()
 def invoke(*args: str, input: str | None = None):
     """Invoke the root CLI and return the result."""
     return runner.invoke(app, list(args), input=input)
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from *text*."""
+    return _ANSI_RE.sub("", text)
 
 
 # ---------------------------------------------------------------------------
@@ -224,7 +232,7 @@ class TestJsonFlag:
 
     def test_json_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--json" in result.output
+        assert "--json" in strip_ansi(result.output)
 
     def test_json_flag_emits_valid_json(self) -> None:
         import json as _json
@@ -270,7 +278,7 @@ class TestVariantsFlag:
 
     def test_variants_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--variants" in result.output
+        assert "--variants" in strip_ansi(result.output)
 
     def test_variants_submits_n_jobs(self) -> None:
         from assgen.client import context
@@ -318,7 +326,7 @@ class TestQualityFlag:
 
     def test_quality_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--quality" in result.output
+        assert "--quality" in strip_ansi(result.output)
 
     def test_quality_draft_sets_param(self) -> None:
         from assgen.client import context
@@ -386,7 +394,7 @@ class TestFromJobFlag:
 
     def test_from_job_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--from-job" in result.output
+        assert "--from-job" in strip_ansi(result.output)
 
     def test_from_job_injects_upstream_info(self) -> None:
         from assgen.client import context
@@ -512,7 +520,7 @@ class TestContextFlag:
 
     def test_context_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--context" in result.output
+        assert "--context" in strip_ansi(result.output)
 
     def test_context_resolves_to_param(self) -> None:
         from assgen.client import context
@@ -592,3 +600,265 @@ class TestEasyWinHandlers:
         assert pct >= 29, f"Expected ≥29% coverage, got {pct}%"
 
 
+
+
+# ---------------------------------------------------------------------------
+# Algorithmic handlers — importability + coverage
+# ---------------------------------------------------------------------------
+
+class TestAlgorithmicHandlers:
+    """All 40 algorithmic handlers are importable and have a run() function."""
+
+    def _assert_handler(self, name: str) -> None:
+        import importlib
+        mod = importlib.import_module(f"assgen.server.handlers.{name}")
+        assert hasattr(mod, "run"), f"{name} missing run()"
+
+    # visual mesh
+    def test_visual_mesh_validate_importable(self)     : self._assert_handler("visual_mesh_validate")
+    def test_visual_mesh_convert_importable(self)      : self._assert_handler("visual_mesh_convert")
+    def test_visual_mesh_merge_importable(self)        : self._assert_handler("visual_mesh_merge")
+    def test_visual_mesh_bounds_importable(self)       : self._assert_handler("visual_mesh_bounds")
+    def test_visual_mesh_flipnormals_importable(self)  : self._assert_handler("visual_mesh_flipnormals")
+    def test_visual_mesh_weld_importable(self)         : self._assert_handler("visual_mesh_weld")
+    def test_visual_mesh_center_importable(self)       : self._assert_handler("visual_mesh_center")
+    def test_visual_mesh_scale_importable(self)        : self._assert_handler("visual_mesh_scale")
+    # lod
+    def test_visual_lod_generate_importable(self)      : self._assert_handler("visual_lod_generate")
+    # texture
+    def test_visual_texture_channel_pack_importable(self)    : self._assert_handler("visual_texture_channel_pack")
+    def test_visual_texture_convert_importable(self)         : self._assert_handler("visual_texture_convert")
+    def test_visual_texture_atlas_pack_importable(self)      : self._assert_handler("visual_texture_atlas_pack")
+    def test_visual_texture_mipmap_importable(self)          : self._assert_handler("visual_texture_mipmap")
+    def test_visual_texture_normalmap_convert_importable(self): self._assert_handler("visual_texture_normalmap_convert")
+    def test_visual_texture_seamless_importable(self)        : self._assert_handler("visual_texture_seamless")
+    def test_visual_texture_resize_importable(self)          : self._assert_handler("visual_texture_resize")
+    def test_visual_texture_report_importable(self)          : self._assert_handler("visual_texture_report")
+    # sprite
+    def test_visual_sprite_pack_importable(self)       : self._assert_handler("visual_sprite_pack")
+    # audio process
+    def test_audio_process_normalize_importable(self)     : self._assert_handler("audio_process_normalize")
+    def test_audio_process_trim_silence_importable(self)  : self._assert_handler("audio_process_trim_silence")
+    def test_audio_process_loop_optimize_importable(self) : self._assert_handler("audio_process_loop_optimize")
+    def test_audio_process_convert_importable(self)       : self._assert_handler("audio_process_convert")
+    def test_audio_process_downmix_importable(self)       : self._assert_handler("audio_process_downmix")
+    def test_audio_process_resample_importable(self)      : self._assert_handler("audio_process_resample")
+    def test_audio_process_waveform_importable(self)      : self._assert_handler("audio_process_waveform")
+    # proc
+    def test_proc_terrain_heightmap_importable(self)  : self._assert_handler("proc_terrain_heightmap")
+    def test_proc_texture_noise_importable(self)      : self._assert_handler("proc_texture_noise")
+    def test_proc_level_dungeon_importable(self)      : self._assert_handler("proc_level_dungeon")
+    def test_proc_level_voronoi_importable(self)      : self._assert_handler("proc_level_voronoi")
+    def test_proc_foliage_scatter_importable(self)    : self._assert_handler("proc_foliage_scatter")
+    def test_proc_tileset_wfc_importable(self)        : self._assert_handler("proc_tileset_wfc")
+    def test_proc_plant_lsystem_importable(self)      : self._assert_handler("proc_plant_lsystem")
+    # pipeline
+    def test_pipeline_asset_manifest_importable(self) : self._assert_handler("pipeline_asset_manifest")
+    def test_pipeline_asset_validate_importable(self) : self._assert_handler("pipeline_asset_validate")
+    def test_pipeline_asset_rename_importable(self)   : self._assert_handler("pipeline_asset_rename")
+    def test_pipeline_asset_report_importable(self)   : self._assert_handler("pipeline_asset_report")
+    def test_pipeline_git_lfs_rules_importable(self)  : self._assert_handler("pipeline_git_lfs_rules")
+    # narrative
+    def test_narrative_dialogue_validate_importable(self) : self._assert_handler("narrative_dialogue_validate")
+    def test_narrative_quest_validate_importable(self)    : self._assert_handler("narrative_quest_validate")
+    def test_narrative_i18n_extract_importable(self)      : self._assert_handler("narrative_i18n_extract")
+
+    def test_handler_coverage_at_least_65_percent(self) -> None:
+        """At least 65% of catalog entries now have real handlers."""
+        import importlib
+        from assgen.catalog import load_catalog
+        catalog = load_catalog()
+        real = 0
+        for jt in catalog:
+            mod_name = "assgen.server.handlers." + jt.replace(".", "_")
+            try:
+                importlib.import_module(mod_name)
+                real += 1
+            except ModuleNotFoundError:
+                pass
+        pct = 100 * real // len(catalog)
+        assert real >= 35, f"Expected ≥35 real handlers, got {real}"
+        assert pct >= 65, f"Expected ≥65% coverage, got {pct}%"
+
+
+# ---------------------------------------------------------------------------
+# New CLI commands — basic help checks
+# ---------------------------------------------------------------------------
+
+class TestNewCLICommands:
+    """New algorithmic tool CLI commands register and respond to --help."""
+
+    def test_gen_visual_mesh_help(self) -> None:
+        r = invoke("gen", "visual", "mesh", "--help")
+        assert r.exit_code == 0
+        assert "mesh" in r.output.lower() or "validate" in r.output.lower()
+
+    def test_gen_visual_lod_help(self) -> None:
+        r = invoke("gen", "visual", "lod", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_visual_sprite_help(self) -> None:
+        r = invoke("gen", "visual", "sprite", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_audio_process_help(self) -> None:
+        r = invoke("gen", "audio", "process", "--help")
+        assert r.exit_code == 0
+        assert "normalize" in r.output or "audio" in r.output.lower()
+
+    def test_gen_proc_help(self) -> None:
+        r = invoke("gen", "proc", "--help")
+        assert r.exit_code == 0
+        assert "proc" in r.output.lower() or "terrain" in r.output.lower()
+
+    def test_gen_proc_terrain_help(self) -> None:
+        r = invoke("gen", "proc", "terrain", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_proc_level_help(self) -> None:
+        r = invoke("gen", "proc", "level", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_pipeline_asset_help(self) -> None:
+        r = invoke("gen", "pipeline", "asset", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_pipeline_git_help(self) -> None:
+        r = invoke("gen", "pipeline", "git", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_support_narrative_validate_dialogue_help(self) -> None:
+        r = invoke("gen", "support", "narrative", "validate-dialogue", "--help")
+        assert r.exit_code == 0
+
+    def test_gen_support_i18n_help(self) -> None:
+        r = invoke("gen", "support", "i18n", "--help")
+        assert r.exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# Procedural handler functional tests (no external deps required)
+# ---------------------------------------------------------------------------
+
+# Skip Pillow-dependent tests if Pillow is not installed in this environment
+try:
+    from PIL import Image as _TestPIL  # noqa: F401
+    _PIL_AVAILABLE = True
+except ImportError:
+    _PIL_AVAILABLE = False
+
+_pil_required = pytest.mark.skipif(not _PIL_AVAILABLE, reason="Pillow not installed")
+
+
+class TestProceduralHandlers:
+    """Test proc handlers that have no external deps (pure Python)."""
+
+    @_pil_required
+    def test_proc_level_dungeon_run(self, tmp_path) -> None:
+        from assgen.server.handlers.proc_level_dungeon import run
+        result = run("proc.level.dungeon", {"width": 16, "height": 16, "rooms": 3, "seed": 1},
+                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+        assert "files" in result
+        assert any("dungeon.json" in f for f in result["files"])
+
+    @_pil_required
+    def test_proc_level_voronoi_run(self, tmp_path) -> None:
+        from assgen.server.handlers.proc_level_voronoi import run
+        result = run("proc.level.voronoi", {"width": 64, "height": 64, "regions": 4, "seed": 1},
+                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+        assert any("voronoi.png" in f for f in result["files"])
+        assert any("regions.json" in f for f in result["files"])
+
+    def test_proc_plant_lsystem_run(self, tmp_path) -> None:
+        from assgen.server.handlers.proc_plant_lsystem import run
+        result = run("proc.plant.lsystem",
+                     {"axiom": "F", "rules": '{"F":"F[+F][-F]"}', "iterations": 3},
+                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+        assert any("plant.svg" in f for f in result["files"])
+        assert result["metadata"]["branch_count"] > 0
+
+    def test_pipeline_asset_manifest_run(self, tmp_path) -> None:
+        from assgen.server.handlers.pipeline_asset_manifest import run
+        # Create a dummy file
+        (tmp_path / "test.png").write_bytes(b"\x89PNG")
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("pipeline.asset.manifest", {"directory": str(tmp_path)},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        import json
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        assert manifest["file_count"] >= 1
+
+    def test_pipeline_asset_rename_dry_run(self, tmp_path) -> None:
+        from assgen.server.handlers.pipeline_asset_rename import run
+        (tmp_path / "MyAsset.png").write_bytes(b"")
+        (tmp_path / "AnotherAsset.glb").write_bytes(b"")
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("pipeline.asset.rename",
+                     {"directory": str(tmp_path), "convention": "snake_case", "dry_run": True},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        import json
+        plan = json.loads((out_dir / "rename_plan.json").read_text())
+        assert plan["dry_run"] is True
+        renames = {r["from"]: r["to"] for r in plan["renames"]}
+        assert renames.get("MyAsset.png") == "my_asset.png"
+
+    def test_pipeline_git_lfs_rules_run(self, tmp_path) -> None:
+        from assgen.server.handlers.pipeline_git_lfs_rules import run
+        (tmp_path / "model.glb").write_bytes(b"")
+        (tmp_path / "texture.png").write_bytes(b"")
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("pipeline.git.lfs_rules", {"directory": str(tmp_path)},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        lfs_text = (out_dir / "lfs_rules.txt").read_text()
+        assert "filter=lfs" in lfs_text
+
+    def test_narrative_dialogue_validate_run(self, tmp_path) -> None:
+        import json
+        from assgen.server.handlers.narrative_dialogue_validate import run
+        dialogue = {"nodes": [
+            {"id": "start", "text": "Hello", "choices": [{"text": "Hi", "next": "end"}]},
+            {"id": "end",   "text": "Bye",   "exit": True},
+        ]}
+        infile = tmp_path / "dialogue.json"
+        infile.write_text(json.dumps(dialogue))
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("narrative.dialogue.validate", {"input": str(infile)},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        report = json.loads((out_dir / "validation_report.json").read_text())
+        assert report["errors"] == []
+
+    def test_narrative_quest_validate_run(self, tmp_path) -> None:
+        import json
+        from assgen.server.handlers.narrative_quest_validate import run
+        quest = {"start": "q1", "nodes": [
+            {"id": "q1", "title": "Find the key", "next": ["q2"]},
+            {"id": "q2", "title": "Open the door", "next": []},
+        ]}
+        infile = tmp_path / "quest.json"
+        infile.write_text(json.dumps(quest))
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("narrative.quest.validate", {"input": str(infile)},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        report = json.loads((out_dir / "validation_report.json").read_text())
+        assert report["errors"] == []
+
+    def test_narrative_i18n_extract_run(self, tmp_path) -> None:
+        import json
+        from assgen.server.handlers.narrative_i18n_extract import run
+        (tmp_path / "dialogue.json").write_text(json.dumps([
+            {"id": "n1", "text": "Hello world"},
+            {"id": "n2", "text": "Goodbye"},
+        ]))
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        run("narrative.i18n.extract", {"directory": str(tmp_path)},
+                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        template = json.loads((out_dir / "i18n_template.json").read_text())
+        assert template["strings"]
+        values = [s["value"] for s in template["strings"]]
+        assert "Hello world" in values

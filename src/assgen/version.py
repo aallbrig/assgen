@@ -83,7 +83,7 @@ def _installed_version() -> str:
     active Python environment.
     """
     try:
-        from importlib.metadata import version, PackageNotFoundError
+        from importlib.metadata import version
         return version("assgen")
     except Exception:
         pass

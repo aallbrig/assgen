@@ -29,7 +29,7 @@ from typing import Any, Callable
 from PIL import Image
 
 # Module-level imports: ImportError here → worker falls back to stub handler
-import tsr                                           # noqa: E402
+import tsr                                           # noqa: E402,F401
 from tsr.system import TSR                           # noqa: E402
 from tsr.utils import remove_background, resize_foreground  # noqa: E402
 

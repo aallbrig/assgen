@@ -194,3 +194,82 @@ def integrate_script(
         "behaviors": [b.strip() for b in behaviors.split(",")],
         "language": language,
     }, wait=wait)
+
+
+# ---------------------------------------------------------------------------
+# asset sub-app
+# ---------------------------------------------------------------------------
+asset_app = typer.Typer(help="Asset manifest, validation, rename, and budget report.")
+app.add_typer(asset_app, name="asset")
+
+
+@asset_app.command("manifest")
+def asset_manifest(
+    directory: str = typer.Argument(..., help="Directory to scan"),
+    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+) -> None:
+    """Walk a directory and produce a manifest.json with file metadata."""
+    submit_job("pipeline.asset.manifest", {"directory": directory}, wait=wait)
+
+
+@asset_app.command("validate")
+def asset_validate(
+    directory: str = typer.Argument(..., help="Directory to validate"),
+    max_texture_mb: float = typer.Option(16.0, "--max-texture-mb",
+                                          help="Max texture file size in MB"),
+    max_mesh_verts: int = typer.Option(100_000, "--max-mesh-verts",
+                                        help="Max vertex count per mesh"),
+    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+) -> None:
+    """Check for oversized textures, non-pow2 textures, and high-poly meshes."""
+    submit_job("pipeline.asset.validate", {
+        "directory": directory,
+        "max_texture_mb": max_texture_mb,
+        "max_mesh_verts": max_mesh_verts,
+    }, wait=wait)
+
+
+@asset_app.command("rename")
+def asset_rename(
+    directory: str = typer.Argument(..., help="Directory containing files to rename"),
+    convention: str = typer.Option("snake_case", "--convention", "-c",
+                                    help="snake_case | PascalCase | kebab-case"),
+    prefix: Optional[str] = typer.Option(None, "--prefix", help="Optional name prefix"),
+    suffix: Optional[str] = typer.Option(None, "--suffix", help="Optional name suffix"),
+    dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run",
+                                  help="Plan only (default) or execute renames"),
+    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+) -> None:
+    """Batch rename assets to a naming convention (dry-run by default)."""
+    submit_job("pipeline.asset.rename", {
+        "directory": directory,
+        "convention": convention,
+        "prefix": prefix,
+        "suffix": suffix,
+        "dry_run": dry_run,
+    }, wait=wait)
+
+
+@asset_app.command("report")
+def asset_report(
+    directory: str = typer.Argument(..., help="Directory to report on"),
+    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+) -> None:
+    """Generate a size-budget report grouped by asset type."""
+    submit_job("pipeline.asset.report", {"directory": directory}, wait=wait)
+
+
+# ---------------------------------------------------------------------------
+# git sub-app
+# ---------------------------------------------------------------------------
+git_app = typer.Typer(help="Git and VCS helpers for game asset repos.")
+app.add_typer(git_app, name="git")
+
+
+@git_app.command("lfs-rules")
+def git_lfs_rules(
+    directory: str = typer.Argument(..., help="Directory to scan for asset types"),
+    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+) -> None:
+    """Scan asset extensions and generate .gitattributes LFS rules."""
+    submit_job("pipeline.git.lfs_rules", {"directory": directory}, wait=wait)
