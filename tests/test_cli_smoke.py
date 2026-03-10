@@ -25,6 +25,15 @@ runner = CliRunner()
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
+def _try_import(mod_name: str) -> bool:
+    import importlib
+    try:
+        importlib.import_module(mod_name)
+        return True
+    except ModuleNotFoundError:
+        return False
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -414,6 +423,72 @@ class TestFromJobFlag:
 
 
 # ---------------------------------------------------------------------------
+# jobs rerun smoke tests
+# ---------------------------------------------------------------------------
+
+class TestJobsRerun:
+    """assgen jobs rerun re-submits with the original user params."""
+
+    def _make_job(self, job_id: str, job_type: str, params: dict) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = lambda s: s
+        mc.__exit__ = MagicMock(return_value=False)
+        mc.get_job.return_value = {
+            "id": job_id,
+            "job_type": job_type,
+            "status": "COMPLETED",
+            "params": params,
+            "created_at": "2026-01-01T00:00:00",
+            "updated_at": "2026-01-01T00:01:00",
+            "result": {},
+        }
+        mc.enqueue_job.return_value = {
+            "id": "rerun0000001",
+            "job_type": job_type,
+            "status": "QUEUED",
+        }
+        return mc
+
+    def test_rerun_in_help(self) -> None:
+        result = invoke("jobs", "--help")
+        assert "rerun" in strip_ansi(result.output)
+
+    def test_rerun_dry_run_shows_job_type(self) -> None:
+        job_id = "original001"
+        mc = self._make_job(job_id, "visual.concept.generate", {"prompt": "castle"})
+        with patch("assgen.client.commands.jobs.get_client", return_value=mc):
+            result = invoke("jobs", "rerun", job_id, "--dry-run")
+        assert result.exit_code == 0
+        out = strip_ansi(result.output)
+        assert "visual.concept.generate" in out
+        assert "castle" in out
+
+    def test_rerun_enqueues_fresh_job(self) -> None:
+        from assgen.client import context
+        context.reset()
+        job_id = "original002"
+        original_params = {
+            "prompt": "ruined temple",
+            "_quality": "high",
+            "upstream_files": ["concept.png"],
+            "upstream_job_id": "upstream001",
+        }
+        mc = self._make_job(job_id, "visual.concept.generate", original_params)
+        with patch("assgen.client.commands.jobs.get_client", return_value=mc), \
+             patch("assgen.client.commands.submit.get_client", return_value=mc):
+            result = invoke("jobs", "rerun", job_id)
+        context.reset()
+        assert result.exit_code == 0
+        sent_params = mc.enqueue_job.call_args[0][1]
+        # User param preserved
+        assert sent_params.get("prompt") == "ruined temple"
+        # Internal params stripped
+        assert "_quality" not in sent_params
+        assert "upstream_files" not in sent_params
+        assert "upstream_job_id" not in sent_params
+
+
+# ---------------------------------------------------------------------------
 # Handler import smoke — verify module-level ImportError → stub fallback
 # ---------------------------------------------------------------------------
 
@@ -583,21 +658,15 @@ class TestEasyWinHandlers:
         assert hasattr(mod, "run")
 
     def test_handler_coverage_reached_29_percent(self) -> None:
-        """Verify at least 9/31 catalog entries now have real handlers."""
+        """Retained for historical reference — originally verified 9/31 handlers."""
         import importlib
         from assgen.catalog import load_catalog
         catalog = load_catalog()
-        real = 0
-        for jt in catalog:
-            mod_name = "assgen.server.handlers." + jt.replace(".", "_")
-            try:
-                importlib.import_module(mod_name)
-                real += 1
-            except ModuleNotFoundError:
-                pass
-        pct = 100 * real // len(catalog)
+        real = sum(
+            1 for jt in catalog
+            if _try_import("assgen.server.handlers." + jt.replace(".", "_"))
+        )
         assert real >= 9, f"Expected ≥9 real handlers, got {real}"
-        assert pct >= 29, f"Expected ≥29% coverage, got {pct}%"
 
 
 
@@ -663,22 +732,41 @@ class TestAlgorithmicHandlers:
     def test_narrative_quest_validate_importable(self)    : self._assert_handler("narrative_quest_validate")
     def test_narrative_i18n_extract_importable(self)      : self._assert_handler("narrative_i18n_extract")
 
-    def test_handler_coverage_at_least_65_percent(self) -> None:
-        """At least 65% of catalog entries now have real handlers."""
+    # batch 1 — SDXL delegates
+    def test_visual_blockout_create_importable(self)      : self._assert_handler("visual_blockout_create")
+    def test_visual_texture_generate_importable(self)     : self._assert_handler("visual_texture_generate")
+    def test_visual_ui_icon_importable(self)              : self._assert_handler("visual_ui_icon")
+    def test_visual_vfx_particle_importable(self)         : self._assert_handler("visual_vfx_particle")
+    # batch 2 — algorithmic
+    def test_visual_model_retopo_importable(self)         : self._assert_handler("visual_model_retopo")
+    def test_scene_physics_collider_importable(self)      : self._assert_handler("scene_physics_collider")
+    def test_visual_texture_bake_importable(self)         : self._assert_handler("visual_texture_bake")
+    def test_pipeline_integrate_export_importable(self)   : self._assert_handler("pipeline_integrate_export")
+    # batch 3 — ML models
+    def test_visual_texture_upscale_importable(self)      : self._assert_handler("visual_texture_upscale")
+    def test_visual_texture_inpaint_importable(self)      : self._assert_handler("visual_texture_inpaint")
+    def test_scene_depth_estimate_importable(self)        : self._assert_handler("scene_depth_estimate")
+    def test_scene_lighting_hdri_importable(self)         : self._assert_handler("scene_lighting_hdri")
+    def test_audio_voice_clone_importable(self)           : self._assert_handler("audio_voice_clone")
+    # batch 4 — complex ML
+    def test_visual_animate_keyframe_importable(self)     : self._assert_handler("visual_animate_keyframe")
+    def test_visual_animate_mocap_importable(self)        : self._assert_handler("visual_animate_mocap")
+    def test_visual_concept_style_importable(self)        : self._assert_handler("visual_concept_style")
+    def test_visual_rig_auto_importable(self)             : self._assert_handler("visual_rig_auto")
+
+    def test_handler_coverage_full(self) -> None:
+        """All 71 catalog entries have real handlers (100% coverage)."""
         import importlib
         from assgen.catalog import load_catalog
         catalog = load_catalog()
-        real = 0
+        missing = []
         for jt in catalog:
             mod_name = "assgen.server.handlers." + jt.replace(".", "_")
             try:
                 importlib.import_module(mod_name)
-                real += 1
             except ModuleNotFoundError:
-                pass
-        pct = 100 * real // len(catalog)
-        assert real >= 35, f"Expected ≥35 real handlers, got {real}"
-        assert pct >= 65, f"Expected ≥65% coverage, got {pct}%"
+                missing.append(jt)
+        assert not missing, f"Missing handlers for: {missing}"
 
 
 # ---------------------------------------------------------------------------

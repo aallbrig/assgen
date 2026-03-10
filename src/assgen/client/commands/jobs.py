@@ -15,6 +15,8 @@ from typing import Optional
 import typer
 
 from assgen.client.api import APIError, get_client
+from assgen.client.commands.submit import submit_job
+from assgen.client.output import _user_params
 from assgen.client.output import (
     abort_with_error,
     console,
@@ -137,6 +139,59 @@ def jobs_cancel(
         except APIError as e:
             abort_with_error(str(e))
     console.print(f"[yellow]Cancelled[/yellow] job {job_id[:8]}")
+
+
+@app.command("rerun")
+def jobs_rerun(
+    job_id: str = typer.Argument(..., help="Job ID or prefix to re-submit"),
+    wait: Optional[bool] = typer.Option(
+        None, "--wait/--no-wait",
+        help="Wait for the new job to complete (overrides client default)",
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run",
+        help="Print what would be re-submitted without actually enqueuing",
+    ),
+) -> None:
+    """Re-submit a previous job with the same type and parameters.
+
+    Fetches the original job's job_type and user-supplied params, then
+    enqueues a fresh job.  Internal/pipeline params (upstream_files, _quality,
+    upstream_job_id, context_map) are stripped — use --from-job / --quality
+    on the new run if you need them again.
+
+    Examples:
+        assgen jobs rerun a1b2c3d4
+        assgen jobs rerun a1b2c3d4 --wait
+        assgen jobs rerun a1b2c3d4 --dry-run
+    """
+    with get_client() as client:
+        try:
+            original = client.get_job(job_id)
+        except APIError as e:
+            abort_with_error(str(e))
+
+    job_type: str = original.get("job_type", "")
+    if not job_type:
+        abort_with_error(f"Job {job_id[:8]} has no job_type — cannot rerun.")
+
+    # Strip internal/pipeline params; keep only user-supplied values
+    raw_params: dict = original.get("params") or {}
+    rerun_params = _user_params(raw_params)
+    # Also strip chaining keys that don't survive re-submission
+    for key in ("upstream_job_id", "context_map"):
+        rerun_params.pop(key, None)
+
+    if dry_run:
+        import json
+        console.print(f"[bold]Would re-submit:[/bold]")
+        console.print(f"  job_type  [cyan]{job_type}[/cyan]")
+        for k, v in rerun_params.items():
+            v_str = json.dumps(v) if not isinstance(v, str) else v
+            console.print(f"  {k:<14}{v_str}")
+        return
+
+    submit_job(job_type=job_type, params=rerun_params, wait=wait)
 
 
 @app.command("clean")
