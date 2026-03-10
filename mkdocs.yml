@@ -43,9 +43,6 @@ theme:
     logo: material/gamepad-variant-outline
 
 extra:
-  version:
-    provider: mike
-    default: latest
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/aallbrig/assgen
@@ -78,6 +75,9 @@ markdown_extensions:
       permalink: true
 
 plugins:
+  - gen-files:
+      scripts:
+        - docs/gen_pages.py
   - search
   - mkdocstrings:
       default_handler: python
@@ -96,9 +96,6 @@ plugins:
             merge_init_into_class: true
             members_order: source
             filters: ["!^_"]   # hide private members by default
-  - mike:
-      alias_type: symlink
-      canonical_version: latest
 
 nav:
   - Home: index.md
@@ -106,6 +103,15 @@ nav:
     - Installation & Upgrade: install.md
     - Quick Start: quickstart.md
   - CLI Reference: cli-reference.md
+  - Commands:
+    - Overview: commands/index.md
+    - 🎨 Visual Assets: commands/visual.md
+    - 🔊 Audio: commands/audio.md
+    - 🌍 Scene: commands/scene.md
+    - ⚙️ Pipeline: commands/pipeline.md
+    - 📖 Support & Narrative: commands/support.md
+    - 🔬 QA & Validation: commands/qa.md
+    - 🎲 Procedural Generation: commands/procedural.md
   - Configuration:
     - Overview: configuration.md
     - Model Validation: model-validation.md
