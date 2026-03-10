@@ -14,6 +14,7 @@ _json_mode: bool = False
 _variants: int = 1
 _quality: str = "standard"
 _from_job: str | None = None
+_context_map: dict[str, str] = {}  # key=job_id pairs from --context flags
 
 
 def set_json_mode(enabled: bool) -> None:
@@ -63,10 +64,37 @@ def get_from_job() -> str | None:
     return _from_job
 
 
+def set_context_map(entries: list[str]) -> None:
+    """Parse and store ``key=job_id`` strings from ``--context`` flags.
+
+    Args:
+        entries: List of ``"key=job_id"`` strings.  Each key names the context
+                 slot; each job_id will be resolved to file content at submit time.
+
+    Raises:
+        ValueError: If any entry is not in ``key=job_id`` form.
+    """
+    global _context_map
+    _context_map = {}
+    for entry in entries:
+        if "=" not in entry:
+            raise ValueError(
+                f"--context entries must be in 'key=job_id' form, got: {entry!r}"
+            )
+        key, _, job_id = entry.partition("=")
+        _context_map[key.strip()] = job_id.strip()
+
+
+def get_context_map() -> dict[str, str]:
+    """Return the pending context map (key → job_id, not yet resolved to text)."""
+    return dict(_context_map)
+
+
 def reset() -> None:
     """Reset all context flags to defaults.  Used in tests."""
-    global _json_mode, _variants, _quality, _from_job
+    global _json_mode, _variants, _quality, _from_job, _context_map
     _json_mode = False
     _variants = 1
     _quality = "standard"
     _from_job = None
+    _context_map = {}

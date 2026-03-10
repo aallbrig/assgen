@@ -95,6 +95,12 @@ def _root_callback(
         help="Chain from a completed job's outputs.  Pass the upstream job ID; "
              "its output files are forwarded as inputs to this job.",
     ),
+    context: list[str] = typer.Option(
+        [], "--context",
+        help="Named context from a prior job: 'key=job_id'.  Repeatable.  "
+             "Loads that job's primary text output into params['context_map']['key'] "
+             "so handlers can incorporate prior narrative/lore content.",
+    ),
 ) -> None:
     """AI-driven game asset generation pipeline."""
     if json_output:
@@ -105,6 +111,8 @@ def _root_callback(
         _ctx.set_quality(quality)
     if from_job:
         _ctx.set_from_job(from_job)
+    if context:
+        _ctx.set_context_map(context)
     if verbose:
         logging.basicConfig(
             level=logging.DEBUG,
