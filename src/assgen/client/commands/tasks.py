@@ -66,7 +66,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.ui.icon":          "Generate icons and sprites",
     "visual.ui.hud":           "Health bars, minimaps, crosshairs, buttons",
     "visual.ui.overlay":       "2D screen-space elements for 3D canvas",
-    "visual.ui.button":        "Styled game buttons and controls with state variants",
+    "visual.ui.button":        "Styled game buttons with state variants, DPI scales, and 9-slice metadata",
     "visual.ui.panel":         "Dialog boxes, inventory frames, tooltip panels, and chrome",
     "visual.ui.widget":        "Individual UI controls (sliders, toggles, checkboxes, progress bars)",
     "visual.ui.mockup":        "Full-screen UI mockups optionally guided by a sketch reference",

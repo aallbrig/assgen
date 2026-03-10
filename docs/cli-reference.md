@@ -131,7 +131,7 @@ Generate UI components for games — icons, HUD elements, and full screen compos
 ```bash
 # Single items
 assgen gen visual ui icon    "health potion"         [--size 256] [--wait]
-assgen gen visual ui button  "medieval stone button" [--states normal,hover,pressed] [--wait]
+assgen gen visual ui button  "medieval stone button" [--states normal,hover,pressed,focused] [--nine-slice auto] [--dpi 1x,2x] [--greyscale-base] [--wait]
 assgen gen visual ui panel   "gothic dialog frame"   [--type dialog] [--wait]
 assgen gen visual ui widget  "fantasy scroll health bar" [--type progressbar] [--wait]
 
