@@ -27,7 +27,7 @@ ProgressCallback = Callable[[float, str], None]
 _DEFAULT_FADE_SEC = 1.5
 
 
-def _crossfade_loop(audio: "np.ndarray", sample_rate: int, fade_sec: float = _DEFAULT_FADE_SEC) -> "np.ndarray":
+def _crossfade_loop(audio, sample_rate: int, fade_sec: float = _DEFAULT_FADE_SEC):
     """Apply a crossfade between the tail and the head of *audio*.
 
     Returns a slightly shorter clip whose end blends into its beginning,
@@ -41,6 +41,8 @@ def _crossfade_loop(audio: "np.ndarray", sample_rate: int, fade_sec: float = _DE
     Returns:
         Crossfaded float32 array of the same channel count.
     """
+    import numpy as np
+
     fade_samples = int(fade_sec * sample_rate)
     if fade_samples * 2 >= audio.shape[-1]:
         # Track too short to crossfade — return as-is
@@ -67,8 +69,6 @@ def run(
     output_dir: Path,
 ) -> dict[str, Any]:
     """Generate a seamlessly looping music clip."""
-    import numpy as np  # lazy — only required when audiocraft is installed
-
     if not _AUDIOCRAFT_AVAILABLE:
         raise RuntimeError(
             "audiocraft is not installed.  "

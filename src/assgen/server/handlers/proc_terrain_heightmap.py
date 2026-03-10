@@ -21,7 +21,7 @@ except ImportError:
     _AVAILABLE = False
 
 
-def _numpy_noise(w: int, h: int, seed: int, scale: float, octaves: int) -> "np.ndarray":
+def _numpy_noise(w: int, h: int, seed: int, scale: float, octaves: int):
     """Minimal fractal noise using numpy only (no external noise library)."""
     import numpy as np
     rng = np.random.default_rng(seed)

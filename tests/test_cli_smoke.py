@@ -775,7 +775,7 @@ class TestProceduralHandlers:
         (tmp_path / "test.png").write_bytes(b"\x89PNG")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("pipeline.asset.manifest", {"directory": str(tmp_path)},
+        run("pipeline.asset.manifest", {"directory": str(tmp_path)},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         import json
         manifest = json.loads((out_dir / "manifest.json").read_text())
@@ -787,7 +787,7 @@ class TestProceduralHandlers:
         (tmp_path / "AnotherAsset.glb").write_bytes(b"")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("pipeline.asset.rename",
+        run("pipeline.asset.rename",
                      {"directory": str(tmp_path), "convention": "snake_case", "dry_run": True},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         import json
@@ -802,7 +802,7 @@ class TestProceduralHandlers:
         (tmp_path / "texture.png").write_bytes(b"")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("pipeline.git.lfs_rules", {"directory": str(tmp_path)},
+        run("pipeline.git.lfs_rules", {"directory": str(tmp_path)},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         lfs_text = (out_dir / "lfs_rules.txt").read_text()
         assert "filter=lfs" in lfs_text
@@ -818,7 +818,7 @@ class TestProceduralHandlers:
         infile.write_text(json.dumps(dialogue))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("narrative.dialogue.validate", {"input": str(infile)},
+        run("narrative.dialogue.validate", {"input": str(infile)},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         report = json.loads((out_dir / "validation_report.json").read_text())
         assert report["errors"] == []
@@ -834,7 +834,7 @@ class TestProceduralHandlers:
         infile.write_text(json.dumps(quest))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("narrative.quest.validate", {"input": str(infile)},
+        run("narrative.quest.validate", {"input": str(infile)},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         report = json.loads((out_dir / "validation_report.json").read_text())
         assert report["errors"] == []
@@ -848,7 +848,7 @@ class TestProceduralHandlers:
         ]))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        result = run("narrative.i18n.extract", {"directory": str(tmp_path)},
+        run("narrative.i18n.extract", {"directory": str(tmp_path)},
                      None, None, "cpu", lambda f, m: None, str(out_dir))
         template = json.loads((out_dir / "i18n_template.json").read_text())
         assert template["strings"]
