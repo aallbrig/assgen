@@ -43,7 +43,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     if noise_type == "voronoi":
         try:
-            from scipy.spatial import Voronoi, cKDTree  # type: ignore
+            from scipy.spatial import cKDTree  # type: ignore
             n_pts = max(10, width * height // 2000)
             pts = rng.random((n_pts, 2)) * np.array([width, height])
             tree = cKDTree(pts)

@@ -37,7 +37,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     progress_cb(0.0, f"Scanning {len(files)} files for key '{key_field}'")
 
     strings: list[dict] = []
-    seen_values: dict[str, int] = {}  # value → index, for dedup tracking
 
     def _extract(obj, source_rel: str) -> None:
         """Recursively walk obj and collect key_field values."""

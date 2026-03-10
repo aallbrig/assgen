@@ -20,7 +20,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import os
     from pathlib import Path
-    from pydub import AudioSegment
     from pydub.silence import detect_leading_silence
 
     input_path = params.get("input")

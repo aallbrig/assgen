@@ -22,14 +22,12 @@ except ImportError:
 
 
 def _poisson_disk_sample(
-    density: "np.ndarray",
+    density: list,
     count: int,
     min_dist: float,
-    rng: "np.random.Generator",
-) -> "list[tuple[float, float]]":
+    rng: object,
+) -> list:
     """Simple rejection-sampling Poisson disk using a density map."""
-    import numpy as np
-
     h, w = density.shape
     placed: list[tuple[float, float]] = []
     max_attempts = count * 30

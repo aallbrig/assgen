@@ -20,9 +20,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import os
     import json
-    import array as arr
     from pathlib import Path
-    from pydub import AudioSegment
 
     try:
         import numpy as np
@@ -41,7 +39,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     ext = Path(input_path).suffix.lstrip(".").lower() or "wav"
     sample_rate = audio.frame_rate
     channels = audio.channels
-    sample_width = audio.sample_width  # bytes
 
     # Convert to list of samples (mono mix)
     raw = audio.get_array_of_samples()
