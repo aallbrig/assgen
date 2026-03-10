@@ -3,6 +3,9 @@
 AI-driven game asset generation pipeline — Kubernetes-style client/server architecture for 3D game development.
 
 [![CI](https://github.com/aallbrig/assgen/actions/workflows/ci.yml/badge.svg)](https://github.com/aallbrig/assgen/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://aallbrig.github.io/assgen/)
+
+📖 **[Full Documentation → aallbrig.github.io/assgen](https://aallbrig.github.io/assgen/)**
 
 ## Architecture
 
