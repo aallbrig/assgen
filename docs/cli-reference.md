@@ -38,6 +38,32 @@ assgen [OPTIONS] COMMAND
 
 ---
 
+## Global output flags
+
+Three mutually exclusive output modes are available on every command:
+
+| Flag | Description |
+|------|-------------|
+| _(default)_ | Rich human-readable output with colours and progress bars |
+| `--json` | Emit machine-readable JSON to stdout; suppresses progress bars |
+| `--yaml` | Emit machine-readable YAML to stdout; suppresses progress bars |
+
+`--json` and `--yaml` are useful for scripting and piping to other tools:
+
+```bash
+# JSON — pipe to jq
+assgen --json gen visual concept generate "ruined castle" --wait | jq .job_id
+
+# YAML — human-friendly alternative
+assgen --yaml jobs status a1b2c3d4
+
+# Use in a pipeline
+JOB=$(assgen --json gen visual model create --wait | python -c "import sys,json; print(json.load(sys.stdin)['job_id'])")
+assgen --yaml jobs status "$JOB"
+```
+
+---
+
 ## assgen tasks
 
 ```bash
@@ -121,6 +147,19 @@ assgen jobs status <id>        # full 36-char UUID or 8-char prefix
 assgen jobs wait <id>          # block with live progress bar
 assgen jobs cancel <id>
 assgen jobs clean [--days 30]  # remove completed jobs older than N days
+```
+
+`jobs status` displays the job type, status, timestamps, **and the original user
+input parameters** (prompt, flags, file paths) so you can review or reproduce
+any previous run.  Pass `--json` / `--yaml` to get machine-readable output
+suitable for re-running the job with tweaked parameters:
+
+```bash
+# Inspect a past run in YAML
+assgen --yaml jobs status a1b2c3d4
+
+# Capture params and re-submit
+assgen --json jobs status a1b2c3d4 | jq .params
 ```
 
 ---
