@@ -25,7 +25,14 @@ def concept_generate(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate concept art from a text prompt."""
+    """Generate concept art from a text prompt.
+
+    Examples:
+        assgen gen visual concept generate "medieval knight, full plate armour, front view"
+        assgen gen visual concept generate "neon-lit cyberpunk alley" --style "digital painting" --wait
+        assgen gen visual concept generate "cartoon mushroom character" --variants 4 --wait
+        assgen gen visual concept generate "sci-fi spaceship cockpit interior" -q high --wait
+    """
     submit_job("visual.concept.generate", {
         "prompt": prompt,
         "negative_prompt": negative,

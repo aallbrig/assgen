@@ -27,7 +27,13 @@ def texture_generate(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate albedo and PBR maps from a text prompt or mesh reference."""
+    """Generate albedo and PBR maps from a text prompt or mesh reference.
+
+    Examples:
+        assgen gen visual texture generate --prompt "worn cobblestone, mossy" --wait
+        assgen gen visual texture generate -p "rusted metal panel" --resolution 2048 --wait
+        assgen gen visual texture generate -p "oak wood planks" --maps albedo,normal,roughness --wait
+    """
     submit_job("visual.texture.generate", {
         "prompt": prompt,
         "input_mesh": input_mesh,

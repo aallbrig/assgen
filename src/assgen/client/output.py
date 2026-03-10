@@ -31,7 +31,7 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
     When ``--json`` mode is active, all Rich output is suppressed; the function
     waits silently and returns the completed job dict.
     """
-    from assgen.client.context import is_json_mode
+    from assgen.client.context import is_json_mode, is_yaml_mode
 
     cfg = load_client_config()
     poll = float(cfg.get("poll_interval", 2.0))
@@ -61,7 +61,7 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
 
         raise TimeoutError(f"Timed out waiting for job {job_id}")
 
-    if is_json_mode():
+    if is_json_mode() or is_yaml_mode():
         return _wait_silent()
 
     with Progress(
@@ -240,6 +240,14 @@ def print_job(job: dict[str, Any]) -> None:
         console.print(f"done     [dim]{job['completed_at'][:19].replace('T', ' ')}[/dim]"
                       + (f"  [dim]({dur})[/dim]" if dur else ""))
 
+    param_pairs = _user_param_pairs(job.get("params") or {})
+    if param_pairs:
+        console.print()
+        max_klen = max(len(k) for k, _ in param_pairs)
+        for i, (k, v) in enumerate(param_pairs):
+            label = "params  " if i == 0 else "        "
+            console.print(f"{label} [dim]{k:<{max_klen}}[/dim]  {v}")
+
     output = job.get("output")
     if output and isinstance(output, dict):
         files = output.get("files", [])
@@ -297,6 +305,9 @@ def job_to_dict(job: dict[str, Any], saved_files: list[Path] | None = None) -> d
     dur = _duration_seconds(job)
     if dur is not None:
         result["duration_s"] = dur
+    user_params = _user_params(job.get("params") or {})
+    if user_params:
+        result["params"] = user_params
     if saved_files:
         result["output_files"] = [str(f) for f in saved_files]
     elif job.get("output") and isinstance(job["output"], dict):
@@ -313,6 +324,12 @@ def print_job_json(job: dict[str, Any], saved_files: list[Path] | None = None) -
     print(json.dumps(job_to_dict(job, saved_files)), flush=True)
 
 
+def print_job_yaml(job: dict[str, Any], saved_files: list[Path] | None = None) -> None:
+    """Emit a single job result as YAML on stdout."""
+    import yaml
+    print(yaml.dump(job_to_dict(job, saved_files), default_flow_style=False, sort_keys=False), end="", flush=True)
+
+
 def abort_with_error(msg: str, code: int = 1) -> None:
     err_console.print(f"[red]error:[/red] {msg}")
     raise typer.Exit(code)
@@ -321,6 +338,47 @@ def abort_with_error(msg: str, code: int = 1) -> None:
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+# Params that are injected by the CLI/server and not meaningful to display.
+_INTERNAL_PARAM_KEYS = frozenset({
+    "upstream_files",   # raw file-path list from --from-job; shown via job chain
+})
+
+
+def _user_params(params: Any) -> dict[str, Any]:
+    """Return a copy of params with internal/private keys removed."""
+    if isinstance(params, str):
+        try:
+            params = json.loads(params)
+        except Exception:
+            return {}
+    if not isinstance(params, dict):
+        return {}
+    return {
+        k: v for k, v in params.items()
+        if not k.startswith("_") and k not in _INTERNAL_PARAM_KEYS
+        and v not in (None, "", [], {})
+    }
+
+
+def _fmt_param_value(v: Any) -> str:
+    """Format a single param value for terminal display."""
+    if isinstance(v, list):
+        items = [str(x) for x in v[:5]]
+        suffix = f"  [dim](+{len(v) - 5} more)[/dim]" if len(v) > 5 else ""
+        return ", ".join(items) + suffix
+    if isinstance(v, dict):
+        keys = list(v.keys())[:4]
+        suffix = " …" if len(v) > 4 else ""
+        return "{" + ", ".join(f"{k}: …" for k in keys) + suffix + "}"
+    s = str(v)
+    return s[:117] + "[dim]…[/dim]" if len(s) > 120 else s
+
+
+def _user_param_pairs(params: Any) -> list[tuple[str, str]]:
+    """Return (key, formatted_value) pairs for user-visible params."""
+    return [(k, _fmt_param_value(v)) for k, v in _user_params(params).items()]
+
 
 def _print_error_block(error: str) -> None:
     """Print a plain error block — no box, just indented red lines."""

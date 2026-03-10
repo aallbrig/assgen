@@ -35,7 +35,13 @@ def narrative_dialog(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate NPC dialog lines or a branching dialog tree."""
+    """Generate NPC dialog lines or a branching dialog tree.
+
+    Examples:
+        assgen gen support narrative dialog "grizzled blacksmith, old town, skeptical"
+        assgen gen support narrative dialog "mysterious elf merchant" --context "player just saved the village" --wait
+        assgen gen support narrative dialog "guard captain, corrupt city" --branching --lines 20 --wait
+    """
     submit_job("narrative.dialogue.npc", {
         "character": character,
         "context": context,
@@ -53,7 +59,13 @@ def narrative_lore(
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate world-building lore text (codex entries, item descriptions, quest text)."""
+    """Generate world-building lore text (codex entries, item descriptions, quest text).
+
+    Examples:
+        assgen gen support narrative lore "history of the fallen empire" --wait
+        assgen gen support narrative lore "ancient cursed sword" --format item-description --wait
+        assgen gen support narrative lore "the order of silver dawn" --format codex --length 800 --wait
+    """
     submit_job("narrative.lore.generate", {
         "topic": topic,
         "length": length,
