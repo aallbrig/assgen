@@ -753,9 +753,18 @@ class TestAlgorithmicHandlers:
     def test_visual_animate_mocap_importable(self)        : self._assert_handler("visual_animate_mocap")
     def test_visual_concept_style_importable(self)        : self._assert_handler("visual_concept_style")
     def test_visual_rig_auto_importable(self)             : self._assert_handler("visual_rig_auto")
+    # batch 5 — UI generation
+    def test_visual_ui_button_importable(self)            : self._assert_handler("visual_ui_button")
+    def test_visual_ui_panel_importable(self)             : self._assert_handler("visual_ui_panel")
+    def test_visual_ui_widget_importable(self)            : self._assert_handler("visual_ui_widget")
+    def test_visual_ui_mockup_importable(self)            : self._assert_handler("visual_ui_mockup")
+    def test_visual_ui_layout_importable(self)            : self._assert_handler("visual_ui_layout")
+    def test_visual_ui_iconset_importable(self)           : self._assert_handler("visual_ui_iconset")
+    def test_visual_ui_theme_importable(self)             : self._assert_handler("visual_ui_theme")
+    def test_visual_ui_screen_importable(self)            : self._assert_handler("visual_ui_screen")
 
     def test_handler_coverage_full(self) -> None:
-        """All 71 catalog entries have real handlers (100% coverage)."""
+        """All 79 catalog entries have real handlers (100% coverage)."""
         import importlib
         from assgen.catalog import load_catalog
         catalog = load_catalog()
@@ -822,6 +831,47 @@ class TestNewCLICommands:
     def test_gen_support_i18n_help(self) -> None:
         r = invoke("gen", "support", "i18n", "--help")
         assert r.exit_code == 0
+
+    # --- new UI commands ---
+    def test_gen_visual_ui_button_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "button", "--help")
+        assert r.exit_code == 0
+        assert "button" in r.output.lower()
+
+    def test_gen_visual_ui_panel_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "panel", "--help")
+        assert r.exit_code == 0
+        assert "panel" in r.output.lower()
+
+    def test_gen_visual_ui_widget_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "widget", "--help")
+        assert r.exit_code == 0
+        assert "widget" in r.output.lower()
+
+    def test_gen_visual_ui_mockup_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "mockup", "--help")
+        assert r.exit_code == 0
+        assert "mockup" in r.output.lower()
+
+    def test_gen_visual_ui_layout_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "layout", "--help")
+        assert r.exit_code == 0
+        assert "layout" in r.output.lower()
+
+    def test_gen_visual_ui_iconset_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "iconset", "--help")
+        assert r.exit_code == 0
+        assert "icon" in r.output.lower()
+
+    def test_gen_visual_ui_theme_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "theme", "--help")
+        assert r.exit_code == 0
+        assert "theme" in r.output.lower()
+
+    def test_gen_visual_ui_screen_help(self) -> None:
+        r = invoke("gen", "visual", "ui", "screen", "--help")
+        assert r.exit_code == 0
+        assert "screen" in r.output.lower()
 
 
 # ---------------------------------------------------------------------------
