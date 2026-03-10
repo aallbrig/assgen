@@ -70,7 +70,7 @@ assgen --yaml jobs status "$JOB"
 assgen tasks [--domain DOMAIN] [--json]
 ```
 
-Displays a rich tree of all 71 game development tasks with their assigned AI models.
+Displays a rich tree of all 79 game development tasks with their assigned AI models.
 
 | Option | Description |
 |--------|-------------|
@@ -122,7 +122,27 @@ assgen gen visual animate blend anim1.glb anim2.glb [--weight 0.5] [--wait]
 assgen gen visual concept generate --prompt "fantasy castle" [--wait]
 assgen gen visual uv auto mesh.glb [--wait]
 assgen gen visual vfx particle --prompt "fire explosion" [--wait]
-assgen gen visual ui icon --prompt "health potion" [--size 256] [--wait]
+```
+
+### assgen gen visual ui
+
+Generate UI components for games — icons, HUD elements, and full screen compositions.
+
+```bash
+# Single items
+assgen gen visual ui icon    "health potion"         [--size 256] [--wait]
+assgen gen visual ui button  "medieval stone button" [--states normal,hover,pressed] [--wait]
+assgen gen visual ui panel   "gothic dialog frame"   [--type dialog] [--wait]
+assgen gen visual ui widget  "fantasy scroll health bar" [--type progressbar] [--wait]
+
+# Screen-level compositions
+assgen gen visual ui mockup  "RPG main menu dark castle" [--reference sketch.png] [--wait]
+assgen gen visual ui layout  "sci-fi HUD, minimap top-right" [--reference grid.png] [--wait]
+assgen gen visual ui screen  "RPG combat HUD"        [--type gameplay] [--wait]
+
+# Theme kits
+assgen gen visual ui iconset "fantasy RPG" --icons "sword,shield,potion,key" [--wait]
+assgen gen visual ui theme   "dark souls gothic stone" style_ref.png          [--wait]
 ```
 
 ---
