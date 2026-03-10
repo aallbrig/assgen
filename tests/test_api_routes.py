@@ -396,7 +396,6 @@ class TestJobEvents:
         import json as _json
 
         events: list[dict] = []
-        error_events: list[dict] = []
         with client.stream("GET", "/jobs/00000000-0000-0000-0000-000000000000/events") as resp:
             assert resp.status_code == 200  # SSE always returns 200; error is in the event
             for raw_line in resp.iter_lines():
@@ -415,7 +414,7 @@ class TestJobEvents:
         """A COMPLETED job emits a COMPLETED status event."""
         job_id = self._make_terminal_job(client, "COMPLETED")
         _, events = self._collect_events(client, job_id)
-        assert events, f"No events received"
+        assert events, "No events received"
         assert any(e.get("status") == "COMPLETED" for e in events), f"events: {events}"
 
     def test_events_emits_failed_event(self, client: TestClient) -> None:
