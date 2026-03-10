@@ -1,12 +1,12 @@
-"""assgen gen proc — procedural generation tools.
+"""assgen gen procedural — procedural generation tools.
 
-  assgen gen proc terrain heightmap   Perlin/fractal/ridged heightmap
-  assgen gen proc texture noise       tileable noise texture
-  assgen gen proc level dungeon       BSP/cellular dungeon layout
-  assgen gen proc level voronoi       Voronoi region map
-  assgen gen proc foliage scatter     Poisson disk foliage scatter
-  assgen gen proc tileset wfc         Wave Function Collapse tileset
-  assgen gen proc plant lsystem       L-system plant skeleton
+  assgen gen procedural terrain heightmap   Perlin/fractal/ridged heightmap
+  assgen gen procedural texture noise       tileable noise texture
+  assgen gen procedural level dungeon       BSP/cellular dungeon layout
+  assgen gen procedural level voronoi       Voronoi region map
+  assgen gen procedural foliage scatter     Poisson disk foliage scatter
+  assgen gen procedural tileset wfc         Wave Function Collapse tileset
+  assgen gen procedural plant lsystem       L-system plant skeleton
 """
 from __future__ import annotations
 from typing import Optional
@@ -30,7 +30,7 @@ def terrain_heightmap(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a procedural heightmap PNG (Perlin/fractal/ridged noise)."""
-    submit_job("proc.terrain.heightmap", {
+    submit_job("procedural.terrain.heightmap", {
         "width": width, "height": height, "type": type,
         "seed": seed, "scale": scale, "octaves": octaves, "output": output,
     }, wait=wait)
@@ -53,7 +53,7 @@ def texture_noise(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a tileable noise texture PNG (Perlin/Voronoi/fBm)."""
-    submit_job("proc.texture.noise", {
+    submit_job("procedural.texture.noise", {
         "width": width, "height": height, "noise_type": noise_type,
         "seed": seed, "scale": scale, "octaves": octaves, "output": output,
     }, wait=wait)
@@ -75,7 +75,7 @@ def level_dungeon(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a BSP or cellular-automata dungeon layout."""
-    submit_job("proc.level.dungeon", {
+    submit_job("procedural.level.dungeon", {
         "width": width, "height": height, "rooms": rooms,
         "algorithm": algorithm, "seed": seed, "output": output,
     }, wait=wait)
@@ -91,7 +91,7 @@ def level_voronoi(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a Voronoi region map (colour PNG + regions JSON)."""
-    submit_job("proc.level.voronoi", {
+    submit_job("procedural.level.voronoi", {
         "width": width, "height": height, "regions": regions,
         "seed": seed, "output": output,
     }, wait=wait)
@@ -111,7 +111,7 @@ def foliage_scatter(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Scatter foliage instances using Poisson disk sampling on a density map."""
-    submit_job("proc.foliage.scatter", {
+    submit_job("procedural.foliage.scatter", {
         "density_map": density_map, "count": count,
         "min_dist": min_dist, "seed": seed, "output": output,
     }, wait=wait)
@@ -132,7 +132,7 @@ def tileset_wfc(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Synthesise a new tileset using Wave Function Collapse from a sample image."""
-    submit_job("proc.tileset.wfc", {
+    submit_job("procedural.tileset.wfc", {
         "sample": sample, "width": width, "height": height,
         "tile_size": tile_size, "seed": seed, "output": output,
     }, wait=wait)
@@ -156,7 +156,7 @@ def plant_lsystem(
     wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate an L-system plant skeleton (SVG + branches JSON)."""
-    submit_job("proc.plant.lsystem", {
+    submit_job("procedural.plant.lsystem", {
         "axiom": axiom, "rules": rules, "iterations": iterations,
         "angle": angle, "step": step, "output": output,
     }, wait=wait)
@@ -164,7 +164,7 @@ def plant_lsystem(
 
 # ── top-level proc app ────────────────────────────────────────────────────────
 app = typer.Typer(
-    name="proc",
+    name="procedural",
     help="Procedural generation: terrain, textures, levels, foliage, tilesets, plants.",
     no_args_is_help=True,
 )

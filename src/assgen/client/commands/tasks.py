@@ -154,13 +154,13 @@ _TASK_DESC: dict[str, str] = {
     "audio.process.resample":      "Change audio sample rate",
     "audio.process.waveform":      "Generate waveform PNG preview",
     # proc / terrain (algorithmic)
-    "proc.terrain.heightmap":    "Perlin/fractal/ridged heightmap PNG",
-    "proc.texture.noise":        "Tileable noise texture (perlin/voronoi/fBm)",
-    "proc.level.dungeon":        "BSP or cellular-automata dungeon layout",
-    "proc.level.voronoi":        "Voronoi region map (colour PNG + regions JSON)",
-    "proc.foliage.scatter":      "Poisson disk foliage scatter from density map",
-    "proc.tileset.wfc":          "Wave Function Collapse tileset synthesis",
-    "proc.plant.lsystem":        "L-system plant skeleton (SVG + branches JSON)",
+    "procedural.terrain.heightmap":    "Perlin/fractal/ridged heightmap PNG",
+    "procedural.texture.noise":        "Tileable noise texture (perlin/voronoi/fBm)",
+    "procedural.level.dungeon":        "BSP or cellular-automata dungeon layout",
+    "procedural.level.voronoi":        "Voronoi region map (colour PNG + regions JSON)",
+    "procedural.foliage.scatter":      "Poisson disk foliage scatter from density map",
+    "procedural.tileset.wfc":          "Wave Function Collapse tileset synthesis",
+    "procedural.plant.lsystem":        "L-system plant skeleton (SVG + branches JSON)",
     # qa
     "qa.validate": "Check mesh errors: normals, manifold, UV overlap, naming",
     "qa.perf":     "VRAM / polygon budget analysis, LOD preview",
@@ -236,7 +236,7 @@ _DOMAIN_TREE: dict[str, dict] = {
         "git":       {"_icon": "🔀", "_desc": "Git / VCS helpers",
                       "_tasks": ["lfs_rules"]},
     },
-    "proc": {
+    "procedural": {
         "_icon": "🎲", "_desc": "Procedural generation (no ML)",
         "terrain":  {"_icon": "🏔",  "_desc": "Procedural terrain heightmaps",
                      "_tasks": ["heightmap"]},

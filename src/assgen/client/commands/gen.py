@@ -11,8 +11,8 @@ Every AI-driven generation task lives here, organised by domain:
     assgen gen audio sfx generate        — sound effects from text
     assgen gen audio process normalize   — audio normalization
     assgen gen scene lighting hdri       — panoramic HDRI sky
-    assgen gen proc terrain heightmap    — procedural heightmap
-    assgen gen proc level dungeon        — BSP dungeon layout
+    assgen gen procedural terrain heightmap    — procedural heightmap
+    assgen gen procedural level dungeon        — BSP dungeon layout
     ...
 
 See ``assgen tasks`` for the full task tree with assigned models.
@@ -49,7 +49,7 @@ from assgen.client.commands.scene.lighting import app as lighting_app
 from assgen.client.commands.pipeline import app as pipeline_app
 from assgen.client.commands.support  import app as support_app
 from assgen.client.commands.qa       import app as qa_app
-from assgen.client.commands.proc     import app as proc_app
+from assgen.client.commands.procedural import app as proc_app
 
 
 # ── visual ───────────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ app = typer.Typer(
     help=(
         "Generate game assets using AI models.\n\n"
         "Domains: [bold]visual[/bold] · [bold]audio[/bold] · [bold]scene[/bold] · "
-        "[bold]pipeline[/bold] · [bold]proc[/bold] · [bold]support[/bold] · [bold]qa[/bold]\n\n"
+        "[bold]pipeline[/bold] · [bold]procedural[/bold] · [bold]support[/bold] · [bold]qa[/bold]\n\n"
         "Run [bold]assgen tasks[/bold] for the full task tree with assigned models."
     ),
     no_args_is_help=True,
@@ -107,6 +107,6 @@ app.add_typer(visual_app,   name="visual",   help="3D meshes, textures, rigs, an
 app.add_typer(audio_app,    name="audio",    help="Sound effects, music, voice synthesis")
 app.add_typer(scene_app,    name="scene",    help="Physics colliders and lighting assets")
 app.add_typer(pipeline_app, name="pipeline", help="Workflows, batching, engine integration, asset tools")
-app.add_typer(proc_app,     name="proc",     help="Procedural generation: terrain, levels, foliage, plants")
+app.add_typer(proc_app,     name="procedural", help="Procedural generation: terrain, levels, foliage, plants")
 app.add_typer(support_app,  name="support",  help="Narrative, lore, procedural data")
 app.add_typer(qa_app,       name="qa",       help="Asset validation and performance testing")
