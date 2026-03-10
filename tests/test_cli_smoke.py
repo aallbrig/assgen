@@ -862,3 +862,39 @@ class TestProceduralHandlers:
         assert template["strings"]
         values = [s["value"] for s in template["strings"]]
         assert "Hello world" in values
+
+
+class TestCriticalHandlerImports:
+    """Verify the 4 critical ML handlers import cleanly without their deps installed."""
+
+    def _assert_importable(self, module_name: str) -> None:
+        import importlib
+        mod = importlib.import_module(f"assgen.server.handlers.{module_name}")
+        assert hasattr(mod, "run"), f"{module_name} missing run()"
+
+    def test_visual_uv_auto_importable(self):        self._assert_importable("visual_uv_auto")
+    def test_audio_voice_tts_importable(self):       self._assert_importable("audio_voice_tts")
+    def test_visual_concept_generate_importable(self): self._assert_importable("visual_concept_generate")
+    def test_visual_model_create_importable(self):   self._assert_importable("visual_model_create")
+
+    def test_visual_concept_generate_covers_texture(self):
+        """visual_concept_generate should also handle texture/icon/blockout/vfx job types."""
+        from assgen.server.handlers.visual_concept_generate import _JOB_PREFIXES
+        for jt in ["visual.texture.generate", "visual.ui.icon", "visual.blockout.create", "visual.vfx.particle"]:
+            assert jt in _JOB_PREFIXES
+
+    def test_visual_uv_auto_fallback_flag(self):
+        """visual_uv_auto._XATLAS_AVAILABLE is False when xatlas not installed."""
+        import sys
+        orig = sys.modules.get("xatlas")
+        sys.modules["xatlas"] = None  # type: ignore[assignment]
+        try:
+            import importlib
+            import assgen.server.handlers.visual_uv_auto as mod
+            importlib.reload(mod)
+            assert not mod._XATLAS_AVAILABLE
+        finally:
+            if orig is None:
+                sys.modules.pop("xatlas", None)
+            else:
+                sys.modules["xatlas"] = orig
