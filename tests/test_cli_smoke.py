@@ -12,6 +12,7 @@ we patch the HTTP layer so tests stay fast and hermetic.
 """
 from __future__ import annotations
 
+import pytest
 from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
@@ -476,5 +477,118 @@ class TestCatalogQualityVariants:
         entry = get_model_for_job("visual.texture.pbr")
         assert entry is not None
         assert entry["model_id"] is None  # algorithmic — no ML model
+
+
+# ---------------------------------------------------------------------------
+# --context multi-input chaining
+# ---------------------------------------------------------------------------
+
+class TestContextFlag:
+    """--context key=job_id loads upstream text into context_map param."""
+
+    def _make_client(self, lore_job_id: str) -> MagicMock:
+        mc = MagicMock()
+        mc.__enter__ = MagicMock(return_value=mc)
+        mc.__exit__ = MagicMock(return_value=False)
+
+        def _get_job(job_id: str) -> dict:
+            if job_id == lore_job_id:
+                return {
+                    "id": job_id,
+                    "status": "COMPLETED",
+                    "job_type": "narrative.lore.generate",
+                    "result": {"files": ["lore.txt"]},
+                }
+            return {"id": job_id, "status": "COMPLETED", "result": {"files": []}}
+
+        mc.get_job.side_effect = _get_job
+        mc.download_file.return_value = b"The empire fell three centuries ago..."
+        mc.enqueue_job.return_value = {
+            "id": "dialoguejob0001",
+            "status": "QUEUED",
+            "job_type": "narrative.dialogue.npc",
+        }
+        return mc
+
+    def test_context_flag_present_in_help(self) -> None:
+        result = invoke("--help")
+        assert "--context" in result.output
+
+    def test_context_resolves_to_param(self) -> None:
+        from assgen.client import context
+        context.reset()
+        lore_id = "lorejob00000001"
+        mock_client = self._make_client(lore_id)
+        with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
+            result = invoke(
+                "--context", f"lore={lore_id}",
+                "gen", "support", "narrative", "dialog", "innkeeper",
+            )
+        context.reset()
+        assert result.exit_code == 0
+        params_sent = mock_client.enqueue_job.call_args[0][1]
+        assert "context_map" in params_sent
+        assert "lore" in params_sent["context_map"]
+        assert "empire" in params_sent["context_map"]["lore"]
+
+    def test_context_bad_format_raises(self) -> None:
+        from assgen.client import context as ctx_mod
+        ctx_mod.reset()
+        with pytest.raises(ValueError, match="key=job_id"):
+            ctx_mod.set_context_map(["noequalssign"])
+        ctx_mod.reset()
+
+    def test_multiple_context_entries(self) -> None:
+        from assgen.client import context as ctx_mod
+        ctx_mod.reset()
+        ctx_mod.set_context_map(["lore=job1", "scene=job2"])
+        cm = ctx_mod.get_context_map()
+        assert cm == {"lore": "job1", "scene": "job2"}
+        ctx_mod.reset()
+
+
+# ---------------------------------------------------------------------------
+# Easy-win handler importability
+# ---------------------------------------------------------------------------
+
+class TestEasyWinHandlers:
+    """Wrapper handlers import cleanly and delegate correctly."""
+
+    def test_audio_ambient_generate_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.audio_ambient_generate")
+        assert hasattr(mod, "run")
+
+    def test_audio_music_adaptive_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.audio_music_adaptive")
+        assert hasattr(mod, "run")
+
+    def test_narrative_lore_generate_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.narrative_lore_generate")
+        assert hasattr(mod, "run")
+
+    def test_narrative_quest_design_importable(self) -> None:
+        import importlib
+        mod = importlib.import_module("assgen.server.handlers.narrative_quest_design")
+        assert hasattr(mod, "run")
+
+    def test_handler_coverage_reached_29_percent(self) -> None:
+        """Verify at least 9/31 catalog entries now have real handlers."""
+        import importlib
+        from assgen.catalog import load_catalog
+        catalog = load_catalog()
+        real = 0
+        for jt in catalog:
+            mod_name = "assgen.server.handlers." + jt.replace(".", "_")
+            try:
+                importlib.import_module(mod_name)
+                real += 1
+            except ModuleNotFoundError:
+                pass
+        pct = 100 * real // len(catalog)
+        assert real >= 9, f"Expected ≥9 real handlers, got {real}"
+        assert pct >= 29, f"Expected ≥29% coverage, got {pct}%"
 
 

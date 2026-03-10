@@ -66,6 +66,12 @@ def run(
     branching: bool = bool(params.get("branching", False))
 
     context_block = f"Scene context: {context}" if context else ""
+    # Incorporate any --context named slots (lore, scenario, world, etc.)
+    context_map: dict[str, str] = params.get("context_map") or {}
+    if context_map:
+        context_block += "\n\nWorld/scenario reference material:\n"
+        for key, text in context_map.items():
+            context_block += f"\n--- {key} ---\n{text[:2000]}\n"
     branching_note = " as a branching dialogue tree" if branching else ""
     player_options_block = _BRANCHING_EXTRA if branching else ""
 

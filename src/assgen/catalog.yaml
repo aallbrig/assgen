@@ -189,10 +189,10 @@ catalog:
     notes: "Highly expressive TTS with non-verbal sounds (laughs, sighs); fits in 12 GB fp16"
 
   audio.voice.clone:
-    model_id: "myshell-ai/OpenVoice"
-    name: "OpenVoice"
+    model_id: "coqui-ai/XTTS-v2"
+    name: "XTTS-v2"
     task: "text-to-speech"
-    notes: "Instant voice cloning from a short reference clip; pipeline_tag text-to-speech; ~200 MB model"
+    notes: "Coqui XTTS-v2 — voice cloning from a 6-second reference clip; 17 languages; actively maintained; better voice quality for game character voices than OpenVoice. Requires coqui-tts package."
 
   # ── Scene / Physics ──────────────────────────────────────────────────────
   scene.physics.collider:

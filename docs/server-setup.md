@@ -40,7 +40,15 @@ ExecStart=/home/youruser/.venv/bin/assgen-server start \
     --host 0.0.0.0 --port 8742
 Restart=on-failure
 RestartSec=5
+
+# --- GPU / CUDA environment ---
 Environment=ASSGEN_LOG_LEVEL=INFO
+# Prevents CUDA from re-initialising the GPU on every restart
+Environment=CUDA_MODULE_LOADING=LAZY
+# Reduces fragmentation when loading large models sequentially
+Environment=PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+# Pin to a specific GPU if you have more than one (0-indexed)
+# Environment=CUDA_VISIBLE_DEVICES=0
 
 [Install]
 WantedBy=multi-user.target
@@ -50,6 +58,79 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 sudo systemctl enable --now assgen-server
 sudo journalctl -u assgen-server -f
+```
+
+### NVIDIA CUDA persistence (recommended for gaming GPUs)
+
+Without persistence mode the driver re-initialises the GPU on every request,
+adding 5–15 s to the first job after an idle period.  Enable it once at boot:
+
+```bash
+# Add to /etc/rc.local or a separate oneshot systemd unit:
+nvidia-smi -pm 1          # persistence mode ON
+nvidia-smi --auto-boost-default=0   # disable boost to keep clocks stable
+```
+
+Or as its own systemd unit (`/etc/systemd/system/nvidia-persist.service`):
+
+```ini
+[Unit]
+Description=NVIDIA persistence mode
+Before=assgen-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nvidia-smi -pm 1
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Model pre-warm on startup
+
+The first job after a server restart downloads and loads models, which can
+take minutes.  Add a pre-warm step that loads your most-used models before
+serving any requests:
+
+```bash
+# /home/youruser/assgen-prewarm.sh
+#!/bin/bash
+set -e
+# Wait for the server to be ready
+sleep 5
+assgen client config set server_url "http://localhost:8742"
+# Enqueue lightweight warm-up jobs (they complete quickly and prime the cache)
+assgen gen audio sfx generate "test" --wait --timeout 120 || true
+echo "assgen server warmed up"
+```
+
+Add to the service unit:
+
+```ini
+ExecStartPost=/home/youruser/assgen-prewarm.sh
+```
+
+### Multi-GPU: assigning specific tasks to specific GPUs
+
+Run two server instances on different ports, each pinned to a different GPU:
+
+```bash
+# GPU 0 — visual / 3D tasks
+CUDA_VISIBLE_DEVICES=0 assgen-server start --host 127.0.0.1 --port 8742 --daemon
+
+# GPU 1 — audio / narrative tasks
+CUDA_VISIBLE_DEVICES=1 assgen-server start --host 127.0.0.1 --port 8743 --daemon
+```
+
+Then in client scripts route by job type:
+
+```bash
+assgen client config set server_url "http://localhost:8742"
+assgen gen visual model create "sword" --wait
+
+assgen client config set server_url "http://localhost:8743"
+assgen gen audio music compose "battle theme" --wait
 ```
 
 ---

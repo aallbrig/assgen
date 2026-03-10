@@ -12,7 +12,7 @@ from typing import Any, Optional
 import typer
 
 from assgen.client.api import APIError, get_client
-from assgen.client.context import get_from_job, get_quality, get_variants, is_json_mode
+from assgen.client.context import get_context_map, get_from_job, get_quality, get_variants, is_json_mode
 from assgen.client.output import (
     abort_with_error,
     console,
@@ -38,6 +38,39 @@ def _resolve_upstream(client: Any, job_id: str) -> dict[str, Any]:
             f"'{job.get('status')}' — must be COMPLETED before chaining."
         )
     return job
+
+
+def _read_context_text(client: Any, job_id: str) -> str:
+    """Resolve a --context job_id to its primary text content.
+
+    Tries these file extensions in order: .txt, .json (reads as string), then
+    falls back to any file in the result's file list.  Returns empty string if
+    nothing readable is found.
+    """
+    try:
+        job = client.get_job(job_id)
+    except APIError:
+        return ""
+
+    if job.get("status") != "COMPLETED":
+        return ""
+
+    files: list[str] = (job.get("result") or {}).get("files", [])
+    # Prefer plain text files; fall back to JSON, then any file
+    preferred = next(
+        (f for f in files if f.endswith(".txt")),
+        next((f for f in files if f.endswith(".json")), files[0] if files else None),
+    )
+    if not preferred:
+        return ""
+
+    try:
+        content = client.download_file(job_id, preferred)
+        if isinstance(content, bytes):
+            return content.decode("utf-8", errors="replace")
+        return str(content)
+    except Exception:
+        return ""
 
 
 def submit_job(
@@ -70,6 +103,16 @@ def submit_job(
         result = upstream_job.get("result") or {}
         params["upstream_job_id"] = from_job
         params["upstream_files"] = result.get("files", [])
+
+    # --- Resolve --context key=job_id pairs into text content ---
+    context_job_map = get_context_map()
+    if context_job_map:
+        resolved_context: dict[str, str] = {}
+        with get_client() as client:
+            for key, ctx_job_id in context_job_map.items():
+                resolved_context[key] = _read_context_text(client, ctx_job_id)
+        if resolved_context:
+            params["context_map"] = resolved_context
 
     # --- Enqueue N jobs ---
     job_ids: list[str] = []
