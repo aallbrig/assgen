@@ -40,9 +40,9 @@ dev = [
 ]
 docs = [
     "mkdocs-material>=9.5",
-    "mike>=2.1",
     "mkdocs-typer>=0.0.2",
     "mkdocstrings[python]>=0.25",
+    "mkdocs-gen-files>=0.5",
     "griffe>=0.45",
 ]
 
