@@ -335,12 +335,16 @@ def run(
     model_path: str | None,
     device: str,
     progress_cb: Callable[[float, str], None],
+    output_dir: str,
 ) -> dict[str, Any]:
     progress_cb(0.2, "Loading model")
     # ... load transformers pipeline from model_path ...
     progress_cb(0.8, "Running inference")
-    # ... run inference ...
-    return {"output_path": "/path/to/output.glb"}
+    # ... write output files to output_dir ...
+    return {
+        "files": ["output.glb"],
+        "metadata": {"model": model_id},
+    }
 ```
 
 Without a handler, jobs run through the stub handler (which simulates steps and returns immediately — useful for development).
@@ -610,12 +614,16 @@ def run(
     model_path: str | None,
     device: str,
     progress_cb: Callable[[float, str], None],
+    output_dir: str,
 ) -> dict[str, Any]:
     progress_cb(0.2, "Loading model")
     # ... load transformers pipeline from model_path ...
     progress_cb(0.8, "Running inference")
-    # ... run inference ...
-    return {"output_path": "/path/to/output.glb"}
+    # ... write output files to output_dir ...
+    return {
+        "files": ["output.glb"],
+        "metadata": {"model": model_id},
+    }
 ```
 
 Without a handler, jobs run through the stub handler (which simulates steps and returns immediately — useful for development).
