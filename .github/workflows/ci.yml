@@ -72,7 +72,7 @@ jobs:
           context: .
           file: docker/Dockerfile.server
           push: false
-          build-args: VERSION=ci
+          build-args: VERSION=0.0.0.dev0
           tags: assgen-server:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -83,7 +83,7 @@ jobs:
           context: .
           file: docker/Dockerfile.client
           push: false
-          build-args: VERSION=ci
+          build-args: VERSION=0.0.0.dev0
           tags: assgen-client:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
