@@ -12,6 +12,7 @@ we patch the HTTP layer so tests stay fast and hermetic.
 """
 from __future__ import annotations
 
+import re
 import pytest
 from unittest.mock import MagicMock, patch
 
@@ -21,6 +22,8 @@ from assgen.client.cli import app
 
 runner = CliRunner()
 
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -29,6 +32,11 @@ runner = CliRunner()
 def invoke(*args: str, input: str | None = None):
     """Invoke the root CLI and return the result."""
     return runner.invoke(app, list(args), input=input)
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from *text*."""
+    return _ANSI_RE.sub("", text)
 
 
 # ---------------------------------------------------------------------------
@@ -224,7 +232,7 @@ class TestJsonFlag:
 
     def test_json_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--json" in result.output
+        assert "--json" in strip_ansi(result.output)
 
     def test_json_flag_emits_valid_json(self) -> None:
         import json as _json
@@ -270,7 +278,7 @@ class TestVariantsFlag:
 
     def test_variants_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--variants" in result.output
+        assert "--variants" in strip_ansi(result.output)
 
     def test_variants_submits_n_jobs(self) -> None:
         from assgen.client import context
@@ -318,7 +326,7 @@ class TestQualityFlag:
 
     def test_quality_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--quality" in result.output
+        assert "--quality" in strip_ansi(result.output)
 
     def test_quality_draft_sets_param(self) -> None:
         from assgen.client import context
@@ -386,7 +394,7 @@ class TestFromJobFlag:
 
     def test_from_job_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--from-job" in result.output
+        assert "--from-job" in strip_ansi(result.output)
 
     def test_from_job_injects_upstream_info(self) -> None:
         from assgen.client import context
@@ -512,7 +520,7 @@ class TestContextFlag:
 
     def test_context_flag_present_in_help(self) -> None:
         result = invoke("--help")
-        assert "--context" in result.output
+        assert "--context" in strip_ansi(result.output)
 
     def test_context_resolves_to_param(self) -> None:
         from assgen.client import context
