@@ -70,7 +70,7 @@ assgen --yaml jobs status "$JOB"
 assgen tasks [--domain DOMAIN] [--json]
 ```
 
-Displays a rich tree of all 50+ game development tasks with their assigned AI models.
+Displays a rich tree of all 71 game development tasks with their assigned AI models.
 
 | Option | Description |
 |--------|-------------|

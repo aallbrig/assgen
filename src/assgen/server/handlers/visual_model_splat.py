@@ -26,18 +26,15 @@ import logging
 from pathlib import Path
 from typing import Any, Callable
 
-from PIL import Image
-
-# Module-level imports: ImportError here → worker falls back to stub handler
-import tsr                                           # noqa: E402,F401
-from tsr.system import TSR                           # noqa: E402
-from tsr.utils import remove_background, resize_foreground  # noqa: E402
-
-from assgen.server.handlers.mesh_utils import (
-    DEFAULT_TARGET_FACES,
-    clean_mesh,
-    mesh_stats,
-)
+# Module-level imports: guard so worker falls back to stub if deps absent
+try:
+    from PIL import Image
+    import tsr                                           # noqa: F401
+    from tsr.system import TSR                           # noqa: F401
+    from tsr.utils import remove_background, resize_foreground  # noqa: F401
+    _AVAILABLE = True
+except ImportError:
+    _AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +60,18 @@ def run(
     Returns:
         ``{"files": ["output.glb"], "metadata": {...}}``
     """
+    if not _AVAILABLE:
+        raise RuntimeError(
+            "TripoSR is not installed. Run: pip install tsr  "
+            "(see https://github.com/VAST-AI-Research/TripoSR)"
+        )
+
     import torch
+    from assgen.server.handlers.mesh_utils import (
+        DEFAULT_TARGET_FACES,
+        clean_mesh,
+        mesh_stats,
+    )
 
     images_param: list[str] = params.get("images") or []
     target_faces: int = int(params.get("target_faces") or DEFAULT_TARGET_FACES)
