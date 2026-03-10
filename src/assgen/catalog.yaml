@@ -222,6 +222,254 @@ catalog:
     task: "mesh-export"
     notes: "Format conversion — no AI model required"
 
+  # ── Visual / Mesh (algorithmic) ───────────────────────────────────────────
+  visual.mesh.validate:
+    model_id: null
+    name: "Mesh Validator (algorithmic)"
+    task: "algorithmic"
+    notes: "trimesh-based manifold check, hole detection, duplicate verts, non-manifold edges. No model required."
+
+  visual.mesh.convert:
+    model_id: null
+    name: "Mesh Format Converter (algorithmic)"
+    task: "algorithmic"
+    notes: "trimesh-based format conversion: glb↔obj↔ply↔stl. No model required."
+
+  visual.mesh.merge:
+    model_id: null
+    name: "Mesh Merger (algorithmic)"
+    task: "algorithmic"
+    notes: "Combine N meshes into one using trimesh. No model required."
+
+  visual.mesh.bounds:
+    model_id: null
+    name: "Mesh Bounds (algorithmic)"
+    task: "algorithmic"
+    notes: "Compute AABB, OBB, and bounding sphere via trimesh. No model required."
+
+  visual.mesh.flipnormals:
+    model_id: null
+    name: "Mesh Flip Normals (algorithmic)"
+    task: "algorithmic"
+    notes: "Flip face winding order via trimesh. No model required."
+
+  visual.mesh.weld:
+    model_id: null
+    name: "Mesh Weld (algorithmic)"
+    task: "algorithmic"
+    notes: "Merge near-duplicate vertices via trimesh. No model required."
+
+  visual.mesh.center:
+    model_id: null
+    name: "Mesh Center (algorithmic)"
+    task: "algorithmic"
+    notes: "Reposition mesh pivot to origin or bbox center via trimesh. No model required."
+
+  visual.mesh.scale:
+    model_id: null
+    name: "Mesh Scale (algorithmic)"
+    task: "algorithmic"
+    notes: "Scale mesh by factor or unit conversion via trimesh. No model required."
+
+  # ── Visual / LOD (algorithmic) ────────────────────────────────────────────
+  visual.lod.generate:
+    model_id: null
+    name: "LOD Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Generate N LOD meshes via QEM decimation (pyfqmr or trimesh fallback). No model required."
+
+  # ── Visual / Texture (algorithmic) ───────────────────────────────────────
+  visual.texture.channel_pack:
+    model_id: null
+    name: "Texture Channel Pack (algorithmic)"
+    task: "algorithmic"
+    notes: "Pack separate R/G/B/A channel images into a single RGBA texture via Pillow. No model required."
+
+  visual.texture.convert:
+    model_id: null
+    name: "Texture Format Converter (algorithmic)"
+    task: "algorithmic"
+    notes: "Convert PNG/TGA/JPG/EXR to WebP/PNG/TGA/JPG via Pillow. No model required."
+
+  visual.texture.atlas_pack:
+    model_id: null
+    name: "Texture Atlas Packer (algorithmic)"
+    task: "algorithmic"
+    notes: "Pack N images into a texture atlas + UV manifest JSON. Uses rectpack if installed, else row packing."
+
+  visual.texture.mipmap:
+    model_id: null
+    name: "Mipmap Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Generate a full mipmap chain from an image via Pillow. No model required."
+
+  visual.texture.normalmap_convert:
+    model_id: null
+    name: "Normal Map Converter DX↔GL (algorithmic)"
+    task: "algorithmic"
+    notes: "Flip G channel to convert between DirectX and OpenGL normal map conventions. No model required."
+
+  visual.texture.seamless:
+    model_id: null
+    name: "Seamless Texture Fixer (algorithmic)"
+    task: "algorithmic"
+    notes: "Fix tile seams via offset-blend using Pillow + numpy. No model required."
+
+  visual.texture.resize:
+    model_id: null
+    name: "Texture Resizer (algorithmic)"
+    task: "algorithmic"
+    notes: "Resize a texture to specified dimensions; optionally snap to power-of-2 via Pillow."
+
+  visual.texture.report:
+    model_id: null
+    name: "Texture Report (algorithmic)"
+    task: "algorithmic"
+    notes: "Report texture format, dimensions, and estimated GPU memory for one or more images. No model required."
+
+  # ── Visual / Sprite (algorithmic) ────────────────────────────────────────
+  visual.sprite.pack:
+    model_id: null
+    name: "Sprite Sheet Packer (algorithmic)"
+    task: "algorithmic"
+    notes: "Pack animation frame images into a sprite sheet grid + manifest JSON via Pillow. No model required."
+
+  # ── Audio / Process (algorithmic) ────────────────────────────────────────
+  audio.process.normalize:
+    model_id: null
+    name: "Audio Normalizer (algorithmic)"
+    task: "algorithmic"
+    notes: "LUFS or peak normalization via pydub + pyloudnorm. No model required."
+
+  audio.process.trim_silence:
+    model_id: null
+    name: "Silence Trimmer (algorithmic)"
+    task: "algorithmic"
+    notes: "Strip leading/trailing silence from audio via pydub. No model required."
+
+  audio.process.loop_optimize:
+    model_id: null
+    name: "Loop Point Optimizer (algorithmic)"
+    task: "algorithmic"
+    notes: "Find zero-crossing loop points for seamless looping via pydub. No model required."
+
+  audio.process.convert:
+    model_id: null
+    name: "Audio Format Converter (algorithmic)"
+    task: "algorithmic"
+    notes: "Convert WAV↔OGG↔MP3↔FLAC via pydub. No model required."
+
+  audio.process.downmix:
+    model_id: null
+    name: "Audio Downmix (algorithmic)"
+    task: "algorithmic"
+    notes: "Downmix stereo to mono (or upmix) via pydub. No model required."
+
+  audio.process.resample:
+    model_id: null
+    name: "Audio Resampler (algorithmic)"
+    task: "algorithmic"
+    notes: "Change audio sample rate via pydub. No model required."
+
+  audio.process.waveform:
+    model_id: null
+    name: "Waveform Renderer (algorithmic)"
+    task: "algorithmic"
+    notes: "Generate a waveform PNG preview via pydub + Pillow. No model required."
+
+  # ── Proc / Terrain (algorithmic) ─────────────────────────────────────────
+  proc.terrain.heightmap:
+    model_id: null
+    name: "Heightmap Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Perlin/fractal/ridged heightmap PNG via noise library (numpy fallback). No model required."
+
+  proc.texture.noise:
+    model_id: null
+    name: "Noise Texture Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Tileable noise texture (perlin/voronoi/fBm) via noise+scipy (numpy fallback). No model required."
+
+  proc.level.dungeon:
+    model_id: null
+    name: "Dungeon Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "BSP or cellular automata dungeon layout. Pure Python. Outputs PNG + JSON."
+
+  proc.level.voronoi:
+    model_id: null
+    name: "Voronoi Region Map (algorithmic)"
+    task: "algorithmic"
+    notes: "Voronoi region map via scipy (numpy fallback). Outputs colour PNG + regions JSON."
+
+  proc.foliage.scatter:
+    model_id: null
+    name: "Foliage Scatter (algorithmic)"
+    task: "algorithmic"
+    notes: "Poisson disk foliage scatter from a density map. Uses scipy or pure Python fallback."
+
+  proc.tileset.wfc:
+    model_id: null
+    name: "Wave Function Collapse (algorithmic)"
+    task: "algorithmic"
+    notes: "Overlapping WFC tileset synthesis from a sample image. Pure Python + Pillow."
+
+  proc.plant.lsystem:
+    model_id: null
+    name: "L-System Plant Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "L-system plant skeleton with turtle renderer. Pure Python. Outputs SVG + branches JSON."
+
+  # ── Pipeline / Asset (algorithmic) ───────────────────────────────────────
+  pipeline.asset.manifest:
+    model_id: null
+    name: "Asset Manifest Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Walk directory → manifest.json with path, size, sha256, type, dimensions. Pure Python."
+
+  pipeline.asset.validate:
+    model_id: null
+    name: "Asset Validator (algorithmic)"
+    task: "algorithmic"
+    notes: "Check oversized textures, non-pow2, high-poly meshes. Uses PIL + trimesh (optional)."
+
+  pipeline.asset.rename:
+    model_id: null
+    name: "Asset Batch Rename (algorithmic)"
+    task: "algorithmic"
+    notes: "Batch rename to snake_case/PascalCase/kebab-case with dry-run support. Pure Python."
+
+  pipeline.asset.report:
+    model_id: null
+    name: "Asset Budget Report (algorithmic)"
+    task: "algorithmic"
+    notes: "Size budget by type (meshes/textures/audio/other). Pure Python. Outputs JSON."
+
+  pipeline.git.lfs_rules:
+    model_id: null
+    name: "Git LFS Rules Generator (algorithmic)"
+    task: "algorithmic"
+    notes: "Scan asset types → .gitattributes LFS rules. Pure Python."
+
+  # ── Narrative / Validation (algorithmic) ─────────────────────────────────
+  narrative.dialogue.validate:
+    model_id: null
+    name: "Dialogue Validator (algorithmic)"
+    task: "algorithmic"
+    notes: "Lint assgen dialogue JSON: orphan nodes, dead ends, missing keys. Pure Python."
+
+  narrative.quest.validate:
+    model_id: null
+    name: "Quest Graph Validator (algorithmic)"
+    task: "algorithmic"
+    notes: "Check quest JSON graph for cycles and unreachable nodes. Uses networkx (DFS fallback)."
+
+  narrative.i18n.extract:
+    model_id: null
+    name: "i18n String Extractor (algorithmic)"
+    task: "algorithmic"
+    notes: "Extract localisation string keys from JSON files. Pure Python. Outputs JSON + CSV."
+
   # ── Narrative ─────────────────────────────────────────────────────────────
   narrative.dialogue.npc:
     model_id: "microsoft/Phi-3.5-mini-instruct"
