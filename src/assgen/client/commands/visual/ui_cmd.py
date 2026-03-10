@@ -92,19 +92,47 @@ def ui_button(
     height: int = typer.Option(128, "--height"),
     states: Optional[str] = typer.Option(
         "normal", "--states",
-        help="Comma-separated state variants: normal,hover,pressed,disabled",
+        help="Comma-separated state variants: normal,hover,pressed,disabled,focused,selected,locked",
+    ),
+    nine_slice: str = typer.Option(
+        "off", "--nine-slice",
+        help="'auto' → emit .meta.json sidecar with 9-slice inset margins; 'off' to skip",
+    ),
+    nine_slice_inset: Optional[int] = typer.Option(
+        None, "--nine-slice-inset",
+        help="Override 9-slice border inset in px (default: ~16%% of shortest edge)",
+    ),
+    dpi: str = typer.Option(
+        "1x", "--dpi",
+        help="Comma-separated DPI scale variants to output, e.g. '1x,2x,3x'",
+    ),
+    greyscale_base: bool = typer.Option(
+        False, "--greyscale-base/--no-greyscale-base",
+        help="Output greyscale+alpha so the engine can tint at runtime",
     ),
     steps: int = _STEPS_OPT,
     output: Optional[str] = _OUT_OPT,
     wait: Optional[bool] = _WAIT_OPT,
 ) -> None:
-    """Generate styled game buttons with optional state variants (normal/hover/pressed/disabled)."""
+    """Generate styled game buttons with state variants, DPI scales, and optional 9-slice metadata.
+
+    State choices: normal, hover, pressed, disabled, focused, selected, locked
+
+    Examples:
+        assgen gen visual ui button "stone RPG button" --states normal,hover,pressed --wait
+        assgen gen visual ui button "sci-fi button" --nine-slice auto --dpi 1x,2x --wait
+        assgen gen visual ui button "fantasy button" --greyscale-base --states normal,disabled --wait
+    """
     submit_job("visual.ui.button", {
         "prompt": prompt,
         "style": style,
         "width": width,
         "height": height,
         "states": [s.strip() for s in states.split(",") if s.strip()],
+        "nine_slice": nine_slice,
+        "nine_slice_inset": nine_slice_inset,
+        "dpi": dpi,
+        "greyscale_base": greyscale_base,
         "steps": steps,
         "output": output,
     }, wait=wait)

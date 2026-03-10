@@ -838,6 +838,14 @@ class TestNewCLICommands:
         assert r.exit_code == 0
         assert "button" in r.output.lower()
 
+    def test_gen_visual_ui_button_help_shows_new_flags(self) -> None:
+        r = invoke("gen", "visual", "ui", "button", "--help")
+        assert r.exit_code == 0
+        assert "nine-slice" in r.output
+        assert "dpi" in r.output
+        assert "greyscale" in r.output
+        assert "focused" in r.output or "selected" in r.output
+
     def test_gen_visual_ui_panel_help(self) -> None:
         r = invoke("gen", "visual", "ui", "panel", "--help")
         assert r.exit_code == 0
@@ -877,6 +885,59 @@ class TestNewCLICommands:
 # ---------------------------------------------------------------------------
 # Procedural handler functional tests (no external deps required)
 # ---------------------------------------------------------------------------
+
+class TestButtonHandlerHelpers:
+    """Unit tests for pure-Python helpers in visual_ui_button — no GPU needed."""
+
+    def _import_helpers(self):
+        from assgen.server.handlers.visual_ui_button import (
+            _parse_dpi_scales, _nine_slice_insets, _STATE_MODIFIERS,
+        )
+        return _parse_dpi_scales, _nine_slice_insets, _STATE_MODIFIERS
+
+    def test_parse_dpi_scales_default(self):
+        parse, _, _ = self._import_helpers()
+        assert parse(None) == [1]
+        assert parse("1x") == [1]
+
+    def test_parse_dpi_scales_multi(self):
+        parse, _, _ = self._import_helpers()
+        assert parse("1x,2x,3x") == [3, 2, 1]  # sorted descending
+
+    def test_parse_dpi_scales_dedup(self):
+        parse, _, _ = self._import_helpers()
+        assert parse("2x,2x,1x") == [2, 1]
+
+    def test_nine_slice_auto_insets_default(self):
+        _, ns, _ = self._import_helpers()
+        result = ns(256, 128, None)
+        # 16% of min(256,128)=128 → 20px, but min is 4
+        assert result["left"] == result["right"] == result["top"] == result["bottom"]
+        assert result["left"] >= 4
+
+    def test_nine_slice_inset_override(self):
+        _, ns, _ = self._import_helpers()
+        result = ns(256, 128, 24)
+        assert result == {"left": 24, "right": 24, "top": 24, "bottom": 24}
+
+    def test_nine_slice_inset_min_floor(self):
+        _, ns, _ = self._import_helpers()
+        result = ns(8, 8, 1)
+        assert result["left"] == 4  # clamped to min 4
+
+    def test_all_states_have_modifiers(self):
+        _, _, mods = self._import_helpers()
+        expected = {"normal", "hover", "pressed", "disabled", "focused", "selected", "locked"}
+        assert expected == set(mods.keys())
+
+    def test_focused_state_differs_from_hover(self):
+        _, _, mods = self._import_helpers()
+        assert mods["focused"] != mods["hover"]
+        assert mods["focused"] != ""
+
+    def test_locked_differs_from_disabled(self):
+        _, _, mods = self._import_helpers()
+        assert mods["locked"] != mods["disabled"]
 
 # Skip Pillow-dependent tests if Pillow is not installed in this environment
 try:
