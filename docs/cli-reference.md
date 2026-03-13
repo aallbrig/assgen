@@ -21,6 +21,7 @@ assgen [OPTIONS] COMMAND
 
 | Subcommand | Description |
 |-----------|-------------|
+| `compose` | **Multi-step asset pipelines** (NPC, weapon, …) |
 | `tasks` | Browse all game dev tasks and their assigned AI models |
 | `visual` | 3D visual assets (models, textures, rigs, animations, VFX) |
 | `audio` | Sound effects, music, and voice synthesis |
@@ -35,6 +36,110 @@ assgen [OPTIONS] COMMAND
 | `server` | Server process management |
 | `upgrade` | Check for and install the latest release |
 | `version` | Print version information |
+
+---
+
+## assgen compose
+
+Multi-step asset pipelines — a single command that chains multiple generation steps
+sequentially, passing each step's output into the next. The cost equals the sum of the
+individual steps; there is no additional overhead.
+
+### `assgen compose npc`
+
+Generate a complete game NPC from a text description:
+
+```
+concept art → multi-view (Zero123++) → mesh → UV unwrap → concept-guided texture
+→ auto-rig (Unity humanoid) → animation retargeting → LOD levels → collision mesh
+→ NPC dialog text → TTS voice lines → engine export
+```
+
+```bash
+assgen compose npc "pig shopkeeper with apron, medieval fantasy" --wait
+assgen compose npc "dark elf archer" --style "gritty realistic" --engine unreal --wait
+assgen compose npc "robot guard" --no-multiview \
+    --animations idle,walk,attack_light,death \
+    --skeleton humanoid --engine unity --wait
+assgen compose npc "wizard" --voice "elderly male, wise" --no-lod --no-collider --wait
+
+# Preview what steps will run without executing
+assgen compose npc "dwarf warrior" --dry-run
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--style` | — | Visual style applied to all steps |
+| `--voice` | — | TTS voice descriptor for dialog lines |
+| `--animations` | `idle,walk,talk` | Comma-separated BVH clips to retarget |
+| `--skeleton` | `humanoid` | `biped` or `humanoid` (Unity 55-bone naming) |
+| `--engine` | `unity` | `unity` \| `unreal` \| `godot` |
+| `--lod/--no-lod` | on | Generate LOD 0/1/2 |
+| `--collider/--no-collider` | on | Generate collision mesh |
+| `--multiview/--no-multiview` | on | Use Zero123++ for better mesh quality |
+| `--quality` | `standard` | `draft` \| `standard` \| `high` |
+| `--output` | — | Output directory |
+| `--dry-run` | off | Print steps without executing |
+
+### `assgen compose weapon`
+
+Generate a complete weapon asset:
+
+```
+concept art → mesh → UV unwrap → concept-guided texture → LOD levels
+→ collision mesh → engine export
+```
+
+```bash
+assgen compose weapon "rusted iron longsword, dark fantasy" --wait
+assgen compose weapon "plasma rifle" --style "sci-fi, chrome" --engine unreal --wait
+```
+
+---
+
+## assgen pipeline
+
+### `assgen pipeline workflow`
+
+Define and execute multi-step workflows. Unlike `compose`, workflows are saved as YAML
+and can be parameterised at run-time. Each step waits for the previous to complete
+and receives its output files as `upstream_files`.
+
+```bash
+# Define a workflow (auto-chains output → input by default)
+assgen pipeline workflow create my-npc \
+    visual.concept.generate visual.model.splat visual.uv.auto visual.rig.auto
+
+# Preview without executing
+assgen pipeline workflow run my-npc --dry-run
+
+# Execute with custom inputs
+assgen pipeline workflow run my-npc --inputs '{"prompt": "pig shopkeeper"}'
+
+# List saved workflows
+assgen pipeline workflow list
+```
+
+Workflow YAML format (saved to `~/.config/assgen/workflows/<name>.yaml`):
+
+```yaml
+name: my-npc
+chain: true   # auto-pass upstream_files between steps
+steps:
+  - id: concept
+    job_type: visual.concept.generate
+  - id: mesh
+    job_type: visual.model.splat
+    from_step: concept        # receives concept's output as upstream_files
+  - id: uv
+    job_type: visual.uv.auto
+    from_step: mesh
+  - id: rig
+    job_type: visual.rig.auto
+    from_step: mesh
+    params:
+      skeleton: humanoid
+```
 
 ---
 
@@ -70,7 +175,7 @@ assgen --yaml jobs status "$JOB"
 assgen tasks [--domain DOMAIN] [--json]
 ```
 
-Displays a rich tree of all 79 game development tasks with their assigned AI models.
+Displays a rich tree of all 82 game development tasks with their assigned AI models.
 
 | Option | Description |
 |--------|-------------|
@@ -90,6 +195,9 @@ assgen gen visual model retopo input.glb [--target-faces 5000] [--wait]
 assgen gen visual model splat [--input-dir ./frames] [--wait]
 assgen gen visual model optimize input.glb [--lod-levels 3] [--wait]
 assgen gen visual model export input.glb [--engine unity|unreal|godot] [--wait]
+
+# Multi-view turnaround: single image → 6 views (Zero123++) — better mesh quality
+assgen gen visual model multiview --input concept.png [--prompt "pig shopkeeper"] [--wait]
 ```
 
 ### `assgen gen visual texture`
@@ -98,12 +206,17 @@ assgen gen visual model export input.glb [--engine unity|unreal|godot] [--wait]
 assgen gen visual texture generate input.glb --prompt "worn leather" [--resolution 2048] [--wait]
 assgen gen visual texture bake high.glb low.glb [--map-types all] [--wait]
 assgen gen visual texture pbr input.glb [--style "sci-fi metal"] [--wait]
+
+# Concept-guided texturing: style from concept art → UV texture atlas (IP-Adapter SDXL)
+assgen gen visual texture from-concept mesh.glb --concept concept.png \
+    --prompt "pig shopkeeper, painterly" [--resolution 1024] [--wait]
 ```
 
 ### `assgen gen visual rig`
 
 ```bash
-assgen gen visual rig auto character.glb [--skeleton humanoid|animal|custom] [--wait]
+assgen gen visual rig auto character.glb [--skeleton humanoid|biped|animal|custom] [--wait]
+# --skeleton humanoid  outputs Unity-compatible 55-bone naming (Hips, Spine, LeftUpperArm…)
 assgen gen visual rig skin character.glb [--bone-influence 4] [--wait]
 assgen gen visual rig retarget source.glb target.glb [--wait]
 ```
@@ -114,6 +227,14 @@ assgen gen visual rig retarget source.glb target.glb [--wait]
 assgen gen visual animate keyframe character.glb --prompt "walk cycle" [--frames 60] [--wait]
 assgen gen visual animate mocap video.mp4 [--target character.glb] [--wait]
 assgen gen visual animate blend anim1.glb anim2.glb [--weight 0.5] [--wait]
+
+# BVH clip retargeting: apply bundled CMU Mocap clips to a rigged character
+assgen gen visual animate retarget rig.glb \
+    --clips idle,walk,run,talk,attack_light,death \
+    [--skeleton humanoid] [--wait]
+# Available clips: idle, walk, run, turn_left, turn_right, talk, attack_light,
+#                  attack_heavy, death, jump, strafe_left, strafe_right,
+#                  crouch_idle, wave, sit_idle
 ```
 
 ### Other visual subcommands

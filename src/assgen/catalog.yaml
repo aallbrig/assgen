@@ -49,6 +49,12 @@ catalog:
     task: "image-to-3d"
     notes: "Produces a triangle mesh (PLY/GLB) from multi-view images — NOT a Gaussian Splat (3DGS). True 3DGS training requires a separate pipeline (nerfstudio, gaussian-splatting). Output mesh can feed into a downstream GS trainer."
 
+  visual.model.multiview:
+    model_id: "sudo-ai/zero123plus"
+    name: "Zero123++"
+    task: "image-to-image"
+    notes: "Generates 6 surrounding camera views from a single concept image; feed the 6-view output into visual.model.splat for dramatically improved mesh quality vs. single-image reconstruction."
+
   visual.model.retopo:
     model_id: null
     name: "Mesh Retopologiser (algorithmic)"
@@ -81,6 +87,12 @@ catalog:
     task: "texture-generation"
     notes: "Derives a full PBR set (normal, roughness, metallic, AO, height) from an albedo image using gradient and luminance analysis. No ML model — fully algorithmic; fast on CPU. Works best with tileable, high-contrast albedo inputs."
 
+  visual.texture.from_concept:
+    model_id: "h94/IP-Adapter"
+    name: "IP-Adapter SDXL"
+    task: "image-to-image"
+    notes: "Concept-art-guided UV texture generation. Takes a concept image (upstream) and UV-unwrapped mesh renders; uses IP-Adapter style transfer on SDXL to paint textures that match the concept art style; outputs albedo map (PNG). Chain after visual.uv.auto."
+
   # ── Visual / Rig ─────────────────────────────────────────────────────────
   visual.rig.auto:
     model_id: "VAST-AI/UniRig"
@@ -100,6 +112,12 @@ catalog:
     name: "Sapiens Pose 0.3B"
     task: "keypoint-detection"
     notes: "Meta Sapiens 0.3B; state-of-the-art body keypoint detection; fits in 12 GB fp16"
+
+  visual.animate.retarget:
+    model_id: null
+    name: "CMU Mocap Bundle"
+    task: "retargeting"
+    notes: "No HF pipeline_tag (validation auto-skipped); Retargets bundled CMU Mocap BVH clips (idle, walk, run, turn, talk, attack, death, jump) onto a generated character skeleton via bone-name remapping. CMU Mocap database is free for commercial use."
 
   # ── Visual / VFX ─────────────────────────────────────────────────────────
   visual.vfx.particle:

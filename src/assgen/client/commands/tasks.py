@@ -38,6 +38,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.model.retopo":     "Clean topology to hit game polycount targets",
     "visual.model.splat":      "Gaussian Splatting / 3DGS from multi-view images",
     "visual.model.edit":       "Deform, boolean ops, mesh combine",
+    "visual.model.multiview":  "Single image → 6-view turnaround (Zero123++); better mesh reconstruction",
     # visual / uv
     "visual.uv.auto":          "AI-smart UV unwrap (minimise stretching)",
     "visual.uv.manual":        "Edit seams and packing manually",
@@ -49,6 +50,7 @@ _TASK_DESC: dict[str, str] = {
     "visual.texture.pbr":      "Create or edit full PBR material sets",
     "visual.texture.inpaint":  "Fill seams or damaged regions in a texture (SDXL Inpainting)",
     "visual.texture.upscale":  "4× AI texture upscaling (Real-ESRGAN)",
+    "visual.texture.from_concept": "Concept-guided UV texturing — style from concept art image (IP-Adapter SDXL)",
     # visual / rig
     "visual.rig.auto":         "Auto-rig: place skeleton joints and bind (UniRig)",
     "visual.rig.skin":         "Automated weight painting and skinning",
@@ -185,7 +187,7 @@ _DOMAIN_TREE: dict[str, dict] = {
         "blockout": {"_icon": "📦", "_desc": "Rapid greybox / prototype",
                      "_tasks": ["create", "assemble", "iterate"]},
         "model":    {"_icon": "🔷", "_desc": "3D mesh generation & editing",
-                     "_tasks": ["create", "retopo", "splat", "edit"]},
+                     "_tasks": ["create", "retopo", "splat", "edit", "multiview"]},
         "mesh":     {"_icon": "🔩", "_desc": "Mesh processing (algorithmic)",
                      "_tasks": ["validate", "convert", "merge", "bounds", "flipnormals",
                                 "weld", "center", "scale"]},
@@ -195,6 +197,7 @@ _DOMAIN_TREE: dict[str, dict] = {
                      "_tasks": ["auto", "manual", "optimize"]},
         "texture":  {"_icon": "🖼",  "_desc": "PBR textures, baking, materials",
                      "_tasks": ["generate", "apply", "bake", "pbr", "inpaint", "upscale",
+                                "from_concept",
                                 "channel_pack", "convert", "atlas_pack", "mipmap",
                                 "normalmap_convert", "seamless", "resize", "report"]},
         "sprite":   {"_icon": "🎞",  "_desc": "Sprite sheet packing",
