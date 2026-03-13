@@ -1,10 +1,30 @@
 """FastAPI application factory for assgen-server."""
 from __future__ import annotations
 
+import io
 import logging
 import sqlite3
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+
+# When running as a daemon, sys.stderr may be a closed/broken file descriptor.
+# Silence it early so tqdm and HuggingFace progress bars don't crash the process.
+def _silence_broken_stderr() -> None:
+    try:
+        if sys.stderr is None:
+            raise OSError
+        sys.stderr.flush()
+    except OSError:
+        sys.stderr = io.StringIO()
+
+_silence_broken_stderr()
+
+try:
+    from huggingface_hub import disable_progress_bars as _hf_disable_progress_bars  # type: ignore[import]
+    _hf_disable_progress_bars()
+except Exception:
+    pass
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -93,7 +113,8 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         if stale:
             logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
 
-        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg)
+        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg,
+                          db_path=str(get_db_path()))
         application.state.model_manager = mm
 
         db_path = str(get_db_path())

@@ -118,7 +118,7 @@ def workflow_run(
         results = run_pipeline(steps, global_params=global_params, on_step=_on_step)
         console.print(f"\n[green]✓ Workflow complete[/green]  ({len(results)} steps)")
     except RuntimeError as exc:
-        console.print(f"[red]✗ Workflow failed:[/red] {exc}", err=True)
+        console.print(f"[red]✗ Workflow failed:[/red] {exc}")
         raise typer.Exit(1)
 
 

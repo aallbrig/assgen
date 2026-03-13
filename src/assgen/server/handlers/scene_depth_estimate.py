@@ -29,8 +29,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     from PIL import Image
     from transformers import pipeline as hf_pipeline
 
-    input_path = Path(params.get("input", ""))
-    if not input_path.exists():
+    raw_input = params.get("input") or ""
+    input_path = Path(raw_input) if raw_input else Path("")
+    if not raw_input or not input_path.is_file():
         raise ValueError(f"Input image not found: {input_path!r}")
 
     out_name = params.get("output") or f"{input_path.stem}_depth.png"

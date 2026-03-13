@@ -8,8 +8,11 @@ Falls back to the stub handler if transformers is not installed.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Callable
+
+logger = logging.getLogger(__name__)
 
 try:
     from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline as hf_pipeline
@@ -43,6 +46,36 @@ _BRANCHING_EXTRA = """\
     {{"id": "B", "text": "...", "leads_to_line": 2}}
   ]"""
 
+_STUB_LINES = [
+    "Ah, a traveller! Welcome to my humble shop.",
+    "I've got the finest wares in the kingdom.",
+    "Can I interest you in something special today?",
+    "Come in, come in! Don't be shy.",
+]
+
+
+def _stub_dialogue(character: str, lines: int, branching: bool, output_dir: Path, progress_cb) -> dict:
+    """Return placeholder dialogue JSON when Phi model is unavailable."""
+    import json
+    progress_cb(0.2, "Phi model not available — generating placeholder dialogue…")
+    dialogue_lines = [
+        {"id": i + 1, "text": _STUB_LINES[i % len(_STUB_LINES)], "emotion": "neutral"}
+        for i in range(min(lines, len(_STUB_LINES)))
+    ]
+    data: dict = {"npc": character, "lines": dialogue_lines}
+    if branching:
+        data["player_options"] = [
+            {"id": "A", "text": "Tell me more.", "leads_to_line": 1},
+            {"id": "B", "text": "Goodbye.", "leads_to_line": len(dialogue_lines)},
+        ]
+    out_file = output_dir / "dialogue.json"
+    out_file.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    progress_cb(1.0, "Stub dialogue saved")
+    return {
+        "files": ["dialogue.json"],
+        "metadata": {"stub": True, "reason": "Phi model not available", "character": character},
+    }
+
 
 def run(
     job_type: str,
@@ -54,17 +87,28 @@ def run(
     output_dir: Path,
 ) -> dict[str, Any]:
     """Generate NPC dialogue as a structured JSON dialogue tree."""
-    if not _TRANSFORMERS_AVAILABLE:
-        raise RuntimeError(
-            "transformers is not installed.  "
-            "Run: pip install transformers accelerate"
-        )
-
     character: str = params.get("character") or "Generic NPC"
     context: str = params.get("context") or ""
     lines: int = max(1, int(params.get("lines", 10)))
     branching: bool = bool(params.get("branching", False))
 
+    if not _TRANSFORMERS_AVAILABLE:
+        return _stub_dialogue(character, lines, branching, output_dir, progress_cb)
+
+    try:
+        return _run_real_dialogue(
+            character, context, lines, branching, params,
+            model_id, model_path, device, progress_cb, output_dir
+        )
+    except Exception as exc:
+        logger.warning("Phi dialogue generation failed (%s) — using stub", exc)
+        return _stub_dialogue(character, lines, branching, output_dir, progress_cb)
+
+
+def _run_real_dialogue(
+    character, context, lines, branching, params,
+    model_id, model_path, device, progress_cb, output_dir: Path,
+) -> dict:
     context_block = f"Scene context: {context}" if context else ""
     # Incorporate any --context named slots (lore, scenario, world, etc.)
     context_map: dict[str, str] = params.get("context_map") or {}
@@ -124,7 +168,6 @@ def run(
     try:
         dialogue_data = json.loads(raw_text)
     except json.JSONDecodeError:
-        # Fallback: store raw text so the user gets something useful
         dialogue_data = {"npc": character, "raw": raw_text, "parse_error": True}
 
     progress_cb(0.92, "Writing dialogue.json…")

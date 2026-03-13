@@ -19,9 +19,13 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     import trimesh
     from pathlib import Path
 
+    mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf"}
     input_file = params.get("input")
     if not input_file:
-        raise ValueError("'input' param is required (path to mesh file)")
+        upstream = params.get("upstream_files", [])
+        input_file = next((f for f in upstream if Path(f).suffix.lower() in mesh_exts), None)
+    if not input_file:
+        raise ValueError("'input' param or upstream mesh file is required")
     input_path = Path(input_file)
     if not input_path.exists():
         raise ValueError(f"Input file not found: {input_path}")

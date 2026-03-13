@@ -27,9 +27,12 @@ Output file contract:
 """
 from __future__ import annotations
 
+import io
 import json
 import logging
+import os
 import sqlite3
+import sys
 import threading
 import time
 import traceback
@@ -84,16 +87,33 @@ class JobDispatcher:
         override_model = params.get("_model_id_override")
         if override_model:
             progress_cb(0.05, f"Checking model {override_model}…")
-            model_path = model_manager.ensure_model(override_model, progress_cb=progress_cb)
+            try:
+                model_path = model_manager.ensure_model(override_model, progress_cb=progress_cb)
+            except Exception as model_exc:
+                logger.warning(
+                    "Model resolution failed for %s (%s); handler stub will run",
+                    job_type, model_exc,
+                )
+                model_path = None
+                override_model = None  # treat as no model so handler stub runs
             model_id = override_model
-            record_model_usage(conn, model_id, job["id"])
-        else:
-            progress_cb(0.05, "Resolving model from catalog…")
-            model_id, model_path = model_manager.ensure_for_job_type(
-                job_type, progress_cb=progress_cb
-            )
             if model_id:
                 record_model_usage(conn, model_id, job["id"])
+        else:
+            progress_cb(0.05, "Resolving model from catalog…")
+            try:
+                model_id, model_path = model_manager.ensure_for_job_type(
+                    job_type, progress_cb=progress_cb
+                )
+                if model_id:
+                    record_model_usage(conn, model_id, job["id"])
+            except Exception as model_exc:
+                # Model unavailable (auth, network, OOM, etc.) — let handler's stub take over
+                logger.warning(
+                    "Model resolution failed for %s (%s); handler stub will run",
+                    job_type, model_exc,
+                )
+                model_id, model_path = None, None
 
         if model_id:
             logger.info(
@@ -118,6 +138,13 @@ class JobDispatcher:
         # Ensure result always has the canonical "files" key
         if "files" not in result:
             result["files"] = [f.name for f in output_dir.iterdir() if f.is_file()]
+
+        # Resolve relative file paths to absolute so downstream pipeline steps
+        # can locate them via upstream_files without knowing the output_dir.
+        result["files"] = [
+            str((output_dir / f).resolve()) if not Path(f).is_absolute() else f
+            for f in result.get("files", [])
+        ]
 
         return result
 
@@ -207,6 +234,13 @@ class WorkerThread(threading.Thread):
         self._stop_event.set()
 
     def run(self) -> None:
+        # Daemons have no terminal; fd 1/2 may be /dev/null or simply broken.
+        # Replace both stdout and stderr unconditionally so tqdm / HuggingFace
+        # Hub never get an OSError when trying to write progress output.
+        _devnull = open(os.devnull, "w")  # noqa: WPS515
+        sys.stdout = _devnull
+        sys.stderr = _devnull
+
         logger.info("Worker started", extra={"worker_id": self.WORKER_ID})
         while not self._stop_event.is_set():
             conn = self._conn_factory()

@@ -39,7 +39,7 @@ def run_pipeline(
     steps: list[dict[str, Any]],
     global_params: dict[str, Any] | None = None,
     on_step: OnStepCallback = _noop_cb,
-    timeout_per_step: float = 600.0,
+    timeout_per_step: float = 3600.0,
 ) -> dict[str, StepResult]:
     """Execute a list of pipeline steps sequentially, chaining outputs into inputs.
 
@@ -70,7 +70,7 @@ def run_pipeline(
                         f"Pipeline step {step_id!r} depends on {src!r} "
                         f"which has not completed. Check step ordering."
                     )
-                result = completed[src].get("result") or {}
+                result = completed[src].get("output") or completed[src].get("result") or {}
                 upstream.extend(result.get("files", []))
             if upstream:
                 step_params["upstream_files"] = upstream

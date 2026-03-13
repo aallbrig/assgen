@@ -122,8 +122,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     import trimesh as tm
     from pathlib import Path
 
-    input_path = Path(params.get("input", ""))
-    if not input_path.exists():
+    raw_input = params.get("input") or ""
+    input_path = Path(raw_input) if raw_input else Path("")
+    if not raw_input or not input_path.is_file():
         # Try upstream_files
         upstream = params.get("upstream_files", [])
         mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf"}

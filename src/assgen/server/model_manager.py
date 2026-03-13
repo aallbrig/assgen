@@ -46,10 +46,12 @@ def _make_hf_tqdm_class(cb: ProgressCallback, start_frac: float, end_frac: float
 
     class _HFTqdm(_TqdmBase):  # type: ignore[misc]
         def __init__(self, *args: object, **kwargs: object) -> None:
+            # Read desc before super() since disable=True may skip attr init
+            _desc = kwargs.get("desc") or (args[1] if len(args) > 1 else None)
             kwargs["disable"] = True
             super().__init__(*args, **kwargs)
             state["files_seen"] += 1
-            self._file_label: str = str(self.desc or "").split("/")[-1]
+            self._file_label: str = str(_desc or "").split("/")[-1]
 
         def update(self, n: int = 1) -> None:
             super().update(n)
@@ -106,6 +108,7 @@ class ModelManager:
         conn: sqlite3.Connection,
         device: str = "auto",
         server_cfg: dict | None = None,
+        db_path: str | None = None,
     ) -> None:
         """Initialise the manager.
 
@@ -114,8 +117,11 @@ class ModelManager:
             device: Preferred device — ``"auto"`` detects CUDA/MPS/CPU at runtime.
             server_cfg: The loaded server configuration dict (used for allow-list
                 enforcement).
+            db_path: Filesystem path to the SQLite database file. Required for
+                thread-safe writes from the worker thread.
         """
         self.conn = conn
+        self._db_path: str | None = db_path
         self.device = detect_device(device)
         self._cache_dir = get_models_cache_dir()
         self._server_cfg: dict = server_cfg or {}
@@ -189,13 +195,31 @@ class ModelManager:
 
         now = datetime.now(timezone.utc).isoformat()
         size = _dir_size(cache_path)
-        upsert_model(
-            self.conn,
-            model_id=model_id,
-            local_path=str(cache_path),
-            installed_at=now,
-            size_bytes=size,
-        )
+        # Open a fresh connection for the write — ensure_model runs in the
+        # worker thread, but self.conn was created in the startup thread.
+        import sqlite3 as _s
+        if self._db_path:
+            _write_conn = _s.connect(self._db_path)
+            _write_conn.row_factory = _s.Row
+            try:
+                upsert_model(
+                    _write_conn,
+                    model_id=model_id,
+                    local_path=str(cache_path),
+                    installed_at=now,
+                    size_bytes=size,
+                )
+                _write_conn.commit()
+            finally:
+                _write_conn.close()
+        else:
+            upsert_model(
+                self.conn,
+                model_id=model_id,
+                local_path=str(cache_path),
+                installed_at=now,
+                size_bytes=size,
+            )
         logger.info(
             "Model downloaded successfully",
             extra={"model_id": model_id, "size_bytes": size},
