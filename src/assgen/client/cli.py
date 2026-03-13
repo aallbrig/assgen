@@ -32,6 +32,7 @@ from assgen.client.commands.jobs       import app as jobs_app
 from assgen.client.commands.models     import app as models_app
 from assgen.client.commands.server     import app as server_app
 from assgen.client.commands.tasks      import app as tasks_app
+from assgen.client.commands.compose    import app as compose_app
 from assgen.client.commands.upgrade    import app as upgrade_app
 
 console = Console(highlight=False)
@@ -45,6 +46,7 @@ app = typer.Typer(
 )
 
 app.add_typer(gen_app,     name="gen",     help="Generate assets: visual · audio · scene · pipeline · support · qa")
+app.add_typer(compose_app, name="compose", help="Multi-step asset pipelines: npc, weapon, building")
 app.add_typer(tasks_app,   name="tasks",   help="Browse all game dev tasks and their configured models")
 app.add_typer(jobs_app,    name="jobs",    help="Job queue management")
 app.add_typer(models_app,  name="models",  help="Model catalog and installation")

@@ -33,17 +33,36 @@ app.add_typer(workflow_app, name="workflow")
 @workflow_app.command("create")
 def workflow_create(
     name: str = typer.Argument(..., help="Workflow name"),
-    steps: list[str] = typer.Argument(..., help="Ordered job types, e.g. visual.model.create visual.texture.generate"),
+    steps: list[str] = typer.Argument(
+        ...,
+        help="Ordered job types, e.g. visual.concept.generate visual.model.splat",
+    ),
     output: Optional[str] = typer.Option(None, "--output", "-o", help="Save workflow YAML to path"),
+    chain: bool = typer.Option(
+        True, "--chain/--no-chain",
+        help="Auto-chain each step's output into the next step's upstream_files (default: on)",
+    ),
 ) -> None:
-    """Define a new multi-step workflow (sequence of job types)."""
+    """Define a new multi-step workflow (sequence of job types).
+
+    By default, each step's output is automatically chained into the next step
+    as upstream_files. Use --no-chain to submit all steps independently.
+    """
     from assgen.config import get_config_dir
     import yaml as _yaml
-    wf = {"name": name, "steps": list(steps)}
+
+    step_defs: list[dict] = []
+    for i, jt in enumerate(steps):
+        entry: dict = {"id": f"step_{i + 1}", "job_type": jt}
+        if chain and i > 0:
+            entry["from_step"] = f"step_{i}"
+        step_defs.append(entry)
+
+    wf = {"name": name, "chain": chain, "steps": step_defs}
     out_path = Path(output) if output else (get_config_dir() / "workflows" / f"{name}.yaml")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w") as f:
-        _yaml.safe_dump(wf, f)
+        _yaml.safe_dump(wf, f, sort_keys=False)
     console.print(f"[green]Workflow saved:[/green] {out_path}")
 
 
@@ -51,11 +70,17 @@ def workflow_create(
 def workflow_run(
     name: str = typer.Argument(..., help="Workflow name or path to YAML"),
     inputs: Optional[str] = typer.Option(None, "--inputs", help="JSON string of input params"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Print steps without executing"),
 ) -> None:
-    """Execute a saved workflow with a set of inputs."""
+    """Execute a saved workflow, chaining each step's output into the next.
+
+    Unlike a simple batch submit, each step waits for the previous to complete
+    and receives its output files as upstream_files — enabling real multi-step
+    pipelines where later steps depend on earlier outputs.
+    """
     from assgen.config import get_config_dir
     import yaml as _yaml
+    from assgen.client.output import console
 
     wf_path = Path(name) if Path(name).exists() else (get_config_dir() / "workflows" / f"{name}.yaml")
     if not wf_path.exists():
@@ -65,11 +90,36 @@ def workflow_run(
     with wf_path.open() as f:
         wf = _yaml.safe_load(f)
 
-    params = json.loads(inputs) if inputs else {}
-    console.print(f"Running workflow [bold]{wf['name']}[/bold] ({len(wf['steps'])} steps)")
-    for step in wf["steps"]:
-        console.print(f"  → [cyan]{step}[/cyan]")
-        submit_job(step, params, wait=wait)
+    steps = wf.get("steps", [])
+    # Support legacy format where steps is a plain list of job_type strings
+    if steps and isinstance(steps[0], str):
+        steps = [{"id": f"step_{i+1}", "job_type": s} for i, s in enumerate(steps)]
+
+    global_params = json.loads(inputs) if inputs else {}
+    wf_name = wf.get("name", name)
+
+    if dry_run:
+        console.print(f"[bold]Workflow:[/bold] {wf_name}  [dim]({len(steps)} steps, dry-run)[/dim]")
+        for step in steps:
+            src = f"  ← from {step['from_step']!r}" if step.get("from_step") else ""
+            console.print(f"  [cyan]{step['id']}[/cyan]  {step['job_type']}{src}")
+        return
+
+    console.print(f"[bold]Running workflow:[/bold] {wf_name}  ({len(steps)} steps)")
+
+    from assgen.client.compose import run_pipeline
+
+    def _on_step(step_id: str, status: str, msg: str) -> None:
+        icons = {"SUBMITTING": "⏳", "RUNNING": "🔄", "DONE": "✅"}
+        icon = icons.get(status, "·")
+        console.print(f"  {icon} [{step_id}] {msg}")
+
+    try:
+        results = run_pipeline(steps, global_params=global_params, on_step=_on_step)
+        console.print(f"\n[green]✓ Workflow complete[/green]  ({len(results)} steps)")
+    except RuntimeError as exc:
+        console.print(f"[red]✗ Workflow failed:[/red] {exc}", err=True)
+        raise typer.Exit(1)
 
 
 @workflow_app.command("list")
