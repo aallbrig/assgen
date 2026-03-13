@@ -25,8 +25,12 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     import trimesh as tm
     from pathlib import Path
 
+    mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf"}
     input_path = params.get("input", "")
-    if not Path(input_path).exists():
+    if not input_path or not Path(input_path).is_file():
+        upstream = params.get("upstream_files", [])
+        input_path = next((f for f in upstream if Path(f).suffix.lower() in mesh_exts), input_path)
+    if not input_path or not Path(input_path).is_file():
         raise ValueError(f"Input file not found: {input_path}")
 
     num_lods: int = int(params.get("num_lods", 3))
@@ -63,7 +67,8 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
                 verts, faces, _ = simplifier.getMesh()
                 lod_mesh = tm.Trimesh(vertices=verts, faces=faces, process=False)
             else:
-                lod_mesh = mesh.simplify_quadric_decimation(target_faces)
+                target_reduction = max(0.0, min(0.99, 1.0 - target_faces / max(original_face_count, 1)))
+                lod_mesh = mesh.simplify_quadric_decimation(target_reduction)
 
         out_path = Path(output_dir) / f"LOD{i}.glb"
         lod_mesh.export(str(out_path))

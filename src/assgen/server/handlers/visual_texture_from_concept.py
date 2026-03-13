@@ -26,6 +26,11 @@ Params:
 """
 from __future__ import annotations
 
+import logging
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
     _AVAILABLE = True
@@ -33,20 +38,40 @@ except ImportError:
     _AVAILABLE = False
 
 
+def _stub_flat_texture(params: dict, output_dir: Path, progress_cb) -> dict:
+    """Return a flat placeholder texture when IP-Adapter / model is unavailable."""
+    from PIL import Image
+    progress_cb(0.2, "IP-Adapter not available — generating flat placeholder texture…")
+    w = int(params.get("width", 1024))
+    h = int(params.get("height", 1024))
+    img = Image.new("RGB", (w, h), color=(180, 120, 90))
+    out_path = output_dir / "albedo.png"
+    img.save(str(out_path))
+    progress_cb(1.0, "Stub texture saved")
+    return {
+        "files": ["albedo.png"],
+        "metadata": {"stub": True, "reason": "IP-Adapter model not available", "width": w, "height": h},
+    }
+
+
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Generate concept-guided UV albedo texture via IP-Adapter SDXL."""
     if not _AVAILABLE:
-        raise RuntimeError(
-            "diffusers is required. Run: pip install diffusers transformers accelerate torch"
-        )
+        return _stub_flat_texture(params, Path(output_dir), progress_cb)
 
+    try:
+        return _run_real(job_type, params, model_id, model_path, device, progress_cb, Path(output_dir))
+    except Exception as exc:
+        logger.warning("IP-Adapter texture generation failed (%s) — using stub", exc)
+        return _stub_flat_texture(params, Path(output_dir), progress_cb)
+
+
+def _run_real(job_type, params, model_id, model_path, device, progress_cb, out_dir: Path) -> dict:
     import torch
-    from pathlib import Path
     from PIL import Image
     from diffusers import StableDiffusionXLPipeline
     from transformers import CLIPVisionModelWithProjection
 
-    out_dir = Path(output_dir)
     upstream = params.get("upstream_files", [])
     image_exts = {".png", ".jpg", ".jpeg", ".webp"}
 

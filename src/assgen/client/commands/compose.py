@@ -302,5 +302,5 @@ def _execute_or_dry_run(
         total = len(results)
         console.print(f"\n[green]✓ {pipeline_name} pipeline complete[/green]  ({total} steps)")
     except RuntimeError as exc:
-        console.print(f"\n[red]✗ {pipeline_name} pipeline failed:[/red] {exc}", err=True)
+        console.print(f"\n[red]✗ {pipeline_name} pipeline failed:[/red] {exc}")
         raise typer.Exit(1)

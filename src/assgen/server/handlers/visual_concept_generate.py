@@ -64,15 +64,41 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     progress_cb(0.05, f"Loading SDXL pipeline ({resolved_model})…")
 
+    # Free any VRAM left by prior jobs before loading a new model.
+    if device != "cpu":
+        torch.cuda.empty_cache()
+
     dtype = torch.float16 if device != "cpu" else torch.float32
-    pipe = StableDiffusionXLPipeline.from_pretrained(
-        resolved_model,
+    load_kwargs: dict = dict(
         torch_dtype=dtype,
         use_safetensors=True,
         variant="fp16" if dtype == torch.float16 else None,
     )
-    pipe = pipe.to(device)
+    # model_path is the assgen-managed cache dir; try it first to avoid a
+    # network round-trip.  Fall back to HF hub (uses ~/.cache/huggingface/hub).
+    model_path_ok = (
+        model_path
+        and Path(model_path).exists()
+        and (Path(model_path) / "model_index.json").exists()
+    )
+    if model_path_ok:
+        try:
+            pipe = StableDiffusionXLPipeline.from_pretrained(
+                model_path, local_files_only=True, **load_kwargs
+            )
+        except Exception:
+            pipe = StableDiffusionXLPipeline.from_pretrained(resolved_model, **load_kwargs)
+    else:
+        pipe = StableDiffusionXLPipeline.from_pretrained(resolved_model, **load_kwargs)
+    pipe = pipe.to("cpu") if device == "cpu" else pipe
     pipe.set_progress_bar_config(disable=True)
+
+    # Sequential CPU offload moves one layer at a time to GPU — needs <1 GB VRAM.
+    # Fall back to pure CPU if CUDA is not available.
+    if device != "cpu":
+        pipe.enable_sequential_cpu_offload()
+    else:
+        pipe = pipe.to(device)
 
     if hasattr(pipe, "enable_xformers_memory_efficient_attention"):
         try:
@@ -82,7 +108,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     generator = None
     if seed is not None:
-        generator = torch.Generator(device=device).manual_seed(int(seed))
+        # After cpu_offload the pipeline manages device placement; use CPU generator.
+        gen_device = "cpu" if device != "cpu" else device
+        generator = torch.Generator(device=gen_device).manual_seed(int(seed))
 
     progress_cb(0.3, f"Generating {num_images} image(s) — {num_steps} steps…")
 

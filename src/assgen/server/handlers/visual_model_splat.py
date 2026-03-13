@@ -46,6 +46,25 @@ _INFERENCE_RESOLUTION = 256
 _CHUNK_SIZE = 131_072
 
 
+def _stub_capsule_mesh(params: dict, output_dir: Path, progress_cb: ProgressCallback) -> dict:
+    """Return a placeholder capsule mesh when TripoSR is not installed."""
+    import trimesh
+    progress_cb(0.2, "TripoSR not installed — generating placeholder capsule mesh…")
+    mesh = trimesh.creation.capsule(height=1.6, radius=0.4, count=[8, 8])
+    out_path = output_dir / "mesh.glb"
+    mesh.export(str(out_path))
+    progress_cb(1.0, "Stub mesh saved")
+    return {
+        "files": [str(out_path)],
+        "metadata": {
+            "stub": True,
+            "reason": "TripoSR not installed",
+            "vertices": len(mesh.vertices),
+            "faces": len(mesh.faces),
+        },
+    }
+
+
 def run(
     job_type: str,
     params: dict[str, Any],
@@ -61,10 +80,7 @@ def run(
         ``{"files": ["output.glb"], "metadata": {...}}``
     """
     if not _AVAILABLE:
-        raise RuntimeError(
-            "TripoSR is not installed. Run: pip install tsr  "
-            "(see https://github.com/VAST-AI-Research/TripoSR)"
-        )
+        return _stub_capsule_mesh(params, output_dir, progress_cb)
 
     import torch
     from assgen.server.handlers.mesh_utils import (

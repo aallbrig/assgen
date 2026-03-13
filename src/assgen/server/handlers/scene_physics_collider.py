@@ -32,8 +32,12 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     import trimesh as tm
     from pathlib import Path
 
+    mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf"}
     input_path = params.get("input", "")
-    if not input_path or not Path(input_path).exists():
+    if not input_path or not Path(input_path).is_file():
+        upstream = params.get("upstream_files", [])
+        input_path = next((f for f in upstream if Path(f).suffix.lower() in mesh_exts), input_path)
+    if not input_path or not Path(input_path).is_file():
         raise ValueError(f"Input file not found: {input_path!r}")
 
     collider_type = (params.get("type") or "convex").lower()

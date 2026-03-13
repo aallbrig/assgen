@@ -67,12 +67,16 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     defaults = _ENGINE_DEFAULTS[engine]
     fmt = (params.get("format") or defaults["format"]).lower().lstrip(".")
 
-    # Normalise input to a list
+    # Normalise input to a list — also accept upstream_files from prior steps
     raw_input = params.get("input") or params.get("inputs") or []
     if isinstance(raw_input, str):
         raw_input = [raw_input]
     if not raw_input:
-        raise ValueError("'input' param is required (mesh file or list of mesh files)")
+        upstream = params.get("upstream_files", [])
+        mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf", ".bvh", ".png", ".jpg"}
+        raw_input = [f for f in upstream if Path(f).suffix.lower() in mesh_exts]
+    if not raw_input:
+        raise ValueError("'input' param or upstream files are required")
 
     textures: list[str] = params.get("textures") or []
     if isinstance(textures, str):
@@ -103,6 +107,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             shutil.copy2(src_path, dest)
         else:
             mesh = tm.load(str(src_path), force="mesh")
+            _TRIMESH_FORMATS = {"glb", "gltf", "obj", "ply", "stl", "off"}
+            if fmt not in _TRIMESH_FORMATS:
+                # Fall back to GLB when requested format (e.g. fbx) is unsupported
+                dest_name = f"{asset_name}.glb"
+                dest = mesh_out / dest_name
             mesh.export(str(dest))
 
         rel = str(dest.relative_to(out_root))
