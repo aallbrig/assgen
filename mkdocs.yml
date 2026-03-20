@@ -102,6 +102,7 @@ nav:
   - Getting Started:
     - Installation & Upgrade: install.md
     - Quick Start: quickstart.md
+    - Compose Pipelines: compose-pipelines.md
   - CLI Reference: cli-reference.md
   - Commands:
     - Overview: commands/index.md

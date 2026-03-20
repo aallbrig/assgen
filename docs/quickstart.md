@@ -49,7 +49,25 @@ assgen tasks --domain audio
 
 ## 4. Generate your first asset
 
-=== "3D Model"
+=== "One-liner (compose)"
+    The fastest way to get a complete, game-ready asset is a **compose** command.
+    One prompt, one command — the pipeline handles everything:
+
+    ```bash
+    # Complete static prop: concept → mesh → UV → texture → LODs → collider → export
+    assgen compose prop "wooden barrel, medieval dungeon" --engine godot --wait
+
+    # Full PBR material set: albedo + normal + roughness + AO + metallic
+    assgen compose material "mossy cobblestone, wet" --wait
+
+    # Level audio suite: ambient loop + music + 5 SFX
+    assgen compose soundscape "dungeon ambience, distant dripping" --wait
+    ```
+
+    See the [Compose Pipelines guide](compose-pipelines.md) for all commands.
+
+=== "Individual steps"
+    For finer control, run each step manually:
     ```bash
     # Generate a 3D prop (returns a job ID immediately)
     assgen visual model create --prompt "low-poly medieval sword"
@@ -113,6 +131,7 @@ assgen client config show    # verify the health check passes
 
 ## What's next?
 
+- [Compose Pipelines](compose-pipelines.md) — one command, complete asset pipelines
 - [CLI Reference](cli-reference.md) — every command and option
 - [Configuration](configuration.md) — server, client, and model catalog settings
 - [Model Validation](model-validation.md) — allow-lists and HF pipeline-tag checks

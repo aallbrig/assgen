@@ -5,6 +5,64 @@
 
 ---
 
+## The fast path — compose environment
+
+To generate a full prop kit, matching ground material, and ambient audio for a biome
+in one command, use `compose environment`:
+
+```bash
+# 5 biome props + ground material + audio (Unreal export)
+assgen compose environment "overgrown highway, post-apocalyptic" \
+    --count 5 --engine unreal --wait
+```
+
+This runs ~20 sequential ML steps and produces:
+
+- 5 props (`.uasset`-ready `.glb`) each with concept art, mesh, UV, texture, LOD, and collider
+- Ground material: `albedo.png` + `normal.png` + `roughness.png` + `ao.png` + `metallic.png`
+- Ambient loop + biome music
+
+For finer control over what props are generated:
+
+```bash
+assgen compose environment "overgrown highway, post-apocalyptic" \
+    --items "cracked concrete barrier,rusted car wreck,overgrown billboard,chain-link fence,abandoned oil drum" \
+    --engine unreal --wait
+```
+
+Preview the full step plan before committing GPU time:
+
+```bash
+assgen compose environment "post-apocalyptic highway" --count 5 --dry-run
+```
+
+!!! warning "Runtime expectations on an RTX 3060/3070"
+    5 props + ground + audio ≈ **40 min**. Use `--quality low` to prototype the
+    kit direction first (~15 min), then re-run at default quality for the keeper:
+    ```bash
+    assgen compose environment "overgrown highway" --count 5 --quality low --wait
+    ```
+
+For PBR material sets only (no props, no audio):
+
+```bash
+assgen compose material "cracked asphalt, post-apocalyptic, road surface" \
+    --resolution 2048 --upscale --engine unreal --wait
+assgen compose material "dead grass and gravel, dry wasteland" \
+    --resolution 2048 --engine unreal --wait
+```
+
+See the [Compose Pipelines guide](compose-pipelines.md) for all options.
+
+---
+
+## Manual step-by-step (more control)
+
+For finer iteration — e.g. approving concept art before the mesh step — run
+individual `assgen gen` commands:
+
+---
+
 ## What you'll generate
 
 - Concept art for a new biome

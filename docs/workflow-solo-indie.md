@@ -5,6 +5,46 @@
 
 ---
 
+## The fast path — compose
+
+The fastest way to get a complete, game-ready prop into Godot is a single compose command:
+
+```bash
+# Complete brazier prop: concept → mesh → UV → texture → LODs → collider → .glb
+assgen compose prop "rusty iron brazier, medieval dungeon" \
+    --engine godot --quality low --wait
+```
+
+That's it. When it finishes, you'll have a `.glb` ready to drag into
+`res://assets/props/`. The pipeline runs 7 sequential steps automatically.
+
+For the level's audio:
+
+```bash
+# Ambient loop + dungeon music + 5 themed SFX
+assgen compose soundscape "dark dungeon ambience, distant dripping water" \
+    --duration 30 --wait
+```
+
+For ground and wall materials:
+
+```bash
+assgen compose material "cracked stone floor, dungeon" --engine godot --wait
+assgen compose material "rough stone wall, dark, damp" --engine godot --wait
+```
+
+See the [Compose Pipelines guide](compose-pipelines.md) for all options.
+
+---
+
+## Manual step-by-step (more control)
+
+If you want to inspect or tweak each step individually — for example, to
+hand-pick the concept art before committing to a 3D pass — run the steps
+separately:
+
+---
+
 ## What you'll build
 
 In about 30 minutes you'll go from a text prompt to:
