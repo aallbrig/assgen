@@ -21,7 +21,7 @@ assgen [OPTIONS] COMMAND
 
 | Subcommand | Description |
 |-----------|-------------|
-| `compose` | **Multi-step asset pipelines** (NPC, weapon, …) |
+| `compose` | **Multi-step asset pipelines** (NPC, weapon, prop, material, soundscape, ui-kit, environment) |
 | `tasks` | Browse all game dev tasks and their assigned AI models |
 | `visual` | 3D visual assets (models, textures, rigs, animations, VFX) |
 | `audio` | Sound effects, music, and voice synthesis |
@@ -94,6 +94,133 @@ concept art → mesh → UV unwrap → concept-guided texture → LOD levels
 assgen compose weapon "rusted iron longsword, dark fantasy" --wait
 assgen compose weapon "plasma rifle" --style "sci-fi, chrome" --engine unreal --wait
 ```
+
+---
+
+### `assgen compose prop`
+
+Generate a static game prop (barrel, crate, torch, furniture, etc.):
+
+```
+concept art → mesh → UV unwrap → concept-guided texture → LOD levels
+→ collision mesh → engine export
+```
+
+```bash
+assgen compose prop "wooden barrel with iron bands, medieval" --wait
+assgen compose prop "stone pillar, dungeon" --type decoration --engine godot --wait
+assgen compose prop "lantern hanging, warm glow" --quality low --wait
+assgen compose prop "ornate chest, treasure" --dry-run
+```
+
+**Flags:**
+- `--type {furniture,container,decoration,foliage,structure}` — steers the concept prompt
+- `--quality {low,medium,high}` — mesh and texture quality
+- `--engine {unity,unreal,godot}` — export format
+
+---
+
+### `assgen compose material`
+
+Generate a full PBR material set from a text description:
+
+```
+albedo texture → seamless tiling → normal map → PBR channels (roughness/AO/metallic)
+→ optional upscale → engine export
+```
+
+Output: `albedo.png`, `normal.png`, `roughness.png`, `ao.png`, `metallic.png`
+
+```bash
+assgen compose material "weathered cobblestone, mossy" --wait
+assgen compose material "rusted iron sheet" --resolution 2048 --upscale --wait
+assgen compose material "worn oak planks" --type wood --engine godot --wait
+assgen compose material "dragon scale skin, iridescent" --dry-run
+```
+
+**Flags:**
+- `--resolution {512,1024,2048,4096}` — texture dimensions (default: 1024)
+- `--upscale / --no-upscale` — 2× Real-ESRGAN pass (default: off)
+- `--type {organic,metal,stone,wood,fabric}` — prompt augmentation
+- `--engine {unity,unreal,godot}` — export folder structure
+
+---
+
+### `assgen compose soundscape`
+
+Generate a complete audio suite for a game level or biome:
+
+```
+ambient loop → theme music → loopable music → N themed SFX
+→ loop optimization → export
+```
+
+```bash
+assgen compose soundscape "enchanted forest at night" --wait
+assgen compose soundscape "medieval tavern, busy crowd" --sfx-count 8 --wait
+assgen compose soundscape "dungeon" --sfx-list "drip,chain,growl,footstep" --wait
+assgen compose soundscape "space station" --no-music --duration 60 --wait
+assgen compose soundscape "volcano" --dry-run
+```
+
+**Flags:**
+- `--sfx-count N` — number of SFX to generate (default: 5)
+- `--sfx-list "a,b,c"` — explicit SFX prompts instead of auto-generated
+- `--no-music` — skip music, generate ambient loop + SFX only
+- `--duration N` — audio length in seconds (default: 30)
+
+---
+
+### `assgen compose ui-kit`
+
+Generate a cohesive UI element set for a game:
+
+```
+style reference → button states → dialog panel → N icons
+→ widget elements → export
+```
+
+```bash
+assgen compose ui-kit "dark fantasy RPG" --wait
+assgen compose ui-kit "sci-fi HUD, blue glow" --icons "health,shield,ammo,radar" --wait
+assgen compose ui-kit "cozy farming game" --palette "warm earthy tones" --wait
+assgen compose ui-kit "horror survival" --dry-run
+```
+
+**Flags:**
+- `--icons "a,b,c"` — comma-separated icon names to generate (default: health, mana, stamina, gold, sword, shield)
+- `--palette "description"` — color palette hint added to every prompt
+- `--engine {unity,unreal,godot}` — export folder structure
+
+---
+
+### `assgen compose environment`
+
+Generate a complete level environment kit — multiple props, ground material, and ambient audio — all sharing a common visual style:
+
+```
+style reference → N × (concept → mesh → UV → texture → LOD → collider)
+→ ground material (albedo → seamless → normal → PBR)
+→ ambient loop + theme music → batch export
+```
+
+```bash
+assgen compose environment "medieval tavern interior" --count 6 --wait
+assgen compose environment "sci-fi corridor" --count 4 --engine unreal --wait
+assgen compose environment "haunted forest clearing" \
+    --items "dead tree,gravestone,iron fence,lantern" --wait
+assgen compose environment "crystal cave" --no-audio --no-ground --dry-run
+```
+
+**Flags:**
+- `--count N` — number of props to generate (default: 6)
+- `--items "a,b,c"` — explicit prop list (overrides `--count`)
+- `--no-audio` — skip ambient and music generation
+- `--no-ground` — skip ground material generation
+- `--quality {low,medium,high}` — applied to all prop steps
+- `--engine {unity,unreal,godot}` — export format
+
+> **Note:** With 6 props this pipeline runs ~26 sequential steps. Use `--dry-run` to preview the full chain before submitting.
 
 ---
 
