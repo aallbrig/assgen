@@ -258,9 +258,9 @@ def print_job(job: dict[str, Any]) -> None:
             console.print(f"  [dim]assgen jobs download {job['id'][:8]}[/dim]")
         if output.get("stub"):
             console.print()
-            console.print(f"  [bold yellow]⚠  NOT IMPLEMENTED[/bold yellow] [yellow]— stub output returned.[/yellow]")
-            console.print(f"  [yellow]This job type has no real handler installed yet.[/yellow]")
-            console.print(f"  [dim]Install the required model/library or check docs: https://aallbrig.github.io/assgen/[/dim]")
+            console.print("  [bold yellow]⚠  NOT IMPLEMENTED[/bold yellow] [yellow]— stub output returned.[/yellow]")
+            console.print("  [yellow]This job type has no real handler installed yet.[/yellow]")
+            console.print("  [dim]Install the required model/library or check docs: https://aallbrig.github.io/assgen/[/dim]")
 
     if job.get("error"):
         console.print()

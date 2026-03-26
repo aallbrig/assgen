@@ -19,7 +19,8 @@ except ImportError:
 
 def _stub_silent_wav(params: dict, output_dir, progress_cb) -> dict:
     """Return a short silent WAV when Bark model is unavailable."""
-    import struct, wave
+    import struct
+    import wave
     from pathlib import Path
     progress_cb(0.2, "Bark model not available — generating silent placeholder audio…")
     sample_rate = 24000

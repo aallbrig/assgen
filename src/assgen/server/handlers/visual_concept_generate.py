@@ -13,7 +13,7 @@ Quality variants:
 """
 
 try:
-    from diffusers import (  # type: ignore[import]
+    from diffusers import (  # type: ignore[import]  # noqa: F401
         StableDiffusionXLPipeline,
         StableDiffusionXLImg2ImgPipeline,
     )

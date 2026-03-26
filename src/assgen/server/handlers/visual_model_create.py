@@ -15,14 +15,14 @@ Typical workflow:
 
 try:
     # Hunyuan3D-2 publishes via diffusers HunyuanDiT pipeline
-    from diffusers import HunyuanDiTPipeline  # type: ignore[import]
+    from diffusers import HunyuanDiTPipeline  # type: ignore[import]  # noqa: F401
     _DIFFUSERS_AVAILABLE = True
 except ImportError:
     _DIFFUSERS_AVAILABLE = False
 
 try:
     # Official Hunyuan3D-2 package (preferred when installed)
-    import hy3dgen  # type: ignore[import]
+    import hy3dgen  # type: ignore[import]  # noqa: F401
     _HY3D_AVAILABLE = True
 except ImportError:
     _HY3D_AVAILABLE = False
@@ -40,7 +40,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "See: https://huggingface.co/tencent/Hunyuan3D-2"
         )
 
-    import torch
     from pathlib import Path
 
     # Resolve the input image — may come from --from-job upstream files
@@ -93,7 +92,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
 def _run_hy3dgen(image, out_path, model_id, num_steps, guidance_scale, device, progress_cb):
     """Run via the official hy3dgen package."""
-    import hy3dgen
     from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
     from hy3dgen.texgen import Hunyuan3DPaintPipeline
 

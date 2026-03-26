@@ -29,10 +29,10 @@ _src = Path(__file__).parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-import click
-import mkdocs_gen_files
-import typer
-import yaml
+import click  # noqa: E402
+import mkdocs_gen_files  # noqa: E402
+import typer  # noqa: E402
+import yaml  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Catalog helpers
@@ -66,7 +66,7 @@ def _extract_examples(callback) -> list[str]:
             continue
         if in_section:
             # un-indented non-empty line → new docstring section, stop
-            if stripped and not line[:1] in (" ", "\t"):
+            if stripped and line[:1] not in (" ", "\t"):
                 break
             if stripped:
                 examples.append(stripped)

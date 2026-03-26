@@ -184,7 +184,7 @@ def jobs_rerun(
 
     if dry_run:
         import json
-        console.print(f"[bold]Would re-submit:[/bold]")
+        console.print("[bold]Would re-submit:[/bold]")
         console.print(f"  job_type  [cyan]{job_type}[/cyan]")
         for k, v in rerun_params.items():
             v_str = json.dumps(v) if not isinstance(v, str) else v

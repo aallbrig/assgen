@@ -31,7 +31,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "trimesh and numpy are required. Run: pip install trimesh numpy Pillow"
         )
 
-    import numpy as np
     import trimesh as tm
     from pathlib import Path
     from PIL import Image
@@ -85,7 +84,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 # ---------------------------------------------------------------------------
 
 def _face_normals_and_centers(mesh) -> tuple:
-    import numpy as np
     centers = mesh.triangles_center          # (F, 3)
     normals = mesh.face_normals              # (F, 3)
     return centers, normals

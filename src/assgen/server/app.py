@@ -26,17 +26,17 @@ try:
 except Exception:
     pass
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
-from assgen.config import load_server_config
-from assgen.db import init_db, reset_stale_running_jobs
-from assgen.server.model_manager import ModelManager
-from assgen.server.routes.health import router as health_router
-from assgen.server.routes.jobs import router as jobs_router
-from assgen.server.routes.models import router as models_router
-from assgen.server.worker import WorkerThread
-from assgen.version import get_version_info
+from assgen.config import load_server_config  # noqa: E402
+from assgen.db import init_db, reset_stale_running_jobs  # noqa: E402
+from assgen.server.model_manager import ModelManager  # noqa: E402
+from assgen.server.routes.health import router as health_router  # noqa: E402
+from assgen.server.routes.jobs import router as jobs_router  # noqa: E402
+from assgen.server.routes.models import router as models_router  # noqa: E402
+from assgen.server.worker import WorkerThread  # noqa: E402
+from assgen.version import get_version_info  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

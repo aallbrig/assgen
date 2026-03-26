@@ -659,7 +659,6 @@ class TestEasyWinHandlers:
 
     def test_handler_coverage_reached_29_percent(self) -> None:
         """Retained for historical reference — originally verified 9/31 handlers."""
-        import importlib
         from assgen.catalog import load_catalog
         catalog = load_catalog()
         real = sum(

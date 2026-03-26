@@ -21,9 +21,7 @@ Params:
 """
 from __future__ import annotations
 
-import io
 import math
-import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -313,7 +311,6 @@ def _write_bvh(
     lines.append("}")  # close root
 
     # Motion section
-    n_channels = len(bones) * 3
     lines.append("MOTION")
     lines.append(f"Frames: {n_frames}")
     lines.append(f"Frame Time: {frame_time:.6f}")
@@ -337,7 +334,6 @@ def _write_bvh(
 def run(job_type: str, params: dict, model_id: str, model_path: str,
         device: str, progress_cb: Any, output_dir: str) -> dict:
     """Retarget bundled BVH motion clips onto the character skeleton."""
-    from pathlib import Path
 
     out_dir = Path(output_dir)
     fps = int(params.get("fps", 30))

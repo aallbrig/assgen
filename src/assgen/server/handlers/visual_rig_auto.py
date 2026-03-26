@@ -118,7 +118,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "trimesh and numpy are required. Run: pip install trimesh numpy torch"
         )
 
-    import numpy as np
     import trimesh as tm
     from pathlib import Path
 
@@ -182,7 +181,6 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
 def _rig_with_unirig(mesh, skeleton, device, model_path, progress_cb):
     """Use the UniRig API when available."""
-    import trimesh as tm
     import unirig
 
     progress_cb(0.3, "UniRig: predicting skeleton…")
@@ -201,7 +199,6 @@ def _rig_with_unirig(mesh, skeleton, device, model_path, progress_cb):
 def _rig_heuristic(mesh, use_humanoid: bool, progress_cb):
     """Place joints at heuristic positions derived from bounding box."""
     import numpy as np
-    import trimesh as tm
 
     bbox_min = mesh.bounds[0]
     bbox_max = mesh.bounds[1]
