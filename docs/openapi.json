@@ -1,0 +1,862 @@
+{
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "api_version": {
+            "default": 1,
+            "description": "API contract version.  Incremented only on breaking changes.",
+            "title": "Api Version",
+            "type": "integer"
+          },
+          "commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "InstallRequest": {
+        "properties": {
+          "model_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Ids"
+          }
+        },
+        "title": "InstallRequest",
+        "type": "object"
+      },
+      "JobRequest": {
+        "properties": {
+          "job_type": {
+            "description": "e.g. 'visual.model.create'",
+            "title": "Job Type",
+            "type": "string"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Override the catalog model for this job. The server will validate the model's HF pipeline_tag against the task unless skip_model_validation is set in server config.",
+            "title": "Model Id"
+          },
+          "params": {
+            "additionalProperties": true,
+            "title": "Params",
+            "type": "object"
+          },
+          "priority": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "job_type"
+        ],
+        "title": "JobRequest",
+        "type": "object"
+      },
+      "JobResponse": {
+        "properties": {
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "job_type": {
+            "title": "Job Type",
+            "type": "string"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Id"
+          },
+          "output": {
+            "title": "Output"
+          },
+          "params": {
+            "additionalProperties": true,
+            "title": "Params",
+            "type": "object"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "progress": {
+            "title": "Progress",
+            "type": "number"
+          },
+          "progress_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress Message"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "job_type",
+          "status",
+          "params",
+          "output",
+          "error",
+          "progress",
+          "progress_message",
+          "priority",
+          "created_at",
+          "started_at",
+          "completed_at",
+          "tags"
+        ],
+        "title": "JobResponse",
+        "type": "object"
+      },
+      "ModelStatusResponse": {
+        "properties": {
+          "installed": {
+            "title": "Installed",
+            "type": "boolean"
+          },
+          "installed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installed At"
+          },
+          "job_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Job Types",
+            "type": "array"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "local_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Path"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          }
+        },
+        "required": [
+          "model_id",
+          "name",
+          "installed",
+          "local_path",
+          "installed_at",
+          "last_used_at",
+          "size_bytes",
+          "job_types"
+        ],
+        "title": "ModelStatusResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "assgen project",
+      "url": "https://github.com/aallbrig/assgen"
+    },
+    "description": "## assgen-server\n\nREST API for the **assgen** AI game-asset generation pipeline.\n\nClients enqueue *jobs* specifying a [game-dev task](../tasks) and optional parameters.\nThe server downloads the required HuggingFace model (if not already cached),\nruns inference on the GPU, and stores the output files in the server's outputs\ndirectory.  Clients can poll for completion and then download the files.\n\n### Quick start\n\n```bash\n# Start the server (or let the client auto-start it)\nassgen-server start\n\n# Submit a job and wait for it\nassgen gen visual model create --prompt \"low-poly sword\" --wait\n```\n\n### Docs & source\n\n* Interactive docs: [`/docs`](/docs) (Swagger UI) or [`/redoc`](/redoc) (ReDoc)\n* OpenAPI schema: [`/openapi.json`](/openapi.json)\n* Source: <https://github.com/aallbrig/assgen>\n",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "summary": "AI game asset generation pipeline server",
+    "title": "assgen-server",
+    "version": "0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "Returns `ok` when the server is running. Includes version and git commit.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Server health check",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/jobs": {
+      "get": {
+        "description": "Return jobs ordered by creation time descending. Filter by `status` (repeatable).",
+        "operationId": "list_jobs_route_jobs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JobResponse"
+                  },
+                  "title": "Response List Jobs Route Jobs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List jobs",
+        "tags": [
+          "jobs"
+        ]
+      },
+      "post": {
+        "operationId": "enqueue_job_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            },
+            "description": "Job created and queued for processing"
+          },
+          "422": {
+            "description": "Unknown job_type, model not in allow-list, or task/model mismatch"
+          }
+        },
+        "summary": "Enqueue a new asset-generation job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/jobs/{job_id}": {
+      "delete": {
+        "operationId": "cancel_job_jobs__job_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Job cancelled"
+          },
+          "404": {
+            "description": "Job not found"
+          },
+          "409": {
+            "description": "Job already in a terminal state"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel a job",
+        "tags": [
+          "jobs"
+        ]
+      },
+      "get": {
+        "description": "Look up a job by its full UUID or an 8-character prefix.",
+        "operationId": "get_job_route_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get a single job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/jobs/{job_id}/events": {
+      "get": {
+        "description": "Opens an SSE stream that emits a `data:` JSON event whenever the job's progress or status changes.  The stream closes automatically when the job reaches a terminal state (`COMPLETED`, `FAILED`, or `CANCELLED`).  Clients should fall back to polling `GET /jobs/{id}` if SSE is not available.",
+        "operationId": "stream_job_events_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/event-stream": {
+                "example": "data: {\"progress\": 0.5, \"message\": \"Running inference\u2026\", \"status\": \"RUNNING\"}\n\ndata: {\"progress\": 1.0, \"message\": \"complete\", \"status\": \"COMPLETED\"}\n\n"
+              }
+            },
+            "description": "SSE stream \u2014 `text/event-stream`"
+          },
+          "404": {
+            "description": "Job not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stream job progress via Server-Sent Events",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/jobs/{job_id}/files": {
+      "get": {
+        "description": "Returns the filenames produced by a COMPLETED job. Use the download endpoint to retrieve each file.",
+        "operationId": "list_job_files_jobs__job_id__files_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response List Job Files Jobs  Job Id  Files Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of output filenames"
+          },
+          "404": {
+            "description": "Job not found"
+          },
+          "409": {
+            "description": "Job is not yet COMPLETED"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List output files",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/jobs/{job_id}/files/{filename}": {
+      "get": {
+        "description": "Download a specific output file from a completed job.\n\nThe *filename* must be a plain filename (no path separators) to prevent\ndirectory traversal attacks.",
+        "operationId": "download_job_file_jobs__job_id__files__filename__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "title": "Filename",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/octet-stream": {}
+            },
+            "description": "File bytes"
+          },
+          "400": {
+            "description": "Invalid filename (path traversal attempt)"
+          },
+          "404": {
+            "description": "Job or file not found"
+          },
+          "409": {
+            "description": "Job is not COMPLETED"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download an output file",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/models": {
+      "get": {
+        "operationId": "list_models_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ModelStatusResponse"
+                  },
+                  "title": "Response List Models Models Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Models",
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/models/install": {
+      "post": {
+        "operationId": "install_models_models_install_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Install Models Models Install Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Install Models",
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/models/{model_id}": {
+      "get": {
+        "operationId": "get_model_models__model_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_id",
+            "required": true,
+            "schema": {
+              "title": "Model Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Model",
+        "tags": [
+          "models"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Server liveness and version check.",
+      "name": "health"
+    },
+    {
+      "description": "Enqueue, inspect, and cancel asset-generation jobs.  Each job runs a HuggingFace model on the server GPU and writes output files that can be downloaded once the job reaches `COMPLETED` status.",
+      "name": "jobs"
+    },
+    {
+      "description": "Inspect the model catalog and trigger pre-download of HuggingFace model weights to the server cache directory.",
+      "name": "models"
+    }
+  ]
+}

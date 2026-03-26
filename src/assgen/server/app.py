@@ -28,10 +28,14 @@ except Exception:
 
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from starlette.middleware.base import BaseHTTPMiddleware  # noqa: E402
+from starlette.requests import Request  # noqa: E402
+from starlette.responses import Response  # noqa: E402
 
 from assgen.config import load_server_config  # noqa: E402
 from assgen.db import init_db, reset_stale_running_jobs  # noqa: E402
 from assgen.server.model_manager import ModelManager  # noqa: E402
+from assgen.server.routes.health import API_VERSION  # noqa: E402
 from assgen.server.routes.health import router as health_router  # noqa: E402
 from assgen.server.routes.jobs import router as jobs_router  # noqa: E402
 from assgen.server.routes.models import router as models_router  # noqa: E402
@@ -171,6 +175,14 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    class _APIVersionMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+            response: Response = await call_next(request)
+            response.headers["X-AssGen-API-Version"] = str(API_VERSION)
+            return response
+
+    app.add_middleware(_APIVersionMiddleware)
 
     app.include_router(health_router)
     app.include_router(jobs_router)

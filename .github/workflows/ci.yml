@@ -30,6 +30,9 @@ jobs:
       - name: Lint with ruff
         run: ruff check src/ tests/
 
+      - name: Check OpenAPI spec is up to date
+        run: python scripts/export_openapi.py --check
+
       - name: Run tests
         run: pytest -v --tb=short -q -m "not integration"
 

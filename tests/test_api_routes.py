@@ -66,6 +66,22 @@ class TestHealth:
         assert isinstance(version, str)
         assert len(version) > 0
 
+    def test_health_includes_api_version(self, client: TestClient) -> None:
+        r = client.get("/health")
+        body = r.json()
+        assert "api_version" in body
+        assert isinstance(body["api_version"], int)
+        assert body["api_version"] >= 1
+
+    def test_api_version_header_present(self, client: TestClient) -> None:
+        r = client.get("/health")
+        assert "X-AssGen-API-Version" in r.headers
+        assert r.headers["X-AssGen-API-Version"] == str(r.json()["api_version"])
+
+    def test_api_version_header_on_other_routes(self, client: TestClient) -> None:
+        r = client.get("/jobs")
+        assert "X-AssGen-API-Version" in r.headers
+
 
 # ---------------------------------------------------------------------------
 # POST /jobs — enqueue
