@@ -840,10 +840,11 @@ class TestNewCLICommands:
     def test_gen_visual_ui_button_help_shows_new_flags(self) -> None:
         r = invoke("gen", "visual", "ui", "button", "--help")
         assert r.exit_code == 0
-        assert "nine-slice" in r.output
-        assert "dpi" in r.output
-        assert "greyscale" in r.output
-        assert "focused" in r.output or "selected" in r.output
+        text = strip_ansi(r.output)
+        assert "nine-slice" in text
+        assert "dpi" in text
+        assert "greyscale" in text
+        assert "focused" in text or "selected" in text
 
     def test_gen_visual_ui_panel_help(self) -> None:
         r = invoke("gen", "visual", "ui", "panel", "--help")
