@@ -96,12 +96,11 @@ app = typer.Typer(
     name="gen",
     help=(
         "Generate game assets using AI models.\n\n"
-        "Domains: [bold]visual[/bold] · [bold]audio[/bold] · [bold]scene[/bold] · "
-        "[bold]pipeline[/bold] · [bold]procedural[/bold] · [bold]support[/bold] · [bold]qa[/bold]\n\n"
-        "Run [bold]assgen tasks[/bold] for the full task tree with assigned models."
+        "Domains: visual · audio · scene · pipeline · procedural · support · qa\n\n"
+        "Run 'assgen tasks' for the full task tree with assigned models."
     ),
     no_args_is_help=True,
-    rich_markup_mode="rich",
+    rich_markup_mode=None,
 )
 app.add_typer(visual_app,   name="visual",   help="3D meshes, textures, rigs, animations, VFX, UI")
 app.add_typer(audio_app,    name="audio",    help="Sound effects, music, voice synthesis")

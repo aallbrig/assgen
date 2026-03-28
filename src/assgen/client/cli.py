@@ -42,7 +42,7 @@ app = typer.Typer(
     help="AI-driven game asset generation pipeline.",
     no_args_is_help=True,
     add_completion=True,
-    rich_markup_mode="rich",
+    rich_markup_mode=None,
 )
 
 app.add_typer(gen_app,     name="gen",     help="Generate assets: visual · audio · scene · pipeline · support · qa")
