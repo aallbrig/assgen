@@ -45,5 +45,8 @@ htmlcov/
 *.local.yaml
 *.local.toml
 
+# VHS demo segments (intermediate recordings)
+demos/segments/
+
 # MkDocs built site
 site/

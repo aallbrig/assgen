@@ -96,6 +96,40 @@ every version tag via the CI workflows in `.github/workflows/`.
 
 ---
 
+## Recording Demo Videos
+
+The project uses [VHS](https://github.com/charmbracelet/vhs) to produce a
+single MP4 showcasing CLI features.  Individual feature segments are recorded
+as separate `.tape` files, then stitched into one video with `ffmpeg`.
+
+### Prerequisites
+
+- [VHS](https://github.com/charmbracelet/vhs) (`go install github.com/charmbracelet/vhs@latest`)
+- `ffmpeg` (bundled with VHS, or install separately)
+- `assgen` installed and on `$PATH` (`pip install -e .`)
+
+### Recording
+
+```bash
+make demo          # records all segments → dist/demo.mp4
+make demo-clean    # removes all recorded artifacts
+```
+
+Individual tapes live in `demos/`.  To re-record a single segment:
+
+```bash
+vhs demos/02_task_tree.tape
+```
+
+### Adding a New Feature Demo
+
+1. Create `demos/NN_<name>.tape` following the existing pattern
+2. `Source demos/_settings.tape` at the top for consistent visuals
+3. Set `Output demos/segments/NN_<name>.mp4`
+4. Run `make demo` to verify the new segment integrates correctly
+
+---
+
 ## Release Process
 
 1. Ensure all tests pass on `main`.
