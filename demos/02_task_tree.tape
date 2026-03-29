@@ -15,10 +15,19 @@ Type "printf '\\n  \\033[1;36m── Task Tree ──\\033[0m\\n\\n'"
 Enter
 Sleep 1s
 
-Type "assgen tasks --domain visual"
+Type "FORCE_COLOR=1 assgen tasks --domain visual | less -R"
 Sleep 300ms
 Enter
-Sleep 5s
+Sleep 2s
+
+PageDown
+Sleep 2s
+
+PageDown
+Sleep 2s
+
+Type "q"
+Sleep 1s
 
 Type "assgen tasks --domain audio"
 Sleep 300ms

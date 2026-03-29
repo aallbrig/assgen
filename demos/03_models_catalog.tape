@@ -15,9 +15,16 @@ Type "printf '\\n  \\033[1;36m── Model Catalog ──\\033[0m\\n\\n'"
 Enter
 Sleep 1s
 
-Type "assgen models list"
+Type "FORCE_COLOR=1 assgen models list | less -R"
 Sleep 300ms
 Enter
-Sleep 4s
+Sleep 2s
 
+PageDown
+Sleep 2s
+
+PageDown
+Sleep 2s
+
+Type "q"
 Sleep 500ms

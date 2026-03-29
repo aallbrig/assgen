@@ -15,10 +15,19 @@ Type "printf '\\n  \\033[1;36m── Configuration ──\\033[0m\\n\\n'"
 Enter
 Sleep 1s
 
-Type "assgen config list --domain visual"
+Type "FORCE_COLOR=1 assgen config list --domain visual | less -R"
 Sleep 300ms
 Enter
-Sleep 4s
+Sleep 2s
+
+PageDown
+Sleep 2s
+
+PageDown
+Sleep 2s
+
+Type "q"
+Sleep 1s
 
 Type "assgen config show visual.concept.generate"
 Sleep 300ms
