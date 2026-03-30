@@ -113,6 +113,7 @@ _SERVER_DEFAULTS: dict[str, Any] = {
     # Security / model governance
     "allow_list": [],                # [] = allow all; list model IDs to restrict downloads
     "skip_model_validation": False,  # True = bypass HF tag compatibility checks
+    "api_key": None,                 # None = no auth; set a string to require Bearer token
 }
 
 

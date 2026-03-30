@@ -184,6 +184,27 @@ def create_app(server_config: dict | None = None) -> FastAPI:
 
     app.add_middleware(_APIVersionMiddleware)
 
+    # Optional Bearer-token authentication — enabled by setting api_key in server.yaml
+    api_key = cfg.get("api_key")
+    if api_key:
+        class _AuthMiddleware(BaseHTTPMiddleware):
+            _PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json"}
+
+            async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+                if request.url.path in self._PUBLIC_PATHS:
+                    return await call_next(request)
+                auth = request.headers.get("authorization", "")
+                if auth != f"Bearer {api_key}":
+                    from starlette.responses import JSONResponse
+                    return JSONResponse(
+                        status_code=401,
+                        content={"detail": "Invalid or missing API key"},
+                    )
+                return await call_next(request)
+
+        app.add_middleware(_AuthMiddleware)
+        logger.info("API key authentication enabled")
+
     app.include_router(health_router)
     app.include_router(jobs_router)
     app.include_router(models_router)
