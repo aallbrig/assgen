@@ -32,6 +32,16 @@ def models_list(
     if installed_only:
         models = [m for m in models if m["installed"]]
 
+    from assgen.client.context import is_json_mode, is_yaml_mode
+    if is_json_mode():
+        import json
+        print(json.dumps({"models": models}), flush=True)
+        return
+    if is_yaml_mode():
+        import yaml
+        print(yaml.dump({"models": models}, default_flow_style=False, sort_keys=False), end="", flush=True)
+        return
+
     table = Table(title="Model Catalog", show_lines=True, header_style="bold cyan")
     table.add_column("Model ID",     min_width=30)
     table.add_column("Name",         min_width=20)
@@ -84,6 +94,15 @@ def models_status(model_id: str = typer.Argument(..., help="HuggingFace model ID
             console.print(f"  • {jt}")
 
 
+_RECOMMENDED_MODELS = [
+    "stabilityai/stable-diffusion-xl-base-1.0",   # concept art, textures, UI
+    "stabilityai/TripoSR",                         # image-to-3D mesh
+    "facebook/musicgen-stereo-large",              # music generation
+    "facebook/audiogen-medium",                    # sound effects
+    "suno/bark",                                   # text-to-speech
+]
+
+
 @app.command("install")
 def models_install(
     model_ids: Optional[list[str]] = typer.Argument(
@@ -94,6 +113,10 @@ def models_install(
         False, "--all", "-a",
         help="Install every model in the catalog",
     ),
+    recommended: bool = typer.Option(
+        False, "--recommended", "-r",
+        help="Install the 5 most commonly used models (~25 GB total)",
+    ),
 ) -> None:
     """Download and cache models from HuggingFace Hub.
 
@@ -102,8 +125,13 @@ def models_install(
     ids: list[str] | None = None
     if model_ids:
         ids = list(model_ids)
+    elif recommended:
+        ids = list(_RECOMMENDED_MODELS)
+        console.print("[bold]Installing recommended models:[/bold]")
+        for mid in ids:
+            console.print(f"  {mid}")
+        console.print()
     elif not all_models:
-        # If no specific IDs and no --all, still install everything
         typer.confirm("Install all catalog models? This may download several GB.", abort=True)
 
     with get_client() as client:

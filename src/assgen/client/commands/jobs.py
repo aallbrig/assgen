@@ -45,6 +45,27 @@ def jobs_list(
             jobs = client.list_jobs(statuses=status, limit=limit)
         except APIError as e:
             abort_with_error(str(e))
+
+    from assgen.client.context import is_json_mode, is_yaml_mode
+    if is_json_mode():
+        import json
+        items = [
+            {"job_id": j["id"], "status": j["status"], "job_type": j["job_type"],
+             "created_at": j.get("created_at")}
+            for j in jobs
+        ]
+        print(json.dumps({"jobs": items}), flush=True)
+        return
+    if is_yaml_mode():
+        import yaml
+        items = [
+            {"job_id": j["id"], "status": j["status"], "job_type": j["job_type"],
+             "created_at": j.get("created_at")}
+            for j in jobs
+        ]
+        print(yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False), end="", flush=True)
+        return
+
     if not jobs:
         console.print("[dim]No jobs found.[/dim]")
         return

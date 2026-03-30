@@ -210,6 +210,14 @@ def print_job_summary(
                 console.print(f"  {fname}  [dim](server-side)[/dim]")
             console.print(f"  [dim]assgen jobs download {short_id}[/dim]")
 
+    # Warn when the result came from a stub handler (no real inference)
+    output = job.get("output") or {}
+    if isinstance(output, dict) and output.get("stub"):
+        console.print()
+        console.print("  [bold yellow]stub result[/bold yellow] [yellow]— ML dependencies not installed on server.[/yellow]")
+        console.print("  [dim]Install inference deps: pip install \"assgen[inference]\"[/dim]")
+        console.print("  [dim]Check server capabilities: assgen server status[/dim]")
+
     if job.get("error"):
         console.print()
         _print_error_block(job["error"])
@@ -316,6 +324,9 @@ def job_to_dict(job: dict[str, Any], saved_files: list[Path] | None = None) -> d
             result["output_files"] = files
     if job.get("error"):
         result["error"] = job["error"]
+    output = job.get("output")
+    if isinstance(output, dict) and output.get("stub"):
+        result["stub"] = True
     return result
 
 
