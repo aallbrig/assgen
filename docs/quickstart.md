@@ -116,15 +116,38 @@ assgen config remove visual.model.create
 
 ## 7. Point at a remote GPU server (optional)
 
-If you have a beefy desktop with a GPU, run `assgen-server` there and point your laptop at it:
+If you have a desktop with a GPU, run `assgen-server` there and point your laptop at it.
+
+**On the GPU machine** (Linux or Windows):
 
 ```bash
-# On the GPU machine
-assgen-server start --daemon
+# Bind to all interfaces so LAN clients can connect
+assgen server config set host "0.0.0.0"
 
-# On the client machine
+# Start the server
+assgen-server start --daemon
+```
+
+**On the client machine** (laptop):
+
+```bash
+# Point at the GPU machine (replace with its LAN IP)
 assgen client config set-server http://192.168.1.100:8432
-assgen client config show    # verify the health check passes
+
+# Verify connectivity
+assgen client config show    # should show "healthy"
+```
+
+If the health check fails, ensure:
+
+- The server is running (`assgen server status` on the GPU machine)
+- Port 8432 is open (Windows Firewall / UFW — see [Server Setup](server-setup.md))
+- Both machines are on the same network
+
+**Pre-download recommended models** on the server to avoid long waits on first use:
+
+```bash
+assgen models install --recommended
 ```
 
 ---

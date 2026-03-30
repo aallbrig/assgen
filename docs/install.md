@@ -2,14 +2,41 @@
 
 ## Install
 
-### From PyPI *(coming soon)*
+### Homebrew (macOS / Linux)
+
+```bash
+brew install aallbrig/tap/assgen
+```
+
+### Chocolatey (Windows)
+
+```powershell
+choco install assgen
+```
+
+### pip (all platforms)
 
 ```bash
 pip install assgen
 
-# With GPU inference support
+# With GPU inference support (for the server machine)
 pip install "assgen[inference]"
 ```
+
+### Windows with CUDA (server machine)
+
+On a Windows machine with an NVIDIA GPU, install PyTorch with CUDA first:
+
+```powershell
+python -m venv C:\assgen-venv
+C:\assgen-venv\Scripts\activate
+
+# Install CUDA-enabled PyTorch, then assgen
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+pip install "assgen[inference]"
+```
+
+See [Server Setup (Windows)](server-setup.md#quick-start-windows) for full details.
 
 ### From a GitHub Release
 
