@@ -50,3 +50,4 @@ demos/segments/
 
 # MkDocs built site
 site/
+heightmap*.png
