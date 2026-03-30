@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.chocolatey.org/2010/07/nuspec">
+  <metadata>
+    <id>assgen</id>
+    <version>{{VERSION}}</version>
+    <title>assgen</title>
+    <authors>aallbrig</authors>
+    <owners>aallbrig</owners>
+    <projectUrl>https://github.com/aallbrig/assgen</projectUrl>
+    <licenseUrl>https://github.com/aallbrig/assgen/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/aallbrig/assgen</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/aallbrig/assgen/issues</bugTrackerUrl>
+    <tags>ai gamedev asset-generation huggingface cli</tags>
+    <summary>AI-driven game asset generation CLI</summary>
+    <description>assgen is a client/server CLI for generating game assets (3D models, textures, audio, UI) using HuggingFace models. Point the client at a GPU server on your LAN and generate concept art, meshes, rigs, textures, music, SFX, and full NPC pipelines from text prompts.</description>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

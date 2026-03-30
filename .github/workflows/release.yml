@@ -99,6 +99,16 @@ jobs:
             | Linux (x64)   | `assgen-${{ github.ref_name }}-linux-x64` |
             | macOS (x64)   | `assgen-${{ github.ref_name }}-macos-x64` |
 
+            ### Install via Homebrew (macOS / Linux)
+            ```bash
+            brew install aallbrig/tap/assgen
+            ```
+
+            ### Install via Chocolatey (Windows)
+            ```powershell
+            choco install assgen
+            ```
+
             ### Docker (server)
             ```bash
             docker pull ghcr.io/${{ github.repository_owner }}/assgen-server:${{ github.ref_name }}
@@ -233,5 +243,148 @@ jobs:
           labels: ${{ steps.meta-client.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Update Homebrew tap formula with new release binaries
+  # ---------------------------------------------------------------------------
+  homebrew:
+    name: Update Homebrew Tap
+    runs-on: ubuntu-latest
+    needs: binaries
+    if: ${{ !contains(github.ref_name, '-') }}   # skip pre-releases
+
+    steps:
+      - name: Extract version (strip leading v)
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download release binaries and compute SHA256
+        id: sha
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.ref_name }}"
+
+          gh release download "$VERSION" \
+            --repo "${{ github.repository }}" \
+            --pattern "assgen-${VERSION}-macos-x64" \
+            --pattern "assgen-${VERSION}-linux-x64" \
+            --dir .
+
+          echo "macos_x64=$(sha256sum "assgen-${VERSION}-macos-x64" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "linux_x64=$(sha256sum "assgen-${VERSION}-linux-x64" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout homebrew-tap
+        uses: actions/checkout@v4
+        with:
+          repository: aallbrig/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Write formula
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          TAG="${{ github.ref_name }}"
+
+          cat > homebrew-tap/Formula/assgen.rb <<'RUBY'
+          class Assgen < Formula
+            desc "AI-driven game asset generation CLI"
+            homepage "https://github.com/aallbrig/assgen"
+            version "VERSION_PLACEHOLDER"
+            license "MIT"
+
+            on_macos do
+              on_intel do
+                url "https://github.com/aallbrig/assgen/releases/download/TAG_PLACEHOLDER/assgen-TAG_PLACEHOLDER-macos-x64"
+                sha256 "MACOS_X64_SHA_PLACEHOLDER"
+              end
+            end
+
+            on_linux do
+              on_intel do
+                url "https://github.com/aallbrig/assgen/releases/download/TAG_PLACEHOLDER/assgen-TAG_PLACEHOLDER-linux-x64"
+                sha256 "LINUX_X64_SHA_PLACEHOLDER"
+              end
+            end
+
+            def install
+              binary = Dir["assgen-*"].first || "assgen"
+              bin.install binary => "assgen"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/assgen --version")
+            end
+          end
+          RUBY
+
+          # Strip leading whitespace from heredoc (GitHub Actions indentation)
+          sed -i 's/^          //' homebrew-tap/Formula/assgen.rb
+
+          # Replace placeholders
+          sed -i "s|VERSION_PLACEHOLDER|${VERSION}|g" homebrew-tap/Formula/assgen.rb
+          sed -i "s|TAG_PLACEHOLDER|${TAG}|g" homebrew-tap/Formula/assgen.rb
+          sed -i "s|MACOS_X64_SHA_PLACEHOLDER|${{ steps.sha.outputs.macos_x64 }}|g" homebrew-tap/Formula/assgen.rb
+          sed -i "s|LINUX_X64_SHA_PLACEHOLDER|${{ steps.sha.outputs.linux_x64 }}|g" homebrew-tap/Formula/assgen.rb
+
+      - name: Commit and push formula
+        working-directory: homebrew-tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/assgen.rb
+          git commit -m "assgen ${{ github.ref_name }}"
+          git push
+
+  # ---------------------------------------------------------------------------
+  # Publish Chocolatey package for Windows
+  # ---------------------------------------------------------------------------
+  chocolatey:
+    name: Publish Chocolatey Package
+    runs-on: windows-latest
+    needs: binaries
+    if: ${{ !contains(github.ref_name, '-') }}   # skip pre-releases
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: choco
+
+      - name: Extract version (strip leading v)
+        id: ver
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download Windows binary and compute checksum
+        id: sha
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.ref_name }}"
+          gh release download "$VERSION" \
+            --repo "${{ github.repository }}" \
+            --pattern "assgen-${VERSION}-windows-x64.exe" \
+            --dir .
+          echo "win_x64=$(sha256sum "assgen-${VERSION}-windows-x64.exe" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp nuspec and install script
+        shell: bash
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          TAG="${{ github.ref_name }}"
+          SHA="${{ steps.sha.outputs.win_x64 }}"
+
+          sed -i "s|{{VERSION}}|${VERSION}|g" choco/assgen.nuspec
+          sed -i "s|{{TAG}}|${TAG}|g"         choco/tools/chocolateyinstall.ps1
+          sed -i "s|{{CHECKSUM}}|${SHA}|g"    choco/tools/chocolateyinstall.ps1
+
+      - name: Pack and push
+        shell: powershell
+        run: |
+          choco pack choco/assgen.nuspec --output-directory .
+          choco push assgen.${{ steps.ver.outputs.version }}.nupkg `
+            --source https://push.chocolatey.org/ `
+            --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
 
 
