@@ -33,6 +33,16 @@
             ],
             "title": "Commit"
           },
+          "inference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InferenceCapabilities"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "status": {
             "title": "Status",
             "type": "string"
@@ -47,6 +57,42 @@
           "version"
         ],
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "InferenceCapabilities": {
+        "properties": {
+          "audiocraft": {
+            "default": false,
+            "title": "Audiocraft",
+            "type": "boolean"
+          },
+          "device": {
+            "default": "cpu",
+            "title": "Device",
+            "type": "string"
+          },
+          "diffusers": {
+            "default": false,
+            "title": "Diffusers",
+            "type": "boolean"
+          },
+          "torch": {
+            "default": false,
+            "title": "Torch",
+            "type": "boolean"
+          },
+          "transformers": {
+            "default": false,
+            "title": "Transformers",
+            "type": "boolean"
+          },
+          "trimesh": {
+            "default": false,
+            "title": "Trimesh",
+            "type": "boolean"
+          }
+        },
+        "title": "InferenceCapabilities",
         "type": "object"
       },
       "InstallRequest": {
@@ -368,7 +414,7 @@
   "paths": {
     "/health": {
       "get": {
-        "description": "Returns `ok` when the server is running. Includes version and git commit.",
+        "description": "Returns `ok` when the server is running. Includes version, git commit, and inference capabilities.",
         "operationId": "health_health_get",
         "responses": {
           "200": {
