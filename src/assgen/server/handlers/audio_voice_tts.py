@@ -58,9 +58,10 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
 
 def _run_real_tts(params, model_id, model_path, device, progress_cb, output_dir):
+    from pathlib import Path
+
     import numpy as np
     import scipy.io.wavfile as wav
-    from pathlib import Path
 
     text = params.get("text") or params.get("prompt")
     if not text:

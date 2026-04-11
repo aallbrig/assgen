@@ -15,8 +15,8 @@ Params:
 from __future__ import annotations
 
 try:
-    from transformers import pipeline as hf_pipeline  # noqa: F401
     import numpy as np  # noqa: F401
+    from transformers import pipeline as hf_pipeline  # noqa: F401
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -125,8 +125,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "Run: pip install transformers torch numpy Pillow imageio[ffmpeg]"
         )
 
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image
     from transformers import pipeline as hf_pipeline
 
@@ -191,7 +192,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     }
 
 
-def _parse_keypoints(result, n_joints: int) -> "np.ndarray":
+def _parse_keypoints(result, n_joints: int) -> np.ndarray:
     import numpy as np
     kp = np.zeros((n_joints, 3), dtype=np.float32)
     if isinstance(result, list) and result:

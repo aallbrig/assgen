@@ -59,8 +59,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         raise RuntimeError("Pillow is not installed. Run: pip install Pillow")
 
     import json
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image
 
     density_map_path = params.get("density_map", "")

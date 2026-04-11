@@ -20,11 +20,11 @@ Usage::
 """
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from assgen.client.api import APIError, get_client
 from assgen.client.output import wait_for_job
-
 
 StepResult = dict[str, Any]
 OnStepCallback = Callable[[str, str, str], None]  # (step_id, status, message)

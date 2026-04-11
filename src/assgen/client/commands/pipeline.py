@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -37,7 +36,7 @@ def workflow_create(
         ...,
         help="Ordered job types, e.g. visual.concept.generate visual.model.splat",
     ),
-    output: Optional[str] = typer.Option(None, "--output", "-o", help="Save workflow YAML to path"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Save workflow YAML to path"),
     chain: bool = typer.Option(
         True, "--chain/--no-chain",
         help="Auto-chain each step's output into the next step's upstream_files (default: on)",
@@ -48,8 +47,9 @@ def workflow_create(
     By default, each step's output is automatically chained into the next step
     as upstream_files. Use --no-chain to submit all steps independently.
     """
-    from assgen.config import get_config_dir
     import yaml as _yaml
+
+    from assgen.config import get_config_dir
 
     step_defs: list[dict] = []
     for i, jt in enumerate(steps):
@@ -69,7 +69,7 @@ def workflow_create(
 @workflow_app.command("run")
 def workflow_run(
     name: str = typer.Argument(..., help="Workflow name or path to YAML"),
-    inputs: Optional[str] = typer.Option(None, "--inputs", help="JSON string of input params"),
+    inputs: str | None = typer.Option(None, "--inputs", help="JSON string of input params"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Print steps without executing"),
 ) -> None:
     """Execute a saved workflow, chaining each step's output into the next.
@@ -78,9 +78,10 @@ def workflow_run(
     and receives its output files as upstream_files — enabling real multi-step
     pipelines where later steps depend on earlier outputs.
     """
-    from assgen.config import get_config_dir
     import yaml as _yaml
+
     from assgen.client.output import console
+    from assgen.config import get_config_dir
 
     wf_path = Path(name) if Path(name).exists() else (get_config_dir() / "workflows" / f"{name}.yaml")
     if not wf_path.exists():
@@ -119,7 +120,7 @@ def workflow_run(
         console.print(f"\n[green]✓ Workflow complete[/green]  ({len(results)} steps)")
     except RuntimeError as exc:
         console.print(f"[red]✗ Workflow failed:[/red] {exc}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc
 
 
 @workflow_app.command("list")
@@ -144,7 +145,7 @@ app.add_typer(batch_app, name="batch")
 @batch_app.command("queue")
 def batch_queue(
     manifest: str = typer.Argument(..., help="Path to JSON manifest file"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Enqueue a batch of jobs from a JSON manifest file.
 
@@ -162,9 +163,9 @@ def batch_queue(
 def batch_variant(
     input_asset: str = typer.Argument(..., help="Base asset path"),
     variants: int = typer.Option(4, "--count", "-n", help="Number of variants"),
-    style: Optional[str] = typer.Option(None, "--style", help="Style description for variants"),
+    style: str | None = typer.Option(None, "--style", help="Style description for variants"),
     damage: bool = typer.Option(False, "--damage", help="Generate damage-state variants"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate style or damage-state variants of an existing asset."""
     for i in range(variants):
@@ -180,8 +181,8 @@ def batch_variant(
 @batch_app.command("status")
 def batch_status(limit: int = typer.Option(20, "--limit", "-n")) -> None:
     """Show recent batch / queue status (active + recently completed jobs)."""
-    from assgen.client.api import get_client, APIError
-    from assgen.client.output import print_jobs_table, abort_with_error
+    from assgen.client.api import APIError, get_client
+    from assgen.client.output import abort_with_error, print_jobs_table
     with get_client() as client:
         try:
             jobs = client.list_jobs(statuses=["QUEUED", "RUNNING"], limit=limit)
@@ -201,8 +202,8 @@ app.add_typer(integrate_app, name="integrate")
 def integrate_export(
     input_asset: str = typer.Argument(..., help="Asset to export"),
     engine: str = typer.Option("unity", "--engine", help="unity | unreal | godot"),
-    format: Optional[str] = typer.Option(None, "--format", help="Override output format"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    format: str | None = typer.Option(None, "--format", help="Override output format"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Export an asset to a specific game engine format."""
     fmt = format or {"unity": "prefab", "unreal": "uasset", "godot": "tres"}.get(engine, "glb")
@@ -216,9 +217,9 @@ def integrate_export(
 @integrate_app.command("prefab")
 def integrate_prefab(
     assets: list[str] = typer.Argument(..., help="Asset files to bundle into a prefab"),
-    name: Optional[str] = typer.Option(None, "--name", help="Prefab name"),
+    name: str | None = typer.Option(None, "--name", help="Prefab name"),
     engine: str = typer.Option("unity", "--engine"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Bundle multiple assets into an engine prefab or scene package."""
     submit_job("pipeline.integrate.export", {
@@ -235,7 +236,7 @@ def integrate_script(
     behaviors: str = typer.Option("interact,damage,loot", "--behaviors",
                                   help="Comma-separated behavior types to stub"),
     language: str = typer.Option("csharp", "--language", help="csharp | gdscript | blueprint"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate behavior script stubs and attach-point metadata for a mesh."""
     submit_job("pipeline.integrate.export", {
@@ -256,7 +257,7 @@ app.add_typer(asset_app, name="asset")
 @asset_app.command("manifest")
 def asset_manifest(
     directory: str = typer.Argument(..., help="Directory to scan"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Walk a directory and produce a manifest.json with file metadata."""
     submit_job("pipeline.asset.manifest", {"directory": directory}, wait=wait)
@@ -269,7 +270,7 @@ def asset_validate(
                                           help="Max texture file size in MB"),
     max_mesh_verts: int = typer.Option(100_000, "--max-mesh-verts",
                                         help="Max vertex count per mesh"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Check for oversized textures, non-pow2 textures, and high-poly meshes."""
     submit_job("pipeline.asset.validate", {
@@ -284,11 +285,11 @@ def asset_rename(
     directory: str = typer.Argument(..., help="Directory containing files to rename"),
     convention: str = typer.Option("snake_case", "--convention", "-c",
                                     help="snake_case | PascalCase | kebab-case"),
-    prefix: Optional[str] = typer.Option(None, "--prefix", help="Optional name prefix"),
-    suffix: Optional[str] = typer.Option(None, "--suffix", help="Optional name suffix"),
+    prefix: str | None = typer.Option(None, "--prefix", help="Optional name prefix"),
+    suffix: str | None = typer.Option(None, "--suffix", help="Optional name suffix"),
     dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run",
                                   help="Plan only (default) or execute renames"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Batch rename assets to a naming convention (dry-run by default)."""
     submit_job("pipeline.asset.rename", {
@@ -303,7 +304,7 @@ def asset_rename(
 @asset_app.command("report")
 def asset_report(
     directory: str = typer.Argument(..., help="Directory to report on"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a size-budget report grouped by asset type."""
     submit_job("pipeline.asset.report", {"directory": directory}, wait=wait)
@@ -319,7 +320,7 @@ app.add_typer(git_app, name="git")
 @git_app.command("lfs-rules")
 def git_lfs_rules(
     directory: str = typer.Argument(..., help="Directory to scan for asset types"),
-    wait: Optional[bool] = typer.Option(None, "--wait/--no-wait"),
+    wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Scan asset extensions and generate .gitattributes LFS rules."""
     submit_job("pipeline.git.lfs_rules", {"directory": directory}, wait=wait)

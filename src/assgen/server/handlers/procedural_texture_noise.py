@@ -25,8 +25,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not _AVAILABLE:
         raise RuntimeError("Pillow is not installed. Run: pip install Pillow")
 
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image
 
     width: int = int(params.get("width", 512))

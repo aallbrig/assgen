@@ -14,8 +14,8 @@ Quality variants:
 
 try:
     from diffusers import (  # type: ignore[import]  # noqa: F401
-        StableDiffusionXLPipeline,
         StableDiffusionXLImg2ImgPipeline,
+        StableDiffusionXLPipeline,
     )
     _AVAILABLE = True
 except ImportError:
@@ -40,8 +40,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "diffusers is not installed. Run: pip install diffusers transformers accelerate"
         )
 
-    import torch
     from pathlib import Path
+
+    import torch
 
     prompt = params.get("prompt") or params.get("text")
     if not prompt:

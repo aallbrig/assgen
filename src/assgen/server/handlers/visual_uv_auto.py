@@ -15,9 +15,10 @@ except ImportError:
 
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """UV-unwrap a mesh and return the result as a GLB file."""
+    from pathlib import Path
+
     import numpy as np
     import trimesh
-    from pathlib import Path
 
     mesh_exts = {".glb", ".obj", ".fbx", ".ply", ".gltf"}
     input_file = params.get("input")
@@ -60,7 +61,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     else:
         # Trimesh fallback: simple spherical projection
         import warnings
-        warnings.warn("xatlas not installed — using spherical UV fallback. pip install xatlas for better results.")
+        warnings.warn("xatlas not installed — using spherical UV fallback. pip install xatlas for better results.", stacklevel=2)
         center = vertices.mean(axis=0)
         vn = vertices - center
         norms = np.linalg.norm(vn, axis=1, keepdims=True) + 1e-8

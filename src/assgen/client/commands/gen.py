@@ -21,36 +21,36 @@ from __future__ import annotations
 
 import typer
 
-# ── visual sub-apps ──────────────────────────────────────────────────────────
-from assgen.client.commands.visual.concept  import app as concept_app
-from assgen.client.commands.visual.blockout import app as blockout_app
-from assgen.client.commands.visual.model    import app as model_app
-from assgen.client.commands.visual.uv       import app as uv_app
-from assgen.client.commands.visual.texture  import app as texture_app
-from assgen.client.commands.visual.rig      import app as rig_app
-from assgen.client.commands.visual.animate  import app as animate_app
-from assgen.client.commands.visual.vfx      import app as vfx_app
-from assgen.client.commands.visual.ui_cmd   import app as ui_app
-from assgen.client.commands.visual.mesh     import app as mesh_app
-from assgen.client.commands.visual.lod      import app as lod_app
-from assgen.client.commands.visual.sprite   import app as sprite_app
-
-# ── audio sub-apps ───────────────────────────────────────────────────────────
-from assgen.client.commands.audio.sfx     import app as sfx_app
-from assgen.client.commands.audio.music   import app as music_app
-from assgen.client.commands.audio.voice   import app as voice_app
+from assgen.client.commands.audio.music import app as music_app
 from assgen.client.commands.audio.process import app as process_app
 
-# ── scene sub-apps ───────────────────────────────────────────────────────────
-from assgen.client.commands.scene.physics  import app as physics_app
-from assgen.client.commands.scene.lighting import app as lighting_app
+# ── audio sub-apps ───────────────────────────────────────────────────────────
+from assgen.client.commands.audio.sfx import app as sfx_app
+from assgen.client.commands.audio.voice import app as voice_app
 
 # ── support / pipeline / qa / proc sub-apps ───────────────────────────────────
 from assgen.client.commands.pipeline import app as pipeline_app
-from assgen.client.commands.support  import app as support_app
-from assgen.client.commands.qa       import app as qa_app
 from assgen.client.commands.procedural import app as proc_app
+from assgen.client.commands.qa import app as qa_app
+from assgen.client.commands.scene.lighting import app as lighting_app
 
+# ── scene sub-apps ───────────────────────────────────────────────────────────
+from assgen.client.commands.scene.physics import app as physics_app
+from assgen.client.commands.support import app as support_app
+from assgen.client.commands.visual.animate import app as animate_app
+from assgen.client.commands.visual.blockout import app as blockout_app
+
+# ── visual sub-apps ──────────────────────────────────────────────────────────
+from assgen.client.commands.visual.concept import app as concept_app
+from assgen.client.commands.visual.lod import app as lod_app
+from assgen.client.commands.visual.mesh import app as mesh_app
+from assgen.client.commands.visual.model import app as model_app
+from assgen.client.commands.visual.rig import app as rig_app
+from assgen.client.commands.visual.sprite import app as sprite_app
+from assgen.client.commands.visual.texture import app as texture_app
+from assgen.client.commands.visual.ui_cmd import app as ui_app
+from assgen.client.commands.visual.uv import app as uv_app
+from assgen.client.commands.visual.vfx import app as vfx_app
 
 # ── visual ───────────────────────────────────────────────────────────────────
 visual_app = typer.Typer(

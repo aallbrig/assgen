@@ -5,8 +5,9 @@
   assgen audio sfx library    search and list local SFX library
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Sound effects generation and management.", no_args_is_help=True)
@@ -20,9 +21,9 @@ def sfx_generate(
     prompt: str = typer.Argument(..., help="Sound description, e.g. 'laser gun firing'"),
     duration: float = typer.Option(2.0, "--duration", "-d", help="Target duration in seconds"),
     variations: int = typer.Option(1, "--variations", "-n", help="Number of variants to generate"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
-    model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
+    model_id: str | None = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
     """Generate a sound effect from a text description (AudioGen).
 
@@ -45,10 +46,10 @@ def sfx_edit(
     input_file: str = typer.Argument(..., help="Input audio file to edit"),
     operation: str = typer.Option("pitch", "--op",
                                   help="pitch | reverb | speed | layer | normalize"),
-    value: Optional[str] = typer.Option(None, "--value", help="Operation parameter"),
-    secondary: Optional[str] = typer.Option(None, "--secondary", help="Second audio for layer op"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    value: str | None = typer.Option(None, "--value", help="Operation parameter"),
+    secondary: str | None = typer.Option(None, "--secondary", help="Second audio for layer op"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Edit or process an existing sound effect."""
     submit_job("audio.sfx.generate", {
@@ -63,12 +64,13 @@ def sfx_edit(
 
 @app.command("library")
 def sfx_library(
-    query: Optional[str] = typer.Argument(None, help="Search query for local SFX library"),
+    query: str | None = typer.Argument(None, help="Search query for local SFX library"),
 ) -> None:
     """Browse the local generated SFX library."""
-    from assgen.config import get_outputs_dir
     from rich.table import Table
+
     from assgen.client.output import console
+    from assgen.config import get_outputs_dir
 
     sfx_dir = get_outputs_dir() / "sfx"
     if not sfx_dir.exists():

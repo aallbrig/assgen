@@ -28,6 +28,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         )
 
     from pathlib import Path
+
     from TTS.api import TTS
 
     prompt = params.get("prompt", "")

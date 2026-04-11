@@ -12,8 +12,9 @@ Input param: ``albedo`` (str) — path to the source albedo/diffuse PNG or JPEG.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 try:
     from scipy.ndimage import convolve, uniform_filter

@@ -57,8 +57,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import shutil
     import uuid
-    import trimesh as tm
     from pathlib import Path
+
+    import trimesh as tm
 
     engine = (params.get("engine") or "godot").lower()
     if engine not in _ENGINE_DEFAULTS:

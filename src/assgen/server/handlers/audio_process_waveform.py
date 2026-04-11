@@ -24,8 +24,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         raise RuntimeError("pydub is not installed. Run: pip install pydub")
 
     import os
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image, ImageDraw
     from pydub import AudioSegment
 

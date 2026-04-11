@@ -13,7 +13,6 @@ import os
 import signal
 import subprocess
 import sys
-from typing import Optional
 
 import typer
 import uvicorn
@@ -56,10 +55,10 @@ def _root_callback(
 
 @app.command()
 def start(
-    host: Optional[str] = typer.Option(None, help="Bind host (default from config)"),
-    port: Optional[int] = typer.Option(None, help="Bind port (default from config)"),
-    workers: Optional[int] = typer.Option(None, help="Number of uvicorn workers"),
-    device: Optional[str] = typer.Option(None, help="Inference device: auto|cuda|cpu"),
+    host: str | None = typer.Option(None, help="Bind host (default from config)"),
+    port: int | None = typer.Option(None, help="Bind port (default from config)"),
+    workers: int | None = typer.Option(None, help="Number of uvicorn workers"),
+    device: str | None = typer.Option(None, help="Inference device: auto|cuda|cpu"),
     log_level: str = typer.Option("info", help="Log level: debug|info|warning|error"),
     json_logs: bool = typer.Option(False, "--json-logs", help="Force JSON log output"),
     daemon: bool = typer.Option(False, "--daemon", help="Detach and run as daemon"),
@@ -118,7 +117,7 @@ def stop() -> None:
     except (ProcessLookupError, OSError):
         typer.echo(f"Process {pid} not found — removing stale PID file.", err=True)
         remove_pid_file()
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 @app.command()
@@ -135,12 +134,12 @@ def status() -> None:
     except (ProcessLookupError, PermissionError):
         typer.echo(f"Stale PID file — process {pid} is not running.", err=True)
         remove_pid_file()
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except OSError:
         # Windows raises a bare OSError when process is not found
         typer.echo(f"Stale PID file — process {pid} is not running.", err=True)
         remove_pid_file()
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 @app.command(name="version")

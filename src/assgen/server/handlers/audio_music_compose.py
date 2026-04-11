@@ -7,12 +7,13 @@ Falls back to the stub handler if audiocraft is not installed.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 try:
-    from audiocraft.models import MusicGen
     from audiocraft.data.audio import audio_write
+    from audiocraft.models import MusicGen
     _AUDIOCRAFT_AVAILABLE = True
 except ImportError:
     _AUDIOCRAFT_AVAILABLE = False

@@ -10,8 +10,6 @@ Usage:
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.console import Console
 from rich.tree import Tree
@@ -359,7 +357,7 @@ def _add_task_leaf(
 @app.callback(invoke_without_command=True)
 def tasks_cmd(
     ctx: typer.Context,
-    domain: Optional[str] = typer.Option(
+    domain: str | None = typer.Option(
         None, "--domain", "-d",
         help="Filter to a single domain: visual audio scene pipeline support qa",
     ),
@@ -379,6 +377,7 @@ def tasks_cmd(
 
     if show_json:
         import json
+
         from assgen.catalog import load_catalog
         catalog = load_catalog()
         out = []

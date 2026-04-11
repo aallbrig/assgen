@@ -68,8 +68,8 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
 def _run_real(job_type, params, model_id, model_path, device, progress_cb, out_dir: Path) -> dict:
     import torch
-    from PIL import Image
     from diffusers import StableDiffusionXLPipeline
+    from PIL import Image
     from transformers import CLIPVisionModelWithProjection
 
     upstream = params.get("upstream_files", [])
@@ -144,7 +144,7 @@ def _run_real(job_type, params, model_id, model_path, device, progress_cb, out_d
     atlas = Image.new("RGB", (tex_w, tex_h))
     half_w, half_h = tex_w // 2, tex_h // 2
     positions = [(0, 0), (half_w, 0), (0, half_h), (half_w, half_h)]
-    for img, pos in zip(view_images, positions):
+    for img, pos in zip(view_images, positions, strict=False):
         atlas.paste(img.resize((half_w, half_h)), pos)
 
     atlas_name = f"{out_stem}_albedo.png"

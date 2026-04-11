@@ -21,7 +21,6 @@ import json
 import math
 from pathlib import Path
 
-
 _AVAILABLE = True  # pure Python — no optional deps
 
 

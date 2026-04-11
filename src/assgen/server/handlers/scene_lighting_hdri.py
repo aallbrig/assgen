@@ -30,10 +30,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "diffusers is required. Run: pip install diffusers transformers accelerate torch"
         )
 
-    import torch
     from pathlib import Path
-    from PIL import Image
+
+    import torch
     from diffusers import StableDiffusionLDM3DPipeline
+    from PIL import Image
 
     prompt = params.get("prompt", "")
     if not prompt:

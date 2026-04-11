@@ -35,7 +35,7 @@ class APIClient:
     def close(self) -> None:
         self._client.close()
 
-    def __enter__(self) -> "APIClient":
+    def __enter__(self) -> APIClient:
         return self
 
     def __exit__(self, *_: Any) -> None:
@@ -197,6 +197,7 @@ class APIClient:
 def get_client() -> APIClient:
     """Return an APIClient connected to the configured or auto-started server."""
     import os
+
     from assgen.client.auto_server import get_or_start_server
     url = get_or_start_server()
     cfg = load_client_config()

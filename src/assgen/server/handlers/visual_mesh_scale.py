@@ -31,8 +31,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not _AVAILABLE:
         raise RuntimeError("trimesh is not installed. Run: pip install trimesh")
 
-    import trimesh as tm
     from pathlib import Path
+
+    import trimesh as tm
 
     input_path = params.get("input", "")
     if not Path(input_path).exists():

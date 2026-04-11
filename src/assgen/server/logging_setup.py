@@ -13,7 +13,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 class _JournaldFormatter(logging.Formatter):
@@ -22,7 +22,7 @@ class _JournaldFormatter(logging.Formatter):
     so `journalctl -o json` exposes them for querying."""
 
     def format(self, record: logging.LogRecord) -> str:
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         obj: dict = {
             "timestamp": now,
             "level": record.levelname,
@@ -55,7 +55,7 @@ class _HumanFormatter(logging.Formatter):
     RESET = "\033[0m"
 
     def format(self, record: logging.LogRecord) -> str:
-        ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
+        ts = datetime.now(UTC).strftime("%H:%M:%S")
         color = self.COLORS.get(record.levelname, "")
         msg = record.getMessage()
         line = f"{ts}  {color}{record.levelname:<8}{self.RESET}  {record.name}  {msg}"

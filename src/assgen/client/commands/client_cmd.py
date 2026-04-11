@@ -6,7 +6,6 @@
 """
 from __future__ import annotations
 
-
 import typer
 
 from assgen.client.output import console

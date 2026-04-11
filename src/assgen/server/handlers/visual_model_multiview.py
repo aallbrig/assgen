@@ -89,8 +89,8 @@ def _stub_multiview(params: dict, output_dir: Path, progress_cb) -> dict:
 
 def _run_real_multiview(params: dict, model_path, device, progress_cb, output_dir: Path) -> dict:
     import torch
-    from PIL import Image
     from diffusers import DiffusionPipeline
+    from PIL import Image
 
     input_path = _resolve_input_image(params)
     if not input_path:

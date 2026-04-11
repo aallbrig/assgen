@@ -18,8 +18,8 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not _AVAILABLE:
         raise RuntimeError("pydub is not installed. Run: pip install pydub")
 
-    import os
     import json
+    import os
     from pathlib import Path
 
     try:

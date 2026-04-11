@@ -24,8 +24,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "realesrgan is required. Run: pip install realesrgan basicsr torch"
         )
 
-    import cv2
     from pathlib import Path
+
+    import cv2
     from basicsr.archs.rrdbnet_arch import RRDBNet
     from realesrgan import RealESRGANer
 

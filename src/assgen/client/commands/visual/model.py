@@ -9,8 +9,9 @@
   assgen visual model export    convert to engine-ready format
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Generate and edit 3D meshes.", no_args_is_help=True)
@@ -21,13 +22,13 @@ _OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file path (.glb/.o
 
 @app.command("create")
 def model_create(
-    prompt: Optional[str] = typer.Option(None, "--prompt", "-p", help="Text description"),
-    input_image: Optional[str] = typer.Option(None, "--input-image", "-i", help="Input image path or URL"),
+    prompt: str | None = typer.Option(None, "--prompt", "-p", help="Text description"),
+    input_image: str | None = typer.Option(None, "--input-image", "-i", help="Input image path or URL"),
     format: str = typer.Option("glb", "--format", "-f", help="Output format: glb obj fbx"),
-    target_faces: Optional[int] = typer.Option(None, "--target-faces", help="Max triangles after decimation (default 10 000)"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
-    model_id: Optional[str] = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
+    target_faces: int | None = typer.Option(None, "--target-faces", help="Max triangles after decimation (default 10 000)"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
+    model_id: str | None = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
 ) -> None:
     """Generate a 3D mesh from text or an image using InstantMesh (multi-view diffusion).
 
@@ -53,8 +54,8 @@ def model_create(
 def model_highpoly(
     input_mesh: str = typer.Argument(..., help="Input mesh path"),
     detail_level: int = typer.Option(3, "--detail", help="Detail level 1-5"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Refine a mesh to high-poly for normal map baking."""
     submit_job("visual.model.create", {
@@ -68,10 +69,10 @@ def model_highpoly(
 @app.command("retopo")
 def model_retopo(
     input_mesh: str = typer.Argument(..., help="High-poly or raw AI mesh to retopologise"),
-    target_polys: Optional[int] = typer.Option(None, "--target-polys", help="Target polygon count"),
+    target_polys: int | None = typer.Option(None, "--target-polys", help="Target polygon count"),
     quads: bool = typer.Option(True, "--quads/--tris", help="Prefer quads or triangles"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Auto-retopology: produce clean, game-ready mesh topology."""
     submit_job("visual.model.retopo", {
@@ -87,8 +88,8 @@ def model_splat(
     images: list[str] = typer.Argument(..., help="Multi-view input images"),
     convert_mesh: bool = typer.Option(False, "--convert-mesh", help="Also export a .ply alongside the .glb"),
     target_faces: int = typer.Option(10_000, "--target-faces", help="Max triangles after trimesh decimation"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a triangle mesh from multi-view images (TripoSR).
 
@@ -109,10 +110,10 @@ def model_splat(
 def model_edit(
     input_mesh: str = typer.Argument(..., help="Mesh to edit"),
     operation: str = typer.Option("deform", "--op", help="deform | boolean | combine"),
-    prompt: Optional[str] = typer.Option(None, "--prompt", help="Edit guidance"),
-    secondary: Optional[str] = typer.Option(None, "--secondary", help="Second mesh for boolean/combine"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    prompt: str | None = typer.Option(None, "--prompt", help="Edit guidance"),
+    secondary: str | None = typer.Option(None, "--secondary", help="Second mesh for boolean/combine"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Edit an existing mesh (deform, boolean, combine)."""
     submit_job("visual.model.create", {
@@ -129,9 +130,9 @@ def model_edit(
 def model_optimize(
     input_mesh: str = typer.Argument(..., help="Mesh to optimise"),
     lods: int = typer.Option(3, "--lods", help="Number of LOD levels"),
-    target_polys: Optional[int] = typer.Option(None, "--target-polys"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    target_polys: int | None = typer.Option(None, "--target-polys"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate LOD variants and reduce polygon count."""
     submit_job("visual.model.retopo", {
@@ -147,8 +148,8 @@ def model_optimize(
 def model_export(
     input_mesh: str = typer.Argument(..., help="Mesh to export"),
     format: str = typer.Option("glb", "--format", "-f", help="glb obj fbx uasset"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Convert and export a mesh to a specific engine format."""
     submit_job("pipeline.integrate.export", {

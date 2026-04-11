@@ -9,8 +9,9 @@
   assgen gen audio process waveform       generate waveform PNG preview
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(
@@ -27,8 +28,8 @@ def audio_normalize(
     input_file: str = typer.Argument(..., help="Audio file to normalize"),
     lufs: float = typer.Option(-14.0, "--lufs", help="Target LUFS level"),
     mode: str = typer.Option("lufs", "--mode", "-m", help="Normalization mode: lufs | peak"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Normalize audio to a target LUFS level or peak 0 dBFS."""
     submit_job("audio.process.normalize", {
@@ -41,8 +42,8 @@ def audio_trim_silence(
     input_file: str = typer.Argument(..., help="Audio file to trim"),
     threshold_db: float = typer.Option(-50.0, "--threshold-db",
                                         help="Silence threshold in dBFS (default -50)"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Strip leading and trailing silence from an audio file."""
     submit_job("audio.process.trim_silence", {
@@ -53,8 +54,8 @@ def audio_trim_silence(
 @app.command("loop-optimize")
 def audio_loop_optimize(
     input_file: str = typer.Argument(..., help="Audio file to optimize for looping"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Find zero-crossing loop points for seamless audio looping."""
     submit_job("audio.process.loop_optimize", {
@@ -67,8 +68,8 @@ def audio_convert(
     input_file: str = typer.Argument(..., help="Audio file to convert"),
     format: str = typer.Option("ogg", "--format", "-f",
                                help="Target format: wav ogg mp3 flac"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Convert audio between formats (WAV/OGG/MP3/FLAC)."""
     submit_job("audio.process.convert", {
@@ -80,8 +81,8 @@ def audio_convert(
 def audio_downmix(
     input_file: str = typer.Argument(..., help="Audio file to downmix"),
     channels: int = typer.Option(1, "--channels", "-c", help="Target channel count: 1 (mono) or 2 (stereo)"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Downmix stereo to mono (or upmix mono to stereo)."""
     submit_job("audio.process.downmix", {
@@ -93,8 +94,8 @@ def audio_downmix(
 def audio_resample(
     input_file: str = typer.Argument(..., help="Audio file to resample"),
     rate: int = typer.Option(48000, "--rate", "-r", help="Target sample rate in Hz"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Change the sample rate of an audio file."""
     submit_job("audio.process.resample", {
@@ -108,8 +109,8 @@ def audio_waveform(
     width: int = typer.Option(1200, "--width", "-W", help="Output image width in pixels"),
     height: int = typer.Option(200, "--height", "-H", help="Output image height in pixels"),
     color: str = typer.Option("#00ff88", "--color", help="Waveform colour (hex, e.g. '#00ff88')"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a waveform PNG preview of an audio file."""
     submit_job("audio.process.waveform", {

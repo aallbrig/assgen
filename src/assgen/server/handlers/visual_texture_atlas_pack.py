@@ -23,6 +23,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import json
     from pathlib import Path
+
     from PIL import Image
 
     inputs = params.get("inputs", [])
@@ -32,8 +33,8 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     size_str = params.get("size", "2048x2048")
     try:
         atlas_w, atlas_h = (int(v) for v in size_str.lower().split("x"))
-    except Exception:
-        raise ValueError(f"Invalid 'size' format — expected WxH e.g. '2048x2048', got '{size_str}'")
+    except Exception as exc:
+        raise ValueError(f"Invalid 'size' format — expected WxH e.g. '2048x2048', got '{size_str}'") from exc
 
     for p in inputs:
         if not Path(p).exists():

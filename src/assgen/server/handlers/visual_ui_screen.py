@@ -41,8 +41,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "diffusers is required. Run: pip install diffusers transformers accelerate torch"
         )
 
-    import torch
     from pathlib import Path
+
+    import torch
     from diffusers import StableDiffusionXLPipeline
 
     prompt = params.get("prompt", "")

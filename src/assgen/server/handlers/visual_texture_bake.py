@@ -17,8 +17,8 @@ Params:
 from __future__ import annotations
 
 try:
-    import trimesh  # noqa: F401
     import numpy as np  # noqa: F401
+    import trimesh  # noqa: F401
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -31,8 +31,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "trimesh and numpy are required. Run: pip install trimesh numpy Pillow"
         )
 
-    import trimesh as tm
     from pathlib import Path
+
+    import trimesh as tm
     from PIL import Image
 
     input_path = params.get("input", "")
@@ -89,7 +90,7 @@ def _face_normals_and_centers(mesh) -> tuple:
     return centers, normals
 
 
-def _bake_ao(mesh, width, height, samples, bias, progress_cb) -> "np.ndarray":
+def _bake_ao(mesh, width, height, samples, bias, progress_cb) -> np.ndarray:
     """Per-face ambient occlusion, projected to a solid-color UV texture."""
     import numpy as np
     from trimesh.ray.ray_triangle import RayMeshIntersector
@@ -121,7 +122,7 @@ def _bake_ao(mesh, width, height, samples, bias, progress_cb) -> "np.ndarray":
     return _project_face_values_to_image(mesh, ao_per_face, width, height)
 
 
-def _bake_cavity(mesh, width, height, progress_cb) -> "np.ndarray":
+def _bake_cavity(mesh, width, height, progress_cb) -> np.ndarray:
     """Per-vertex curvature (cavity) projected to texture."""
     import numpy as np
     progress_cb(0.2, "Computing discrete curvature…")
@@ -138,7 +139,7 @@ def _bake_cavity(mesh, width, height, progress_cb) -> "np.ndarray":
     return _project_face_values_to_image(mesh, 1.0 - face_vals, width, height)
 
 
-def _bake_lightmap(mesh, width, height, samples, bias, progress_cb) -> "np.ndarray":
+def _bake_lightmap(mesh, width, height, samples, bias, progress_cb) -> np.ndarray:
     """Simple directional lightmap (single overhead light)."""
     import numpy as np
     progress_cb(0.2, "Computing simple lightmap…")
@@ -151,7 +152,7 @@ def _bake_lightmap(mesh, width, height, samples, bias, progress_cb) -> "np.ndarr
     return _project_face_values_to_image(mesh, diffuse, width, height)
 
 
-def tm_discrete_mean_curvature(mesh) -> "np.ndarray":
+def tm_discrete_mean_curvature(mesh) -> np.ndarray:
     """Estimate per-vertex mean curvature via discrete Laplacian."""
     import numpy as np
     verts = mesh.vertices
@@ -169,7 +170,7 @@ def tm_discrete_mean_curvature(mesh) -> "np.ndarray":
     return laplacian / count
 
 
-def _project_face_values_to_image(mesh, face_values, width, height) -> "np.ndarray":
+def _project_face_values_to_image(mesh, face_values, width, height) -> np.ndarray:
     """Rasterise per-face scalar values into a UV-space image."""
     import numpy as np
 
@@ -199,7 +200,7 @@ def _project_face_values_to_image(mesh, face_values, width, height) -> "np.ndarr
     return (img * 255).clip(0, 255).astype(np.uint8)
 
 
-def _get_uvs(mesh) -> "np.ndarray | None":
+def _get_uvs(mesh) -> np.ndarray | None:
     """Extract per-vertex or per-face UV coordinates from a trimesh."""
     if hasattr(mesh, "visual") and hasattr(mesh.visual, "uv"):
         uv = mesh.visual.uv

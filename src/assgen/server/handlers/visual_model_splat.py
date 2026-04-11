@@ -23,14 +23,15 @@ output         str|None   Unused server-side (client controls save path)
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 # Module-level imports: guard so worker falls back to stub if deps absent
 try:
+    import tsr  # noqa: F401
     from PIL import Image
-    import tsr                                           # noqa: F401
-    from tsr.system import TSR                           # noqa: F401
+    from tsr.system import TSR  # noqa: F401
     from tsr.utils import remove_background, resize_foreground  # noqa: F401
     _AVAILABLE = True
 except ImportError:
@@ -83,6 +84,7 @@ def run(
         return _stub_capsule_mesh(params, output_dir, progress_cb)
 
     import torch
+
     from assgen.server.handlers.mesh_utils import (
         DEFAULT_TARGET_FACES,
         clean_mesh,

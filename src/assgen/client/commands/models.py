@@ -7,8 +7,6 @@
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 from rich.table import Table
 
@@ -105,7 +103,7 @@ _RECOMMENDED_MODELS = [
 
 @app.command("install")
 def models_install(
-    model_ids: Optional[list[str]] = typer.Argument(
+    model_ids: list[str] | None = typer.Argument(
         None,
         help="Model IDs to install. Omit to install all catalog models.",
     ),

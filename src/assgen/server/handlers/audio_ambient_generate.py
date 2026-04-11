@@ -9,8 +9,9 @@ Requires the ``audiocraft`` package (Meta):
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from assgen.server.handlers.audio_music_compose import run as _compose_run
 

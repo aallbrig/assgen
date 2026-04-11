@@ -14,7 +14,7 @@ When required arguments are omitted, each command prompts interactively.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 import yaml
@@ -150,7 +150,7 @@ def _source(job_type: str, user_catalog: dict[str, Any]) -> str:
 
 @app.command("list")
 def config_list(
-    domain: Optional[str] = typer.Option(
+    domain: str | None = typer.Option(
         None, "--domain", "-d",
         help="Filter by domain prefix, e.g. visual, audio, scene, pipeline",
     ),
@@ -222,7 +222,7 @@ def config_list(
 
 @app.command("show")
 def config_show(
-    job_type: Optional[str] = typer.Argument(None, help="Job type to inspect"),
+    job_type: str | None = typer.Argument(None, help="Job type to inspect"),
 ) -> None:
     """Show the full configuration for a single job type."""
     if not job_type:
@@ -274,12 +274,12 @@ def config_show(
 
 @app.command("set")
 def config_set(
-    job_type: Optional[str] = typer.Argument(None, help="Job type to configure"),
-    model_id: Optional[str] = typer.Option(None, "--model-id", "-m",
+    job_type: str | None = typer.Argument(None, help="Job type to configure"),
+    model_id: str | None = typer.Option(None, "--model-id", "-m",
                                            help="HuggingFace model ID (org/repo)"),
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Display name"),
-    notes: Optional[str] = typer.Option(None, "--notes", help="Optional notes"),
-    task: Optional[str] = typer.Option(None, "--task", "-t",
+    name: str | None = typer.Option(None, "--name", "-n", help="Display name"),
+    notes: str | None = typer.Option(None, "--notes", help="Optional notes"),
+    task: str | None = typer.Option(None, "--task", "-t",
                                        help="Override HF pipeline_tag for search"),
 ) -> None:
     """Add or update the model mapping for a job type.
@@ -362,7 +362,7 @@ def config_set(
 
 @app.command("remove")
 def config_remove(
-    job_type: Optional[str] = typer.Argument(None, help="Job type to remove override for"),
+    job_type: str | None = typer.Argument(None, help="Job type to remove override for"),
 ) -> None:
     """Remove a user override, reverting to the built-in default."""
     if not job_type:
@@ -403,12 +403,12 @@ def config_remove(
 
 @app.command("search")
 def config_search(
-    query: Optional[str] = typer.Argument(None, help="Search term (model name or keyword)"),
-    job_type: Optional[str] = typer.Option(
+    query: str | None = typer.Argument(None, help="Search term (model name or keyword)"),
+    job_type: str | None = typer.Option(
         None, "--job-type", "-j",
         help="Job type to pre-filter by HF task (e.g. visual.model.create)",
     ),
-    task: Optional[str] = typer.Option(
+    task: str | None = typer.Option(
         None, "--task", "-t",
         help="HuggingFace pipeline_tag filter (e.g. text-to-image, image-to-3d)",
     ),

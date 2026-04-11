@@ -103,7 +103,7 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
                 job = client.get_job(job_id)
             except APIError as e:
                 err_console.print(f"[red]error polling job: {e}[/red]")
-                raise typer.Exit(1)
+                raise typer.Exit(1) from e
 
             pct = int((job.get("progress") or 0) * 100)
             msg = job.get("progress_message") or job["status"].lower()

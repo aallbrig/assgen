@@ -35,8 +35,9 @@ import sys
 import threading
 import time
 import traceback
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from assgen.config import get_outputs_dir
 from assgen.db import (

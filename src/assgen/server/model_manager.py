@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import logging
 import sqlite3
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from assgen.catalog import get_model_for_job, load_catalog
 from assgen.config import get_models_cache_dir
@@ -134,7 +135,7 @@ class ModelManager:
     def ensure_model(
         self,
         model_id: str,
-        progress_cb: "ProgressCallback | None" = None,
+        progress_cb: ProgressCallback | None = None,
     ) -> Path:
         """Download model if not already cached; return the local cache path.
 
@@ -193,7 +194,7 @@ class ModelManager:
 
         _cb(0.20, f"Model {model_id} downloaded successfully ✓")
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         size = _dir_size(cache_path)
         # Open a fresh connection for the write — ensure_model runs in the
         # worker thread, but self.conn was created in the startup thread.
@@ -229,7 +230,7 @@ class ModelManager:
     def ensure_for_job_type(
         self,
         job_type: str,
-        progress_cb: "ProgressCallback | None" = None,
+        progress_cb: ProgressCallback | None = None,
     ) -> tuple[str | None, Path | None]:
         """Resolve the catalog model for *job_type* and ensure it is cached.
 

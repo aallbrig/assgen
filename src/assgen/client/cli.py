@@ -26,14 +26,14 @@ from rich.console import Console
 
 from assgen.client import context as _ctx
 from assgen.client.commands.client_cmd import app as client_app
-from assgen.client.commands.config     import app as config_app
-from assgen.client.commands.gen        import app as gen_app
-from assgen.client.commands.jobs       import app as jobs_app
-from assgen.client.commands.models     import app as models_app
-from assgen.client.commands.server     import app as server_app
-from assgen.client.commands.tasks      import app as tasks_app
-from assgen.client.commands.compose    import app as compose_app
-from assgen.client.commands.upgrade    import app as upgrade_app
+from assgen.client.commands.compose import app as compose_app
+from assgen.client.commands.config import app as config_app
+from assgen.client.commands.gen import app as gen_app
+from assgen.client.commands.jobs import app as jobs_app
+from assgen.client.commands.models import app as models_app
+from assgen.client.commands.server import app as server_app
+from assgen.client.commands.tasks import app as tasks_app
+from assgen.client.commands.upgrade import app as upgrade_app
 
 console = Console(highlight=False)
 

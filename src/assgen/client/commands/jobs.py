@@ -10,14 +10,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
 from assgen.client.api import APIError, get_client
 from assgen.client.commands.submit import submit_job
-from assgen.client.output import _user_params
 from assgen.client.output import (
+    _user_params,
     abort_with_error,
     console,
     download_job_output,
@@ -33,7 +32,7 @@ app = typer.Typer(help="Manage asset generation jobs.", no_args_is_help=True)
 
 @app.command("list")
 def jobs_list(
-    status: Optional[list[str]] = typer.Option(
+    status: list[str] | None = typer.Option(
         None, "--status", "-s",
         help="Filter by status (repeatable): QUEUED RUNNING COMPLETED FAILED CANCELLED",
     ),
@@ -95,7 +94,7 @@ def jobs_status(job_id: str = typer.Argument(..., help="Job ID or prefix")) -> N
 @app.command("wait")
 def jobs_wait(
     job_id: str = typer.Argument(..., help="Job ID to wait for"),
-    timeout: Optional[float] = typer.Option(None, "--timeout", "-t", help="Max wait seconds"),
+    timeout: float | None = typer.Option(None, "--timeout", "-t", help="Max wait seconds"),
 ) -> None:
     """Wait for a job to reach a terminal state, showing a live progress bar."""
     with get_client() as client:
@@ -118,7 +117,7 @@ def jobs_wait(
 @app.command("download")
 def jobs_download(
     job_id: str = typer.Argument(..., help="Job ID to download files from"),
-    output: Optional[str] = typer.Option(
+    output: str | None = typer.Option(
         None, "--output", "-o",
         help="Directory to save downloaded files (default: current directory)",
     ),
@@ -165,7 +164,7 @@ def jobs_cancel(
 @app.command("rerun")
 def jobs_rerun(
     job_id: str = typer.Argument(..., help="Job ID or prefix to re-submit"),
-    wait: Optional[bool] = typer.Option(
+    wait: bool | None = typer.Option(
         None, "--wait/--no-wait",
         help="Wait for the new job to complete (overrides client default)",
     ),
@@ -217,12 +216,12 @@ def jobs_rerun(
 
 @app.command("clean")
 def jobs_clean(
-    statuses: Optional[list[str]] = typer.Option(
+    statuses: list[str] | None = typer.Option(
         ["COMPLETED", "FAILED", "CANCELLED"],
         "--status", "-s",
         help="Which statuses to delete",
     ),
-    days: Optional[int] = typer.Option(
+    days: int | None = typer.Option(
         None, "--days", "-d",
         help="Only delete jobs older than N days",
     ),

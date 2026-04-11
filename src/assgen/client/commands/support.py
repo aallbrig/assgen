@@ -6,8 +6,9 @@
   assgen support data proc          procedural asset generation scripts
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Narrative content, lore, and procedural support data.", no_args_is_help=True)
@@ -29,11 +30,11 @@ _OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory 
 @narrative_app.command("dialog")
 def narrative_dialog(
     character: str = typer.Argument(..., help="NPC name / description"),
-    context: Optional[str] = typer.Option(None, "--context", help="Scene / quest context"),
+    context: str | None = typer.Option(None, "--context", help="Scene / quest context"),
     lines: int = typer.Option(10, "--lines", "-n", help="Number of dialog lines to generate"),
     branching: bool = typer.Option(False, "--branching", help="Generate a branching dialog tree"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate NPC dialog lines or a branching dialog tree.
 
@@ -56,8 +57,8 @@ def narrative_lore(
     topic: str = typer.Argument(..., help="Lore topic, e.g. 'history of the fallen empire'"),
     length: int = typer.Option(500, "--length", help="Approximate word count"),
     format: str = typer.Option("prose", "--format", help="prose | codex | item-description | quest"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate world-building lore text (codex entries, item descriptions, quest text).
 
@@ -82,8 +83,8 @@ def narrative_lore(
 def data_lightmap(
     scene: str = typer.Argument(..., help="Scene file to bake"),
     quality: str = typer.Option("medium", "--quality", help="low | medium | high"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Bake GI lightmaps for a scene using AI-accelerated methods."""
     submit_job("scene.lighting.hdri", {
@@ -99,8 +100,8 @@ def data_proc(
     description: str = typer.Argument(..., help="Describe the procedural asset to generate code for"),
     language: str = typer.Option("python", "--language",
                                  help="python | gdscript | csharp | hlsl"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a procedural asset generation script from a description."""
     submit_job("narrative.quest.design", {
@@ -118,8 +119,8 @@ def data_proc(
 @narrative_app.command("validate-dialogue")
 def narrative_validate_dialogue(
     input_file: str = typer.Argument(..., help="Dialogue JSON file to validate"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Lint a dialogue JSON: orphan nodes, dead ends, missing keys."""
     submit_job("narrative.dialogue.validate", {
@@ -130,8 +131,8 @@ def narrative_validate_dialogue(
 @narrative_app.command("validate-quest")
 def narrative_validate_quest(
     input_file: str = typer.Argument(..., help="Quest JSON file to validate"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Check a quest JSON graph for cycles and unreachable nodes."""
     submit_job("narrative.quest.validate", {
@@ -153,8 +154,8 @@ def i18n_extract(
                                  help="Glob pattern for files to scan"),
     key_field: str = typer.Option("text", "--key-field", "-k",
                                    help="JSON field to extract as translatable string"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Extract localisation string keys from JSON files (outputs JSON + CSV)."""
     submit_job("narrative.i18n.extract", {

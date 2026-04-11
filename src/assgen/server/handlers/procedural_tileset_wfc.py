@@ -31,8 +31,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import json
     import random
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image
 
     sample_path = params.get("sample", "")

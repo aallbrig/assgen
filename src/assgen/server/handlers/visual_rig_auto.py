@@ -18,8 +18,8 @@ Params:
 from __future__ import annotations
 
 try:
-    import trimesh  # noqa: F401
     import numpy as np  # noqa: F401
+    import trimesh  # noqa: F401
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -118,8 +118,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "trimesh and numpy are required. Run: pip install trimesh numpy torch"
         )
 
-    import trimesh as tm
     from pathlib import Path
+
+    import trimesh as tm
 
     raw_input = params.get("input") or ""
     input_path = Path(raw_input) if raw_input else Path("")
@@ -225,7 +226,7 @@ def _rig_heuristic(mesh, use_humanoid: bool, progress_cb):
     return _build_skinned_scene(mesh, joint_arr, parents, skin_weights)
 
 
-def _distance_skin_weights(vertices: "np.ndarray", joints: list) -> "np.ndarray":
+def _distance_skin_weights(vertices: np.ndarray, joints: list) -> np.ndarray:
     """Inverse-distance skinning weights, normalised per vertex."""
     import numpy as np
     n_verts = len(vertices)

@@ -6,8 +6,9 @@
   assgen scene physics export    bake physics data for engine import
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Collision meshes, rigid bodies, and simulation.", no_args_is_help=True)
@@ -22,8 +23,8 @@ def physics_collider(
     shape: str = typer.Option("convex", "--shape",
                               help="Collider type: convex hull box sphere capsule mesh"),
     simplify: bool = typer.Option(True, "--simplify/--exact"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate an optimised collision mesh from a visual mesh."""
     submit_job("scene.physics.collider", {
@@ -37,11 +38,11 @@ def physics_collider(
 @app.command("rigid")
 def physics_rigid(
     mesh: str = typer.Argument(..., help="Mesh to configure as a rigid body"),
-    mass: Optional[float] = typer.Option(None, "--mass", help="Mass in kg"),
-    material: Optional[str] = typer.Option(None, "--material",
+    mass: float | None = typer.Option(None, "--mass", help="Mass in kg"),
+    material: str | None = typer.Option(None, "--material",
                                            help="Physics material: wood metal stone rubber"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Set up rigid body physics properties for a mesh."""
     submit_job("scene.physics.collider", {
@@ -58,8 +59,8 @@ def physics_cloth(
     mesh: str = typer.Argument(..., help="Cloth or hair mesh to simulate"),
     sim_type: str = typer.Option("cloth", "--type", help="cloth | hair | softbody"),
     duration: float = typer.Option(3.0, "--duration", help="Simulation duration in seconds"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Simulate and bake cloth or hair physics."""
     submit_job("scene.physics.collider", {
@@ -75,8 +76,8 @@ def physics_cloth(
 def physics_export(
     mesh: str = typer.Argument(..., help="Physics setup to export"),
     engine: str = typer.Option("unity", "--engine", help="Target engine: unity unreal godot"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Export baked physics data for a target game engine."""
     submit_job("scene.physics.collider", {

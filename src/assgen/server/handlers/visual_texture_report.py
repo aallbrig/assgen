@@ -25,6 +25,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import json
     from pathlib import Path
+
     from PIL import Image
 
     inputs: list[str] = params.get("inputs", [])

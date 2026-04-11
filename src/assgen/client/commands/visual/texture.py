@@ -6,8 +6,9 @@
   assgen visual texture pbr        create / edit a full PBR material set
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Texture generation, PBR maps, and baking.", no_args_is_help=True)
@@ -18,14 +19,14 @@ _OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory 
 
 @app.command("generate")
 def texture_generate(
-    prompt: Optional[str] = typer.Option(None, "--prompt", "-p", help="Texture description"),
-    input_mesh: Optional[str] = typer.Option(None, "--mesh", "-m", help="Mesh to texture"),
+    prompt: str | None = typer.Option(None, "--prompt", "-p", help="Texture description"),
+    input_mesh: str | None = typer.Option(None, "--mesh", "-m", help="Mesh to texture"),
     resolution: int = typer.Option(1024, "--resolution", "-r", help="Texture resolution (px)"),
     maps: str = typer.Option("albedo,normal,roughness,metallic", "--maps",
                              help="Comma-separated PBR maps to generate"),
-    style: Optional[str] = typer.Option(None, "--style", help="Material style, e.g. 'worn stone'"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    style: str | None = typer.Option(None, "--style", help="Material style, e.g. 'worn stone'"),
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate albedo and PBR maps from a text prompt or mesh reference.
 
@@ -48,8 +49,8 @@ def texture_generate(
 def texture_apply(
     mesh: str = typer.Argument(..., help="Mesh to apply textures to"),
     texture_dir: str = typer.Argument(..., help="Directory containing PBR texture maps"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Apply a PBR texture set to a mesh (UV-based projection)."""
     submit_job("visual.texture.generate", {
@@ -67,8 +68,8 @@ def texture_bake(
     maps: str = typer.Option("normal,ao,curvature", "--maps",
                              help="Maps to bake: normal ao curvature height"),
     resolution: int = typer.Option(2048, "--resolution", "-r"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Bake normal, AO, and curvature from a high-poly to low-poly mesh."""
     submit_job("visual.texture.bake", {
@@ -92,8 +93,8 @@ def texture_pbr(
                                     help="Resize albedo before processing (e.g. 1024)"),
     normal_strength: float = typer.Option(2.0, "--normal-strength",
                                            help="Strength multiplier for normal map gradient"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Derive a full PBR material set (normal, roughness, metallic, AO, height) from an albedo image."""
     submit_job("visual.texture.pbr", {
@@ -110,10 +111,10 @@ def texture_channel_pack(
     r: str = typer.Option(..., "--r", help="Red channel image path"),
     g: str = typer.Option(..., "--g", help="Green channel image path"),
     b: str = typer.Option(..., "--b", help="Blue channel image path"),
-    a: Optional[str] = typer.Option(None, "--a", help="Alpha channel image path (optional)"),
+    a: str | None = typer.Option(None, "--a", help="Alpha channel image path (optional)"),
     output_name: str = typer.Option("packed.png", "--output-name", help="Output filename"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Pack separate R/G/B/A channel images into a single RGBA texture."""
     submit_job("visual.texture.channel_pack", {
@@ -128,8 +129,8 @@ def texture_convert(
     input_file: str = typer.Argument(..., help="Source image file"),
     format: str = typer.Option("png", "--format", "-f",
                                help="Target format: png jpg tga webp exr"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Convert an image to a different format (PNG/TGA/JPG/EXR → WebP/PNG/TGA/JPG)."""
     submit_job("visual.texture.convert", {
@@ -141,8 +142,8 @@ def texture_convert(
 def texture_atlas_pack(
     inputs: list[str] = typer.Argument(..., help="Image files to pack into atlas"),
     size: str = typer.Option("2048x2048", "--size", "-s", help="Atlas dimensions WxH"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Pack images into a texture atlas + UV manifest JSON."""
     submit_job("visual.texture.atlas_pack", {
@@ -154,8 +155,8 @@ def texture_atlas_pack(
 def texture_mipmap(
     input_file: str = typer.Argument(..., help="Source image file"),
     min_size: int = typer.Option(1, "--min-size", help="Stop at this minimum dimension (px)"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a full mipmap chain and save each level as a PNG."""
     submit_job("visual.texture.mipmap", {
@@ -168,8 +169,8 @@ def texture_normalmap_convert(
     input_file: str = typer.Argument(..., help="Normal map image file"),
     from_format: str = typer.Option("dx", "--from-format",
                                      help="Source convention: dx | gl"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Flip G channel to convert a normal map between DirectX and OpenGL conventions."""
     submit_job("visual.texture.normalmap_convert", {
@@ -182,8 +183,8 @@ def texture_seamless(
     input_file: str = typer.Argument(..., help="Source texture image"),
     blend_width: float = typer.Option(0.1, "--blend-width",
                                        help="Blend zone as fraction of image size (0.01–0.49)"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Fix tile seams via offset-blend to make a texture seamlessly tileable."""
     submit_job("visual.texture.seamless", {
@@ -194,11 +195,11 @@ def texture_seamless(
 @app.command("resize")
 def texture_resize(
     input_file: str = typer.Argument(..., help="Source texture image"),
-    width: Optional[int] = typer.Option(None, "--width", "-W", help="Target width in pixels"),
-    height: Optional[int] = typer.Option(None, "--height", "-H", help="Target height in pixels"),
+    width: int | None = typer.Option(None, "--width", "-W", help="Target width in pixels"),
+    height: int | None = typer.Option(None, "--height", "-H", help="Target height in pixels"),
     pow2: bool = typer.Option(False, "--pow2", help="Snap to next power-of-2"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Resize a texture image to specified dimensions."""
     submit_job("visual.texture.resize", {
@@ -213,10 +214,10 @@ def texture_resize(
 @app.command("report")
 def texture_report(
     inputs: list[str] = typer.Argument(None, help="Image files to report on (or use --directory)"),
-    directory: Optional[str] = typer.Option(None, "--directory", "-d",
+    directory: str | None = typer.Option(None, "--directory", "-d",
                                               help="Directory to scan for textures"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a texture report: format, dimensions, and estimated GPU memory."""
     submit_job("visual.texture.report", {

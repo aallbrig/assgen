@@ -19,8 +19,6 @@ no additional inference overhead beyond what you would run manually.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 
 from assgen.client.output import console
@@ -45,11 +43,11 @@ def compose_npc(
         ...,
         help="Character description, e.g. 'pig shopkeeper with apron, medieval fantasy'",
     ),
-    style: Optional[str] = typer.Option(
+    style: str | None = typer.Option(
         None, "--style",
         help="Visual style applied to all generation steps, e.g. 'painterly, warm tones'",
     ),
-    voice: Optional[str] = typer.Option(
+    voice: str | None = typer.Option(
         None, "--voice",
         help="TTS voice description for NPC dialog lines, e.g. 'gruff male merchant, aged'",
     ),
@@ -70,7 +68,7 @@ def compose_npc(
         help="Use Zero123++ multi-view for better mesh quality (slower)",
     ),
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run", help="Print pipeline steps without executing"),
 ) -> None:
@@ -207,12 +205,12 @@ def compose_npc(
 @app.command("weapon")
 def compose_weapon(
     prompt: str = typer.Argument(..., help="Weapon description, e.g. 'rusted iron longsword'"),
-    style: Optional[str] = typer.Option(None, "--style"),
+    style: str | None = typer.Option(None, "--style"),
     engine: str = _ENGINE_OPT,
     lod: bool = typer.Option(True,  "--lod/--no-lod"),
     collider: bool = typer.Option(True, "--collider/--no-collider"),
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -275,7 +273,7 @@ def compose_prop(
         ...,
         help="Prop description, e.g. 'wooden barrel with iron bands, medieval'",
     ),
-    style: Optional[str] = typer.Option(None, "--style",
+    style: str | None = typer.Option(None, "--style",
         help="Visual style, e.g. 'low poly, flat shading'"),
     prop_type: str = typer.Option(
         "prop", "--type",
@@ -285,7 +283,7 @@ def compose_prop(
     lod: bool = typer.Option(True,  "--lod/--no-lod", help="Generate LOD 0/1/2 levels"),
     collider: bool = typer.Option(True, "--collider/--no-collider", help="Generate collision mesh"),
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -368,7 +366,7 @@ def compose_material(
         ...,
         help="Surface description, e.g. 'weathered cobblestone, mossy'",
     ),
-    style: Optional[str] = typer.Option(None, "--style"),
+    style: str | None = typer.Option(None, "--style"),
     mat_type: str = typer.Option(
         "surface", "--type",
         help="stone | wood | metal | fabric | organic | surface",
@@ -383,7 +381,7 @@ def compose_material(
     ),
     engine: str = _ENGINE_OPT,
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -478,7 +476,7 @@ def compose_soundscape(
         5, "--sfx-count",
         help="Number of SFX clips to generate",
     ),
-    sfx_list: Optional[str] = typer.Option(
+    sfx_list: str | None = typer.Option(
         None, "--sfx-list",
         help="Comma-separated explicit SFX prompts, e.g. 'footstep on dirt,wind,door creak'",
     ),
@@ -489,7 +487,7 @@ def compose_soundscape(
     music: bool = typer.Option(True, "--music/--no-music",
         help="Generate theme music in addition to ambient"),
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -585,13 +583,13 @@ def compose_ui_kit(
         "--icons",
         help="Comma-separated icon names to generate",
     ),
-    palette: Optional[str] = typer.Option(
+    palette: str | None = typer.Option(
         None, "--palette",
         help="Colour palette hint, e.g. 'dark tones, gold accents'",
     ),
     engine: str = _ENGINE_OPT,
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -647,7 +645,7 @@ def compose_ui_kit(
         },
     ]
 
-    for i, icon_name in enumerate(icon_list):
+    for _i, icon_name in enumerate(icon_list):
         steps.append({
             "id": f"icon_{icon_name}",
             "job_type": "visual.ui.icon",
@@ -688,18 +686,18 @@ def compose_environment(
         6, "--count", "-n",
         help="Number of props to generate",
     ),
-    items: Optional[str] = typer.Option(
+    items: str | None = typer.Option(
         None, "--items",
         help="Explicit comma-separated prop list, e.g. 'barrel,chair,table,torch'  (overrides --count)",
     ),
-    style: Optional[str] = typer.Option(None, "--style"),
+    style: str | None = typer.Option(None, "--style"),
     engine: str = _ENGINE_OPT,
     audio: bool = typer.Option(True, "--audio/--no-audio",
         help="Generate ambient audio and theme music"),
     ground: bool = typer.Option(True, "--ground/--no-ground",
         help="Generate a tiling ground/floor material"),
     quality: str = _QUALITY_OPT,
-    output: Optional[str] = _OUT_OPT,
+    output: str | None = _OUT_OPT,
     wait: bool = _WAIT_OPT,
     dry_run: bool = typer.Option(False, "--dry-run"),
 ) -> None:
@@ -881,4 +879,4 @@ def _execute_or_dry_run(
         console.print(f"\n[green]✓ {pipeline_name} pipeline complete[/green]  ({total} steps)")
     except RuntimeError as exc:
         console.print(f"\n[red]✗ {pipeline_name} pipeline failed:[/red] {exc}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc

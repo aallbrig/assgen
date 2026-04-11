@@ -14,8 +14,9 @@ import asyncio
 import json
 import logging
 import sqlite3
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import Annotated, Any, AsyncGenerator
+from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse

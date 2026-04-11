@@ -3,8 +3,9 @@
   assgen gen visual lod generate   generate N LOD meshes via QEM decimation
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="LOD (Level of Detail) mesh generation.", no_args_is_help=True)
@@ -19,8 +20,8 @@ def lod_generate(
     num_lods: int = typer.Option(3, "--num-lods", "-n", help="Number of LOD levels to generate"),
     min_poly_count: int = typer.Option(100, "--min-poly-count",
                                         help="Minimum face count for the coarsest LOD"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate N LOD meshes via QEM decimation (pyfqmr or trimesh fallback)."""
     submit_job("visual.lod.generate", {

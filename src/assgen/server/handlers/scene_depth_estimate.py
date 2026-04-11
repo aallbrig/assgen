@@ -24,8 +24,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "transformers is required. Run: pip install transformers torch"
         )
 
-    import numpy as np
     from pathlib import Path
+
+    import numpy as np
     from PIL import Image
     from transformers import pipeline as hf_pipeline
 

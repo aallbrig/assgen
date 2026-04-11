@@ -25,7 +25,7 @@ except ImportError:
     _AVAILABLE = False
 
 try:
-    from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel  # noqa: F401
+    from diffusers import ControlNetModel, StableDiffusionXLControlNetPipeline  # noqa: F401
     _CONTROLNET_AVAILABLE = True
 except ImportError:
     _CONTROLNET_AVAILABLE = False
@@ -103,8 +103,8 @@ def _generate_sdxl(prompt, negative_prompt, width, height, steps, device, model_
 
 def _generate_with_controlnet(prompt, reference_path, negative_prompt, width, height, steps, cn_scale, device, model_path, model_id, progress_cb):
     import torch
+    from diffusers import ControlNetModel, StableDiffusionXLControlNetPipeline
     from PIL import Image
-    from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel
 
     progress_cb(0.05, "Loading ControlNet Depth…")
     cn_id = "diffusers/controlnet-depth-sdxl-1.0"

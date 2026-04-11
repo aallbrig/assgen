@@ -7,20 +7,27 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 
 from assgen.client.api import APIError, get_client
-from assgen.client.context import get_context_map, get_from_job, get_quality, get_variants, is_json_mode, is_yaml_mode
+from assgen.client.context import (
+    get_context_map,
+    get_from_job,
+    get_quality,
+    get_variants,
+    is_json_mode,
+    is_yaml_mode,
+)
 from assgen.client.output import (
     abort_with_error,
     console,
     download_job_output,
     job_to_dict,
     print_job_json,
-    print_job_yaml,
     print_job_summary,
+    print_job_yaml,
     wait_for_job,
 )
 from assgen.config import load_client_config
@@ -77,7 +84,7 @@ def _read_context_text(client: Any, job_id: str) -> str:
 def submit_job(
     job_type: str,
     params: dict[str, Any],
-    wait: Optional[bool] = None,
+    wait: bool | None = None,
     priority: int = 0,
     tags: list[str] | None = None,
     model_id: str | None = None,

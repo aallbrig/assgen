@@ -9,8 +9,6 @@
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import typer
 
 from assgen.client.output import console
@@ -34,14 +32,14 @@ app.add_typer(_config_app, name="config")
 @app.command("start")
 def server_start(
     daemon: bool = typer.Option(True, "--daemon/--foreground", help="Run as background daemon"),
-    host: Optional[str] = typer.Option(None, help="Override server host"),
-    port: Optional[int] = typer.Option(None, help="Override server port"),
+    host: str | None = typer.Option(None, help="Override server host"),
+    port: int | None = typer.Option(None, help="Override server port"),
 ) -> None:
     """Start a local assgen-server."""
-    import subprocess
-    import sys
     import os
     import shutil
+    import subprocess
+    import sys
 
     srv_cfg = load_server_config()
     _host = host or srv_cfg.get("host", "127.0.0.1")
@@ -68,12 +66,13 @@ def server_start(
 def server_stop() -> None:
     """Stop the local assgen-server."""
     import subprocess
+
     from assgen.client.auto_server import find_server_executable
     try:
         exe = find_server_executable()
     except FileNotFoundError as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
     result = subprocess.run([exe, "stop"])
     raise typer.Exit(result.returncode)
 
@@ -162,8 +161,9 @@ def server_config_set(
       assgen server config set port 9000
       assgen server config set log_level debug
     """
-    from assgen.config import get_config_dir
     import yaml
+
+    from assgen.config import get_config_dir
 
     cfg_dir = get_config_dir()
     server_yaml = cfg_dir / "server.yaml"
@@ -184,7 +184,7 @@ def server_config_set(
             coerced = int(value)
         except ValueError:
             console.print(f"[red]Error:[/red] '{key}' must be an integer, got {value!r}")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
     elif key in _BOOL_KEYS:
         coerced = value.lower() in {"true", "1", "yes"}
     elif key in _LIST_KEYS:
@@ -214,7 +214,7 @@ def server_config_set(
 
 @_config_app.command("models")
 def server_config_models(
-    domain: Optional[str] = typer.Option(
+    domain: str | None = typer.Option(
         None, "--domain", "-d", help="Filter by domain (visual, audio, scene…)"
     ),
 ) -> None:

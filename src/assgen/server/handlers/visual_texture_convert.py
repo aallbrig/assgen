@@ -21,6 +21,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         raise RuntimeError("Pillow is not installed. Run: pip install Pillow")
 
     from pathlib import Path
+
     from PIL import Image
 
     input_path = params.get("input", "")

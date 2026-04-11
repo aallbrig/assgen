@@ -9,8 +9,9 @@
   assgen gen procedural plant lsystem       L-system plant skeleton
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 # ── terrain sub-app ──────────────────────────────────────────────────────────
@@ -26,8 +27,8 @@ def terrain_heightmap(
     seed: int   = typer.Option(42,  "--seed",    "-s"),
     scale: float = typer.Option(100.0, "--scale"),
     octaves: int = typer.Option(6, "--octaves"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a procedural heightmap PNG (Perlin/fractal/ridged noise)."""
     submit_job("procedural.terrain.heightmap", {
@@ -49,8 +50,8 @@ def texture_noise(
     seed:       int   = typer.Option(42,    "--seed",       "-s"),
     scale:      float = typer.Option(100.0, "--scale"),
     octaves:    int   = typer.Option(6,     "--octaves"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a tileable noise texture PNG (Perlin/Voronoi/fBm)."""
     submit_job("procedural.texture.noise", {
@@ -71,8 +72,8 @@ def level_dungeon(
     algorithm: str = typer.Option("bsp", "--algorithm", "-a",
                                    help="bsp | cellular"),
     seed:      int = typer.Option(42,    "--seed",      "-s"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a BSP or cellular-automata dungeon layout."""
     submit_job("procedural.level.dungeon", {
@@ -87,8 +88,8 @@ def level_voronoi(
     height:  int = typer.Option(512, "--height",  "-H"),
     regions: int = typer.Option(12,  "--regions", "-r"),
     seed:    int = typer.Option(42,  "--seed",    "-s"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate a Voronoi region map (colour PNG + regions JSON)."""
     submit_job("procedural.level.voronoi", {
@@ -107,8 +108,8 @@ def foliage_scatter(
     count:       int   = typer.Option(100, "--count",    "-n"),
     min_dist:    float = typer.Option(1.0, "--min-dist", "-d"),
     seed:        int   = typer.Option(42,  "--seed",     "-s"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Scatter foliage instances using Poisson disk sampling on a density map."""
     submit_job("procedural.foliage.scatter", {
@@ -128,8 +129,8 @@ def tileset_wfc(
     height:    int = typer.Option(20, "--height",    "-H"),
     tile_size: int = typer.Option(16, "--tile-size", "-t"),
     seed:      int = typer.Option(42, "--seed",      "-s"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Synthesise a new tileset using Wave Function Collapse from a sample image."""
     submit_job("procedural.tileset.wfc", {
@@ -152,8 +153,8 @@ def plant_lsystem(
                                       help="Turn angle in degrees"),
     step:       float = typer.Option(10.0, "--step",       "-s",
                                       help="Segment length in pixels"),
-    output: Optional[str] = typer.Option(None, "--output", "-o"),
-    wait: Optional[bool]  = typer.Option(None, "--wait/--no-wait"),
+    output: str | None = typer.Option(None, "--output", "-o"),
+    wait: bool | None  = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate an L-system plant skeleton (SVG + branches JSON)."""
     submit_job("procedural.plant.lsystem", {

@@ -33,9 +33,10 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             "diffusers is required. Run: pip install diffusers transformers accelerate torch"
         )
 
-    import torch
     from pathlib import Path
-    from diffusers import AnimateDiffPipeline, MotionAdapter, EulerDiscreteScheduler
+
+    import torch
+    from diffusers import AnimateDiffPipeline, EulerDiscreteScheduler, MotionAdapter
     from diffusers.utils import export_to_gif, export_to_video
 
     prompt = params.get("prompt", "")

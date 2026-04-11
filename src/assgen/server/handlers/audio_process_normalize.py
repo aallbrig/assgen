@@ -21,11 +21,12 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     import os
     from pathlib import Path
+
     from pydub import effects as pydub_effects
 
     try:
-        import pyloudnorm as pyln
         import numpy as np
+        import pyloudnorm as pyln
         _PYLOUDNORM = True
     except ImportError:
         _PYLOUDNORM = False

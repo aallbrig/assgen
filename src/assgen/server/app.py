@@ -5,8 +5,9 @@ import io
 import logging
 import sqlite3
 import sys
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+
 
 # When running as a daemon, sys.stderr may be a closed/broken file descriptor.
 # Silence it early so tqdm and HuggingFace progress bars don't crash the process.
@@ -21,7 +22,9 @@ def _silence_broken_stderr() -> None:
 _silence_broken_stderr()
 
 try:
-    from huggingface_hub import disable_progress_bars as _hf_disable_progress_bars  # type: ignore[import]
+    from huggingface_hub import (
+        disable_progress_bars as _hf_disable_progress_bars,  # type: ignore[import]
+    )
     _hf_disable_progress_bars()
 except Exception:
     pass

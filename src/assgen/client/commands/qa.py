@@ -6,8 +6,9 @@
   assgen qa report     generate a QA issues report
 """
 from __future__ import annotations
-from typing import Optional
+
 import typer
+
 from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Asset validation, performance testing, and QA reporting.", no_args_is_help=True)
@@ -25,8 +26,8 @@ def qa_validate(
         help="Comma-separated checks: normals uvs manifold scale naming textures",
     ),
     strict: bool = typer.Option(False, "--strict", help="Fail on warnings as well as errors"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Run automated validation checks on an asset (normals, UVs, manifold, etc.)."""
     submit_job("qa.validate", {
@@ -40,11 +41,11 @@ def qa_validate(
 @app.command("perf")
 def qa_perf(
     asset: str = typer.Argument(..., help="Asset to performance-test"),
-    poly_budget: Optional[int] = typer.Option(None, "--poly-budget", help="Max polygon count"),
-    vram_budget_mb: Optional[int] = typer.Option(None, "--vram-budget", help="VRAM budget in MB"),
+    poly_budget: int | None = typer.Option(None, "--poly-budget", help="Max polygon count"),
+    vram_budget_mb: int | None = typer.Option(None, "--vram-budget", help="VRAM budget in MB"),
     lod_preview: bool = typer.Option(False, "--lod-preview", help="Preview all LOD levels"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Analyse performance characteristics: poly count, VRAM, draw calls."""
     submit_job("qa.perf", {
@@ -59,11 +60,11 @@ def qa_perf(
 @app.command("style")
 def qa_style(
     asset: str = typer.Argument(..., help="Asset or directory to style-check"),
-    style_guide: Optional[str] = typer.Option(None, "--guide",
+    style_guide: str | None = typer.Option(None, "--guide",
                                               help="Path to style guide image or YAML"),
     threshold: float = typer.Option(0.8, "--threshold", help="Similarity threshold 0.0-1.0"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Check assets for visual consistency with the project art style guide."""
     submit_job("qa.style", {
@@ -78,8 +79,8 @@ def qa_style(
 def qa_report(
     asset_dir: str = typer.Argument(".", help="Directory of assets to include in the report"),
     format: str = typer.Option("markdown", "--format", help="markdown | json | html"),
-    output: Optional[str] = _OUT_OPT,
-    wait: Optional[bool] = _WAIT_OPT,
+    output: str | None = _OUT_OPT,
+    wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a full QA issues report for a set of assets."""
     submit_job("qa.report", {

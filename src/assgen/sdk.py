@@ -121,4 +121,4 @@ def _load_handler(job_type: str):
         raise NotImplementedError(
             f"No handler found for job_type '{job_type}'. "
             f"Expected module: {module_name}"
-        )
+        ) from None
