@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="pytest: debug mode" type="tests" factoryName="py.test">
+    <module name="assgen" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <option name="SDK_HOME" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <EXTENSION ID="PythonDebugCoverageExtension" runner="coverage.py" />
+    <option name="SCRIPT_NAME" value="" />
+    <option name="CLASS_NAME" value="" />
+    <option name="METHOD_NAME" value="" />
+    <option name="FOLDER_NAME" value="$PROJECT_DIR$/tests" />
+    <option name="TEST_TYPE" value="TEST_FOLDER" />
+    <option name="PATTERN" value="" />
+    <option name="USE_PATTERN" value="false" />
+    <option name="PARAMS" value="-m &quot;not integration&quot; -s" />
+    <option name="USE_PARAM" value="true" />
+    <option name="USE_MODULE_SDK" value="true" />
+    <option name="USE_ENV_VAR" value="false" />
+    <option name="IS_NODEID" value="false" />
+    <option name="PYTEST_ENABLED" value="true" />
+    <option name="RUN_PYTEST_IN_CONSOLE" value="true" />
+    <option name="PARAMETERS" value="" />
+    <option name="DICTS" value="" />
+    <option name="NOTIFY_ON_RERUN" value="false" />
+    <option name="ADDITIONAL_ARGS" value="" />
+    <option name="INSTALLED_SEPARATELY" value="true" />
+    <option name="ENV_WILDCARDS" value="" />
+    <option name="ENV_EXPAND_DROP_DOWN" value="false" />
+    <option name="EXPAND_ENVIRONMENT_VARIABLES" value="true" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>

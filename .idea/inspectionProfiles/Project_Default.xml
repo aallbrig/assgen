@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="InspectionProjectConfiguration">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <set>
+          <option value="E501" />
+        </set>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferenceInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <set>
+          <option value="typer" />
+          <option value="fastapi" />
+        </set>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnusedImportInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyUnusedLocalInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+  </profile>
+</component>

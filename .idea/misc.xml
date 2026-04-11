@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CodeStyleSettingsProvider">
+    <option name="name" value="Project" />
+  </component>
+  <component name="ProjectCodeStyleSettingsProvider">
+    <state>
+      <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default" />
+    </state>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11+ (assgen)" project-jdk-type="Python SDK" />
+  <component name="PyLintProjectConfiguration">
+    <option name="pylintUseNamespace" value="true" />
+  </component>
+</project>

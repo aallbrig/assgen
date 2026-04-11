@@ -1,0 +1,55 @@
+# ================================================================================
+# .idea/.gitignore — Allow-list approach for shared PyCharm configuration
+# ================================================================================
+# 
+# STRATEGY: Ignore everything by default, then selectively allow-list shared
+# configs that are safe to commit. This prevents accidental versioning of:
+#   - workspace.xml (contains user session state, window layout, etc.)
+#   - .DS_Store, caches/ (OS/local state)
+#   - dataSources/*, httpRequests/* (local development tools)
+#
+# ALLOW-LISTED FILES (these will be committed):
+#   - .idea/runConfigurations/*.xml    (shared run configs for the team)
+#   - .idea/modules.xml               (project module structure)
+#   - .idea/misc.xml                  (Python interpreter, code style, ruff config)
+#   - .idea/vcs.xml                   (Git mappings)
+#   - .idea/inspectionProfiles/*.xml  (code inspection rules)
+#
+# ================================================================================
+
+# Default ignored files
+/shelf/
+/workspace.xml              # ← IMPORTANT: User session state, DO NOT COMMIT
+/httpRequests/
+/queries/
+/dataSources/
+/dataSources.local.xml
+
+# Ignore IDE cache and local state
+/.DS_Store
+/caches/
+/intellij.log
+/system.xml
+
+# Ignore all run configurations first (default)
+/runConfigurations/
+
+# ================================================================================
+# ALLOW-LIST: Re-include specific shared run configurations
+# ================================================================================
+!/runConfigurations/
+!/runConfigurations/assgen_cli.xml
+!/runConfigurations/assgen_server.xml
+!/runConfigurations/pytest_all_tests.xml
+!/runConfigurations/pytest_watch_mode.xml
+!/runConfigurations/pytest_with_profiling.xml
+!/runConfigurations/pytest_debug_mode.xml
+
+# ================================================================================
+# ALLOW-LIST: IDE configuration files that are safe to share
+# ================================================================================
+!/modules.xml
+!/misc.xml
+!/vcs.xml
+!/inspectionProfiles/
+!/inspectionProfiles/Project_Default.xml
