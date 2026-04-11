@@ -2,18 +2,19 @@
 from __future__ import annotations
 
 
-
 def test_build_tree_returns_tree() -> None:
-    from assgen.client.commands.tasks import _build_tree
     from rich.tree import Tree
+
+    from assgen.client.commands.tasks import _build_tree
 
     tree = _build_tree()
     assert isinstance(tree, Tree)
 
 
 def test_build_tree_domain_filter() -> None:
-    from assgen.client.commands.tasks import _build_tree
     from rich.tree import Tree
+
+    from assgen.client.commands.tasks import _build_tree
 
     for domain in ("visual", "audio", "scene", "pipeline", "support", "qa"):
         tree = _build_tree(domain)
@@ -72,8 +73,8 @@ def test_domain_tree_has_icons_and_descs() -> None:
 
 def test_json_output_is_valid_list() -> None:
     """_build_tree doesn't test JSON — verify via the raw data structures."""
-    from assgen.client.commands.tasks import _DOMAIN_TREE, _TASK_DESC
     from assgen.catalog import load_catalog
+    from assgen.client.commands.tasks import _DOMAIN_TREE, _TASK_DESC
 
     catalog = load_catalog()
     out = []

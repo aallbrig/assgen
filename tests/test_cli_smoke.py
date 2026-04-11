@@ -13,9 +13,9 @@ we patch the HTTP layer so tests stay fast and hermetic.
 from __future__ import annotations
 
 import re
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
 from typer.testing import CliRunner
 
 from assgen.client.cli import app
@@ -245,6 +245,7 @@ class TestJsonFlag:
 
     def test_json_flag_emits_valid_json(self) -> None:
         import json as _json
+
         from assgen.client import context
         context.reset()
         with patch("assgen.client.commands.submit.get_client", return_value=self._enqueue_mock()):
@@ -301,6 +302,7 @@ class TestVariantsFlag:
 
     def test_variants_json_emits_array(self) -> None:
         import json as _json
+
         from assgen.client import context
         context.reset()
         mock_client = self._enqueue_mock(2)
@@ -364,6 +366,7 @@ class TestQualityFlag:
 
     def test_quality_high_sets_param(self) -> None:
         import json as _json
+
         from assgen.client import context
         context.reset()
         mock_client = self._enqueue_mock()
@@ -765,6 +768,7 @@ class TestAlgorithmicHandlers:
     def test_handler_coverage_full(self) -> None:
         """All 79 catalog entries have real handlers (100% coverage)."""
         import importlib
+
         from assgen.catalog import load_catalog
         catalog = load_catalog()
         missing = []
@@ -891,7 +895,9 @@ class TestButtonHandlerHelpers:
 
     def _import_helpers(self):
         from assgen.server.handlers.visual_ui_button import (
-            _parse_dpi_scales, _nine_slice_insets, _STATE_MODIFIERS,
+            _STATE_MODIFIERS,
+            _nine_slice_insets,
+            _parse_dpi_scales,
         )
         return _parse_dpi_scales, _nine_slice_insets, _STATE_MODIFIERS
 
@@ -1016,6 +1022,7 @@ class TestProceduralHandlers:
 
     def test_narrative_dialogue_validate_run(self, tmp_path) -> None:
         import json
+
         from assgen.server.handlers.narrative_dialogue_validate import run
         dialogue = {"nodes": [
             {"id": "start", "text": "Hello", "choices": [{"text": "Hi", "next": "end"}]},
@@ -1032,6 +1039,7 @@ class TestProceduralHandlers:
 
     def test_narrative_quest_validate_run(self, tmp_path) -> None:
         import json
+
         from assgen.server.handlers.narrative_quest_validate import run
         quest = {"start": "q1", "nodes": [
             {"id": "q1", "title": "Find the key", "next": ["q2"]},
@@ -1048,6 +1056,7 @@ class TestProceduralHandlers:
 
     def test_narrative_i18n_extract_run(self, tmp_path) -> None:
         import json
+
         from assgen.server.handlers.narrative_i18n_extract import run
         (tmp_path / "dialogue.json").write_text(json.dumps([
             {"id": "n1", "text": "Hello world"},
@@ -1089,6 +1098,7 @@ class TestCriticalHandlerImports:
         sys.modules["xatlas"] = None  # type: ignore[assignment]
         try:
             import importlib
+
             import assgen.server.handlers.visual_uv_auto as mod
             importlib.reload(mod)
             assert not mod._XATLAS_AVAILABLE

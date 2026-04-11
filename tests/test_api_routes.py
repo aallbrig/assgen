@@ -9,15 +9,14 @@ prevents interference with any real user data.
 """
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 from assgen.server.app import create_app
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

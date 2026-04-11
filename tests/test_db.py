@@ -1,9 +1,10 @@
 """Tests for assgen.db — schema, CRUD helpers, and crash-recovery utilities."""
 from __future__ import annotations
 
-import pytest
+from datetime import UTC
 from pathlib import Path
 
+import pytest
 
 # ---------------------------------------------------------------------------
 # Schema
@@ -44,7 +45,7 @@ def test_idempotent_init(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def test_create_job_returns_uuid(tmp_path: Path) -> None:
-    from assgen.db import init_db, create_job
+    from assgen.db import create_job, init_db
 
     conn = init_db(tmp_path / "test.db")
     jid = create_job(conn, job_type="visual.model.create", params={"prompt": "sword"})
@@ -53,7 +54,7 @@ def test_create_job_returns_uuid(tmp_path: Path) -> None:
 
 
 def test_get_job_by_full_id(tmp_path: Path) -> None:
-    from assgen.db import init_db, create_job, get_job, JobStatus
+    from assgen.db import JobStatus, create_job, get_job, init_db
 
     conn = init_db(tmp_path / "test.db")
     jid = create_job(conn, job_type="audio.sfx.generate", params={"prompt": "laser"})
@@ -66,7 +67,7 @@ def test_get_job_by_full_id(tmp_path: Path) -> None:
 
 def test_get_job_by_prefix(tmp_path: Path) -> None:
     """8-char prefix lookup should resolve to the correct job."""
-    from assgen.db import init_db, create_job, get_job
+    from assgen.db import create_job, get_job, init_db
 
     conn = init_db(tmp_path / "test.db")
     jid = create_job(conn, job_type="visual.model.create", params={})
@@ -78,7 +79,7 @@ def test_get_job_by_prefix(tmp_path: Path) -> None:
 
 
 def test_get_job_prefix_no_match(tmp_path: Path) -> None:
-    from assgen.db import init_db, get_job
+    from assgen.db import get_job, init_db
 
     conn = init_db(tmp_path / "test.db")
     assert get_job(conn, "00000000") is None
@@ -86,7 +87,7 @@ def test_get_job_prefix_no_match(tmp_path: Path) -> None:
 
 def test_get_job_prefix_ambiguous_returns_none(tmp_path: Path) -> None:
     """When multiple jobs share the prefix, get_job must not guess."""
-    from assgen.db import init_db, get_job
+    from assgen.db import get_job, init_db
 
     conn = init_db(tmp_path / "test.db")
     # Force two UUIDs that share the same 8-char prefix by patching uuid4
@@ -94,9 +95,9 @@ def test_get_job_prefix_ambiguous_returns_none(tmp_path: Path) -> None:
     uid_a = f"{fixed_prefix}-0000-0000-0000-000000000001"
     uid_b = f"{fixed_prefix}-0000-0000-0000-000000000002"
 
-    from datetime import datetime, timezone
+    from datetime import datetime
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     for uid in (uid_a, uid_b):
         conn.execute(
             "INSERT INTO jobs (id, job_type, status, params, priority, created_at, tags) "
@@ -118,7 +119,7 @@ def test_list_jobs_empty(tmp_path: Path) -> None:
 
 
 def test_list_jobs_status_filter(tmp_path: Path) -> None:
-    from assgen.db import init_db, create_job, list_jobs, update_job_status, JobStatus
+    from assgen.db import JobStatus, create_job, init_db, list_jobs, update_job_status
 
     conn = init_db(tmp_path / "test.db")
     jid1 = create_job(conn, "visual.model.create", {})
@@ -135,7 +136,7 @@ def test_list_jobs_status_filter(tmp_path: Path) -> None:
 
 
 def test_update_job_status_progress(tmp_path: Path) -> None:
-    from assgen.db import init_db, create_job, get_job, update_job_status, JobStatus
+    from assgen.db import JobStatus, create_job, get_job, init_db, update_job_status
 
     conn = init_db(tmp_path / "test.db")
     jid = create_job(conn, "visual.model.create", {})
@@ -149,7 +150,7 @@ def test_update_job_status_progress(tmp_path: Path) -> None:
 
 
 def test_terminal_state_sets_completed_at(tmp_path: Path) -> None:
-    from assgen.db import init_db, create_job, get_job, update_job_status, JobStatus
+    from assgen.db import JobStatus, create_job, get_job, init_db, update_job_status
 
     conn = init_db(tmp_path / "test.db")
     jid = create_job(conn, "visual.model.create", {})
@@ -167,8 +168,12 @@ def test_terminal_state_sets_completed_at(tmp_path: Path) -> None:
 
 def test_reset_stale_running_jobs(tmp_path: Path) -> None:
     from assgen.db import (
-        init_db, create_job, update_job_status,
-        reset_stale_running_jobs, get_job, JobStatus,
+        JobStatus,
+        create_job,
+        get_job,
+        init_db,
+        reset_stale_running_jobs,
+        update_job_status,
     )
 
     conn = init_db(tmp_path / "test.db")
@@ -185,8 +190,12 @@ def test_reset_stale_running_jobs(tmp_path: Path) -> None:
 
 def test_reset_stale_leaves_terminal_jobs(tmp_path: Path) -> None:
     from assgen.db import (
-        init_db, create_job, update_job_status,
-        reset_stale_running_jobs, get_job, JobStatus,
+        JobStatus,
+        create_job,
+        get_job,
+        init_db,
+        reset_stale_running_jobs,
+        update_job_status,
     )
 
     conn = init_db(tmp_path / "test.db")

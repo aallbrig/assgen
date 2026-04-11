@@ -8,10 +8,9 @@ import pytest
 from assgen.server.validation import (
     TASK_COMPATIBLE_TAGS,
     check_allow_list,
-    validate_model_task_compatibility,
     validate_job_model,
+    validate_model_task_compatibility,
 )
-
 
 # ---------------------------------------------------------------------------
 # Allow-list enforcement

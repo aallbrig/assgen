@@ -62,6 +62,7 @@ def test_dirty_field_is_bool() -> None:
 
 def test_version_flag_exits_0() -> None:
     from typer.testing import CliRunner
+
     from assgen.client.cli import app
 
     runner = CliRunner()
@@ -71,6 +72,7 @@ def test_version_flag_exits_0() -> None:
 
 def test_version_short_flag_exits_0() -> None:
     from typer.testing import CliRunner
+
     from assgen.client.cli import app
 
     runner = CliRunner()
@@ -80,6 +82,7 @@ def test_version_short_flag_exits_0() -> None:
 
 def test_version_flag_prints_assgen_and_number() -> None:
     from typer.testing import CliRunner
+
     from assgen.client.cli import app
 
     runner = CliRunner()
@@ -91,6 +94,7 @@ def test_version_flag_prints_assgen_and_number() -> None:
 def test_version_flag_matches_version_subcommand() -> None:
     """--version and the 'version' subcommand should agree on the version number."""
     from typer.testing import CliRunner
+
     from assgen.client.cli import app
 
     runner = CliRunner()
@@ -104,6 +108,7 @@ def test_version_flag_matches_version_subcommand() -> None:
 
 def test_server_version_flag_exits_0() -> None:
     from typer.testing import CliRunner
+
     from assgen.server.cli import app as server_app
 
     runner = CliRunner()
@@ -113,6 +118,7 @@ def test_server_version_flag_exits_0() -> None:
 
 def test_server_version_flag_prints_server_name() -> None:
     from typer.testing import CliRunner
+
     from assgen.server.cli import app as server_app
 
     runner = CliRunner()
