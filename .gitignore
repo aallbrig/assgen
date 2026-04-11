@@ -24,7 +24,11 @@ src/assgen/_version.py
 
 # IDE
 .vscode/
-.idea/
+# Ignore all of .idea except run configurations, which are checked in for developer convenience
+.idea/*
+!.idea/runConfigurations/
+.idea/runConfigurations/*
+!.idea/runConfigurations/*.xml
 *.swp
 *.swo
 
