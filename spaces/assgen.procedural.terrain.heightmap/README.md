@@ -2,7 +2,7 @@
 title: "assgen · Terrain Heightmap Generator"
 emoji: 🏔️
 colorFrom: green
-colorTo: brown
+colorTo: yellow
 sdk: gradio
 sdk_version: "4.44.0"
 app_file: app.py

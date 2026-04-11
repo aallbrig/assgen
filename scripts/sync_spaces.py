@@ -98,11 +98,18 @@ def make_packages_txt(space_name: str) -> str | None:
     return None
 
 
-def sync_space(space_name: str, version: str) -> None:
+def get_hf_username(api: HfApi) -> str:
+    """Return the authenticated HF username."""
+    return api.whoami()["name"]
+
+
+def sync_space(space_name: str, version: str, hf_username: str, api: HfApi) -> None:
     space_dir = SPACES_DIR / space_name
     if not space_dir.exists():
         print(f"  SKIP  {space_name} (directory not found)")
         return
+
+    repo_id = f"{hf_username}/{space_name}"
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
@@ -122,11 +129,10 @@ def sync_space(space_name: str, version: str) -> None:
             (tmp_path / "packages.txt").write_text(pkgs)
 
         # Push to HF Hub via stable Python API
-        api = HfApi()
         try:
             api.upload_folder(
                 folder_path=str(tmp_path),
-                repo_id=space_name,
+                repo_id=repo_id,
                 repo_type="space",
                 commit_message=f"assgen {version}",
             )
@@ -151,9 +157,11 @@ def main() -> None:
             if d.is_dir() and not d.name.startswith("_")
         )
 
-    print(f"Syncing {len(spaces_to_sync)} space(s) — assgen {version}")
+    api = HfApi()
+    hf_username = get_hf_username(api)
+    print(f"Syncing {len(spaces_to_sync)} space(s) — assgen {version} → {hf_username}")
     for space_name in spaces_to_sync:
-        sync_space(space_name, version)
+        sync_space(space_name, version, hf_username, api)
 
     print("Done.")
 
