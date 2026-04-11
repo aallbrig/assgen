@@ -33,7 +33,7 @@ inference = [
     "Pillow>=10.0",
 ]
 spaces = [
-    # Core inference
+    # Core inference (stable, pre-built wheels — safe for all Spaces)
     "transformers>=4.40",
     "torch>=2.3",
     "diffusers>=0.28",
@@ -46,15 +46,10 @@ spaces = [
     "scipy>=1.13",
     # Visualization
     "matplotlib>=3.8",
-    # Mesh utilities
-    "pyfqmr>=0.2",
-    "xatlas>=0.0.9",
-    # Voice cloning
-    "TTS>=0.22",
-    # Upscaling (requires opencv)
-    "basicsr>=1.4.2",
-    "realesrgan>=0.3.0",
-    "opencv-python-headless>=4.9",
+    # NOTE: the following heavy / fragile packages are intentionally excluded:
+    #   TTS, basicsr, realesrgan, opencv-python-headless, pyfqmr, xatlas
+    # They are added per-Space in scripts/sync_spaces.py to avoid breaking
+    # every Space build when a single package fails to install.
 ]
 dev = [
     "pytest>=8",

@@ -80,6 +80,37 @@ FFMPEG_SPACES = {
     "assgen.audio.process.waveform",
 }
 
+# Per-Space extra pip packages (beyond assgen[spaces]).
+# Heavy or fragile packages are listed here rather than in the [spaces] extra
+# so a broken package only breaks the one Space that needs it, not all of them.
+EXTRA_PIP: dict[str, list[str]] = {
+    # Real-ESRGAN upscaling — basicsr conflicts with torchvision>=0.16 on some builds
+    "assgen.texture.upscale": [
+        "opencv-python-headless>=4.9",
+        "basicsr>=1.4.2",
+        "realesrgan>=0.3.0",
+    ],
+    # Coqui TTS — large dependency tree (~1.5 GB), only needed for voice spaces
+    "assgen.audio.voice.tts": ["TTS>=0.22"],
+    "assgen.audio.voice.clone": ["TTS>=0.22"],
+    # LOD generation — pyfqmr is a C extension, build may fail on some platforms
+    "assgen.lod.generate": ["pyfqmr>=0.2"],
+    # UV unwrapping — xatlas Python bindings
+    "assgen.uv.auto": ["xatlas>=0.0.9"],
+    # TripoSR — image-to-3D (git install, not on PyPI)
+    "assgen.model.splat": [
+        "tsr @ git+https://github.com/VAST-AI-Research/TripoSR.git",
+        "rembg>=2.0.57",
+    ],
+    # AnimateDiff needs imageio for GIF/MP4 export
+    "assgen.animate.keyframe": [
+        "imageio>=2.34.0",
+        "imageio-ffmpeg>=0.4.9",
+    ],
+    # UI mockup uses ControlNet auxiliary preprocessors
+    "assgen.ui.mockup": ["controlnet-aux>=0.0.7"],
+}
+
 
 def make_requirements(space_name: str, version: str) -> str:
     """Generate requirements.txt content for a Space."""
@@ -88,6 +119,7 @@ def make_requirements(space_name: str, version: str) -> str:
         lines.append(
             "audiocraft @ git+https://github.com/facebookresearch/audiocraft.git"
         )
+    lines.extend(EXTRA_PIP.get(space_name, []))
     return "\n".join(lines) + "\n"
 
 
