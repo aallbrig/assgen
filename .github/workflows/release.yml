@@ -61,6 +61,14 @@ jobs:
       - name: Build distribution packages
         run: hatch build
 
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Uses Trusted Publishing (OIDC) — no API token needed.
+          # One-time setup: pypi.org → your project → Publishing → add GitHub publisher:
+          #   Owner: aallbrig   Repo: assgen   Workflow: release.yml   Environment: (blank)
+          skip-existing: true
+
       - name: Build docs site
         run: mkdocs build --strict
 
@@ -388,3 +396,34 @@ jobs:
             --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
 
 
+
+  # ---------------------------------------------------------------------------
+  # Sync HuggingFace Spaces on stable releases (not pre-releases)
+  # ---------------------------------------------------------------------------
+  spaces-sync:
+    name: Sync HuggingFace Spaces
+    runs-on: ubuntu-latest
+    needs: release          # wait for PyPI publish to complete first
+    if: ${{ !contains(github.ref_name, '-') }}   # skip pre-releases
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install HF CLI
+        run: pip install "huggingface_hub[cli]>=0.23"
+
+      - name: Authenticate HF CLI
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: hf login --token "$HF_TOKEN"
+
+      - name: Sync all Spaces
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: python scripts/sync_spaces.py --version "$VERSION"

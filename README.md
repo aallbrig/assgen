@@ -44,6 +44,44 @@ pip install assgen
 pip install "assgen[inference]"
 ```
 
+> **`[inference]` extra:** Installs `torch`, `transformers`, `diffusers`, `accelerate`, and
+> `trimesh` for local GPU inference. Without it, assgen is a fully functional client that can
+> talk to a remote `assgen-server`, but a local server will return stub outputs instead of
+> running real models.
+>
+> For CI environments or machines without a GPU, `pip install assgen` (without `[inference]`)
+> is the right choice.
+
+## Development Setup
+
+Clone and run from source:
+
+```bash
+git clone https://github.com/aallbrig/assgen.git
+cd assgen
+
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate        # Linux / macOS
+# .venv\Scripts\activate         # Windows PowerShell
+
+# Install in editable mode with dev dependencies
+pip install -e ".[dev]"
+
+# For GPU inference (optional — needs CUDA-capable GPU):
+pip install -e ".[dev,inference]"
+
+# Verify the install
+assgen version
+assgen-server --help
+```
+
+Run tests: `pytest -v`  (or `make test`)
+
+> **Version note:** assgen uses `hatch-vcs` to derive its version from git tags.
+> If you install without a git tag (fresh clone, no tags), the version will appear as `0.1.dev0`.
+> Run `git tag v0.1.0` to set a version, or ignore the warning — it does not affect functionality.
+
 ## Quick Start
 
 ```bash
@@ -52,6 +90,11 @@ assgen version
 
 # Start local server (optional — client auto-starts if not configured)
 assgen-server start --daemon
+
+# Once the server is running, explore the REST API interactively:
+# http://127.0.0.1:8432/docs      (Swagger UI)
+# http://127.0.0.1:8432/redoc     (ReDoc)
+# http://127.0.0.1:8432/health    (health check)
 
 # Generate a 3D model
 assgen visual model create --prompt "low-poly medieval sword" --wait
@@ -77,6 +120,14 @@ assgen tasks
 # Show current server config
 assgen server config show
 ```
+
+> **`assgen-server` vs `assgen server`:**
+> - `assgen-server start` — runs the inference server directly (the process itself)
+> - `assgen server start` — tells the client to launch a local `assgen-server` process for you
+> - `assgen server status` / `assgen server stop` — manage the locally auto-started server
+>
+> For a remote GPU machine, run `assgen-server start --daemon` there, then on your laptop:
+> `assgen client config set-server http://<gpu-machine>:8432`
 
 ## CLI Command Tree
 
