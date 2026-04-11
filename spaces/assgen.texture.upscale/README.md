@@ -1,8 +1,8 @@
 ---
 title: "assgen · Texture Upscaler"
 emoji: 🔍
-colorFrom: cyan
-colorTo: blue
+colorFrom: blue
+colorTo: indigo
 sdk: gradio
 sdk_version: "4.44.0"
 app_file: app.py

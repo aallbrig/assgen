@@ -2,7 +2,7 @@
 title: "assgen · NPC Voice TTS"
 emoji: 🎙️
 colorFrom: green
-colorTo: teal
+colorTo: green
 sdk: gradio
 sdk_version: "4.44.0"
 app_file: app.py

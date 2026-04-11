@@ -1,7 +1,7 @@
 ---
 title: "assgen · Depth Estimator"
 emoji: 📐
-colorFrom: teal
+colorFrom: blue
 colorTo: green
 sdk: gradio
 sdk_version: "4.44.0"

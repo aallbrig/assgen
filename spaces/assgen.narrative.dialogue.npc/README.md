@@ -15,7 +15,7 @@ tags:
   - game-writing
   - phi
   - assgen
-short_description: Generate NPC dialogue from character descriptions using Phi-3.5
+short_description: NPC dialogue generation using Phi-3.5
 ---
 
 # assgen · NPC Dialogue Generator
