@@ -3,9 +3,9 @@ Generate expressive NPC speech using Bark Small (suno/bark-small).
 Supports non-verbal tokens: [laughs], [sighs], [gasps], ... (pause), ♪ (singing).
 CLI equivalent: assgen gen audio voice tts
 
-Uses transformers pipeline("text-to-speech") directly — no assgen.sdk.run().
-Switched from full suno/bark to suno/bark-small: loads faster on ZeroGPU,
-same voice presets and non-verbal token support.
+Uses AutoProcessor + BarkModel directly (not pipeline) so that voice_preset
+is passed to the processor where Bark expects it, not to model.generate()
+where it raises ValueError.
 """
 from __future__ import annotations
 
@@ -20,19 +20,22 @@ import scipy.io.wavfile
 import tempfile
 import gradio as gr
 import torch
-from transformers import pipeline
+from transformers import AutoProcessor, BarkModel
 
 MODEL_ID = "suno/bark-small"
 
-_pipe = None
+_processor: AutoProcessor | None = None
+_model: BarkModel | None = None
 
 
-def _load():
-    global _pipe
-    if _pipe is None:
-        device = 0 if torch.cuda.is_available() else -1
-        _pipe = pipeline("text-to-speech", model=MODEL_ID, device=device)
-    return _pipe
+def _load() -> tuple[AutoProcessor, BarkModel]:
+    global _processor, _model
+    if _processor is None:
+        _processor = AutoProcessor.from_pretrained(MODEL_ID)
+        _model = BarkModel.from_pretrained(
+            MODEL_ID, torch_dtype=torch.float16
+        )
+    return _processor, _model
 
 
 VOICE_PRESETS = [
@@ -53,18 +56,25 @@ VOICE_MAP    = dict(VOICE_PRESETS)
 
 @spaces.GPU
 def generate_tts(text: str, voice_label: str) -> str:
+    processor, model = _load()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
     voice_preset = VOICE_MAP.get(voice_label, "v2/en_speaker_6")
-    pipe = _load()
-    result = pipe(text, forward_params={"voice_preset": voice_preset})
+    # voice_preset must go to the processor, NOT to model.generate()
+    inputs = processor(text, voice_preset=voice_preset, return_tensors="pt")
+    inputs = {k: v.to(device) for k, v in inputs.items()}
 
-    audio = np.array(result["audio"]).squeeze()
-    sr = result["sampling_rate"]
+    with torch.no_grad():
+        audio_array = model.generate(**inputs)
 
-    # Normalise to int16
-    audio_int16 = (audio / (np.max(np.abs(audio)) + 1e-8) * 32767).astype(np.int16)
+    audio_array = audio_array.cpu().numpy().squeeze()
+    sample_rate = model.generation_config.sample_rate
+
+    audio_int16 = (audio_array / (np.max(np.abs(audio_array)) + 1e-8) * 32767).astype(np.int16)
 
     tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    scipy.io.wavfile.write(tmp.name, sr, audio_int16)
+    scipy.io.wavfile.write(tmp.name, sample_rate, audio_int16)
     return tmp.name
 
 
