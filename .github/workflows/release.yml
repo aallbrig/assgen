@@ -415,15 +415,11 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install HF CLI
-        run: pip install "huggingface_hub[cli]>=0.23"
-
-      - name: Authenticate HF CLI
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: hf login --token "$HF_TOKEN"
+      - name: Install huggingface_hub
+        run: pip install "huggingface_hub>=0.23"
 
       - name: Sync all Spaces
         env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
           VERSION: ${{ github.ref_name }}
         run: python scripts/sync_spaces.py --version "$VERSION"
