@@ -131,4 +131,4 @@ The `.idea/` directory contains the following shared configurations (version-con
 
 ---
 
-**Questions?** Check the [main README](../../README.md) or [full docs](../../docs/).
+**Questions?** Check the [main README](https://github.com/aallbrig/assgen#readme) or browse the docs navigation above.
