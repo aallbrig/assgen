@@ -13,18 +13,19 @@ tags:
   - audio
   - sound-effects
   - game-assets
-  - audiocraft
+  - audioldm
   - assgen
-short_description: Generate game sound effects from text using MusicGen Small
+short_description: Generate game sound effects from text using AudioLDM2
 ---
 
 # assgen · Audio SFX Generator
 
-Generate WAV game sound effects from text descriptions using MusicGen Small.
+Generate WAV game sound effects from text descriptions using AudioLDM2.
 Part of the [assgen](https://github.com/aallbrig/assgen) pipeline.
 
 **CLI equivalent:** `assgen gen audio sfx generate "sword clash" --duration 2`
-**Model:** [facebook/musicgen-small](https://huggingface.co/facebook/musicgen-small)
+**Model:** [cvssp/audioldm2](https://huggingface.co/cvssp/audioldm2)
 
-> Note: `facebook/audiogen-medium` was removed in transformers 5.x.
-> MusicGen Small produces equivalent results for game SFX prompts.
+> Note: `facebook/audiogen-medium` was removed from transformers 5.x.
+> MusicGen was tried as a substitute but produces music-like noise for SFX prompts.
+> AudioLDM2 is trained on general audio/sound effects and is the correct model here.

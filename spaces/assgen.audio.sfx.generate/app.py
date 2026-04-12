@@ -1,10 +1,10 @@
 """assgen.audio.sfx.generate — HuggingFace Space
-Generate game sound effects from text descriptions (MusicGen Small).
+Generate game sound effects from text descriptions using AudioLDM2.
 CLI equivalent: assgen gen audio sfx generate
 
-Note: facebook/audiogen-medium was removed in transformers 5.x.
-Uses facebook/musicgen-small which is fully supported and produces
-comparable results for game SFX with appropriate text prompts.
+AudioLDM2 (cvssp/audioldm2) is trained on general audio / sound effects —
+not music — which makes it the right model for game SFX prompts.
+MusicGen was tried but produces music-like noise for SFX prompts.
 """
 from __future__ import annotations
 
@@ -19,42 +19,47 @@ import scipy.io.wavfile
 import tempfile
 import gradio as gr
 import torch
-from transformers import pipeline
+from diffusers import AudioLDM2Pipeline
 
-MODEL_ID = "facebook/musicgen-small"
-# MusicGen EnCodec: 32000 Hz / 640 hop_length = 50 tokens/second
-SAMPLE_RATE = 32_000
-FRAME_RATE = 50
+MODEL_ID = "cvssp/audioldm2"
+SAMPLE_RATE = 16_000  # AudioLDM2 outputs at 16 kHz
+NEGATIVE_PROMPT = "Low quality, average quality, noise, hum."
 
-_pipe = None
+_pipe: AudioLDM2Pipeline | None = None
 
 
-def _load():
+def _load() -> AudioLDM2Pipeline:
     global _pipe
     if _pipe is None:
-        device = 0 if torch.cuda.is_available() else -1
-        _pipe = pipeline("text-to-audio", model=MODEL_ID, device=device)
+        _pipe = AudioLDM2Pipeline.from_pretrained(
+            MODEL_ID, torch_dtype=torch.float16
+        )
     return _pipe
 
 
 @spaces.GPU
 def generate_sfx(description: str, duration: float) -> str:
-    p = _load()
-    max_new_tokens = int(duration * FRAME_RATE)
-    result = p(description, forward_params={"max_new_tokens": max_new_tokens})
+    pipe = _load()
+    pipe.to("cuda" if torch.cuda.is_available() else "cpu")
 
-    audio = np.array(result["audio"]).squeeze()
-    sr = result["sampling_rate"]
+    output = pipe(
+        description,
+        negative_prompt=NEGATIVE_PROMPT,
+        num_inference_steps=100,
+        audio_length_in_s=duration,
+        num_waveforms_per_prompt=1,
+    )
+    audio = np.array(output.audios[0]).squeeze()
 
     tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    scipy.io.wavfile.write(tmp.name, sr, audio.astype(np.float32))
+    scipy.io.wavfile.write(tmp.name, SAMPLE_RATE, audio.astype(np.float32))
     return tmp.name
 
 
 EXAMPLES = [
-    ["sword clashing against armor", 2.0],
+    ["sword clashing against metal armor", 2.0],
     ["footsteps on stone dungeon floor", 3.0],
-    ["explosion with debris and dust", 2.5],
+    ["explosion with debris and rumble", 2.5],
     ["wooden door creaking open slowly", 1.5],
     ["arrow whooshing through air", 1.0],
     ["fire crackling in a campfire", 4.0],
@@ -66,7 +71,8 @@ with gr.Blocks(title="assgen · Audio SFX Generator") as demo:
     gr.Markdown(
         "# 🔊 assgen · Audio SFX Generator\n"
         "Generate game sound effects from text. "
-        "Powered by [MusicGen Small](https://huggingface.co/facebook/musicgen-small). "
+        "Powered by [AudioLDM2](https://huggingface.co/cvssp/audioldm2) — "
+        "trained on general audio and sound effects. "
         "Part of the [assgen](https://github.com/aallbrig/assgen) pipeline.\n\n"
         "_ZeroGPU — may queue briefly during high traffic._"
     )

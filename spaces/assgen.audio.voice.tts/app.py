@@ -1,7 +1,11 @@
 """assgen.audio.voice.tts — HuggingFace Space
-Generate expressive NPC speech using Bark.
+Generate expressive NPC speech using Bark Small (suno/bark-small).
 Supports non-verbal tokens: [laughs], [sighs], [gasps], ... (pause), ♪ (singing).
 CLI equivalent: assgen gen audio voice tts
+
+Uses transformers pipeline("text-to-speech") directly — no assgen.sdk.run().
+Switched from full suno/bark to suno/bark-small: loads faster on ZeroGPU,
+same voice presets and non-verbal token support.
 """
 from __future__ import annotations
 
@@ -11,8 +15,25 @@ except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)
 
+import numpy as np
+import scipy.io.wavfile
+import tempfile
 import gradio as gr
-from assgen.sdk import run
+import torch
+from transformers import pipeline
+
+MODEL_ID = "suno/bark-small"
+
+_pipe = None
+
+
+def _load():
+    global _pipe
+    if _pipe is None:
+        device = 0 if torch.cuda.is_available() else -1
+        _pipe = pipeline("text-to-speech", model=MODEL_ID, device=device)
+    return _pipe
+
 
 VOICE_PRESETS = [
     ("EN Voice 1",  "v2/en_speaker_0"),
@@ -32,12 +53,19 @@ VOICE_MAP    = dict(VOICE_PRESETS)
 
 @spaces.GPU
 def generate_tts(text: str, voice_label: str) -> str:
-    result = run(
-        "audio.voice.tts",
-        {"text": text, "voice_preset": VOICE_MAP.get(voice_label, "v2/en_speaker_6")},
-        device="cuda",
-    )
-    return result["files"][0]
+    voice_preset = VOICE_MAP.get(voice_label, "v2/en_speaker_6")
+    pipe = _load()
+    result = pipe(text, forward_params={"voice_preset": voice_preset})
+
+    audio = np.array(result["audio"]).squeeze()
+    sr = result["sampling_rate"]
+
+    # Normalise to int16
+    audio_int16 = (audio / (np.max(np.abs(audio)) + 1e-8) * 32767).astype(np.int16)
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    scipy.io.wavfile.write(tmp.name, sr, audio_int16)
+    return tmp.name
 
 
 EXAMPLES = [
