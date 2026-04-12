@@ -82,14 +82,11 @@ FFMPEG_SPACES = {
 # Heavy or fragile packages are listed here rather than in the [spaces] extra
 # so a broken package only breaks the one Space that needs it, not all of them.
 EXTRA_PIP: dict[str, list[str]] = {
-    # Real-ESRGAN upscaling — basicsr conflicts with torchvision>=0.16 on some builds
-    "assgen.texture.upscale": [
-        "opencv-python-headless>=4.9",
-        "basicsr>=1.4.2",
-        "realesrgan>=0.3.0",
-    ],
-    # Coqui TTS — large dependency tree (~1.5 GB), only needed for voice spaces
-    "assgen.audio.voice.tts": ["TTS>=0.22"],
+    # texture.upscale now uses diffusers StableDiffusionUpscalePipeline (already in
+    # assgen[spaces]) — no opencv/basicsr/realesrgan needed.
+    # "assgen.texture.upscale": [...],  # placeholder kept for reference
+    # voice.tts uses transformers BarkModel — no Coqui TTS needed.
+    # voice.clone uses XTTS-v2 via Coqui TTS (standalone app.py).
     "assgen.audio.voice.clone": ["TTS>=0.22"],
     # LOD generation — pyfqmr is a C extension, build may fail on some platforms
     "assgen.lod.generate": ["pyfqmr>=0.2"],
