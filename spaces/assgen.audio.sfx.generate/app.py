@@ -1,6 +1,8 @@
 """assgen.audio.sfx.generate — HuggingFace Space
 Generate game sound effects from text descriptions (AudioGen Medium).
 CLI equivalent: assgen gen audio sfx generate
+
+Uses transformers AudiogenForConditionalGeneration directly — no audiocraft required.
 """
 from __future__ import annotations
 
@@ -10,18 +12,47 @@ except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)
 
+import numpy as np
+import scipy.io.wavfile
+import tempfile
 import gradio as gr
-from assgen.sdk import run
+import torch
+from transformers import AutoProcessor, AudiogenForConditionalGeneration
+
+MODEL_ID = "facebook/audiogen-medium"
+SAMPLE_RATE = 16_000
+# AudioGen EnCodec: 16000 Hz / 320 hop_length = 50 frames per second
+FRAME_RATE = 50
+
+_processor: AutoProcessor | None = None
+_model: AudiogenForConditionalGeneration | None = None
+
+
+def _load() -> tuple[AutoProcessor, AudiogenForConditionalGeneration]:
+    global _processor, _model
+    if _processor is None:
+        _processor = AutoProcessor.from_pretrained(MODEL_ID)
+        _model = AudiogenForConditionalGeneration.from_pretrained(MODEL_ID)
+    return _processor, _model
 
 
 @spaces.GPU
 def generate_sfx(description: str, duration: float) -> str:
-    result = run(
-        "audio.sfx.generate",
-        {"prompt": description, "duration": duration},
-        device="cuda",
-    )
-    return result["files"][0]
+    processor, model = _load()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
+    max_new_tokens = int(duration * FRAME_RATE)
+    inputs = processor(text=[description], padding=True, return_tensors="pt").to(device)
+
+    with torch.no_grad():
+        audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
+
+    # shape: (batch=1, channels=1, samples)
+    audio_np = audio_values[0, 0].cpu().float().numpy()
+    tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    scipy.io.wavfile.write(tmp.name, SAMPLE_RATE, audio_np)
+    return tmp.name
 
 
 EXAMPLES = [

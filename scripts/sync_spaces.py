@@ -19,13 +19,11 @@ from huggingface_hub import HfApi
 REPO_ROOT = Path(__file__).parent.parent
 SPACES_DIR = REPO_ROOT / "spaces"
 
-# Spaces that need audiocraft (not on PyPI — requires git install)
-AUDIOCRAFT_SPACES = {
-    "assgen.audio.sfx.generate",
-    "assgen.audio.music.compose",
-    "assgen.audio.music.loop",
-    "assgen.audio.ambient.generate",
-}
+# Spaces that need audiocraft (not on PyPI — requires git install).
+# NOTE: The four original audio generation spaces now use transformers directly
+# (MusicgenForConditionalGeneration / AudiogenForConditionalGeneration) so they
+# no longer need audiocraft.  Only add a space here if it truly imports audiocraft.
+AUDIOCRAFT_SPACES: set[str] = set()
 
 # Spaces that are CPU-only (no ZeroGPU needed)
 CPU_SPACES = {

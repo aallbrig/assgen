@@ -1,6 +1,8 @@
 """assgen.audio.music.loop — HuggingFace Space
 Generate seamlessly looping background music for games using MusicGen.
 CLI equivalent: assgen gen audio music loop
+
+Uses transformers MusicgenForConditionalGeneration directly — no audiocraft required.
 """
 from __future__ import annotations
 
@@ -10,18 +12,45 @@ except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)
 
+import scipy.io.wavfile
+import tempfile
 import gradio as gr
-from assgen.sdk import run
+import torch
+from transformers import AutoProcessor, MusicgenForConditionalGeneration
+
+MODEL_ID = "facebook/musicgen-medium"
+SAMPLE_RATE = 32_000
+FRAME_RATE = 50  # 32000 Hz / 640 hop_length
+
+_processor: AutoProcessor | None = None
+_model: MusicgenForConditionalGeneration | None = None
+
+
+def _load() -> tuple[AutoProcessor, MusicgenForConditionalGeneration]:
+    global _processor, _model
+    if _processor is None:
+        _processor = AutoProcessor.from_pretrained(MODEL_ID)
+        _model = MusicgenForConditionalGeneration.from_pretrained(MODEL_ID)
+    return _processor, _model
 
 
 @spaces.GPU
 def generate_loop(description: str, duration: float) -> str:
-    result = run(
-        "audio.music.loop",
-        {"prompt": description, "duration": duration},
-        device="cuda",
-    )
-    return result["files"][0]
+    processor, model = _load()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
+    max_new_tokens = int(duration * FRAME_RATE)
+    inputs = processor(text=[description], padding=True, return_tensors="pt").to(device)
+
+    with torch.no_grad():
+        audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
+
+    # shape: (batch=1, channels=1, samples)
+    audio_np = audio_values[0, 0].cpu().float().numpy()
+    tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    scipy.io.wavfile.write(tmp.name, SAMPLE_RATE, audio_np)
+    return tmp.name
 
 
 EXAMPLES = [
