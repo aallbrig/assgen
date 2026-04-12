@@ -1,8 +1,8 @@
 ---
-title: "assgen · Music Composer"
+title: "assgen · Music Loop Generator"
 emoji: 🎵
 colorFrom: blue
-colorTo: purple
+colorTo: indigo
 sdk: gradio
 sdk_version: "4.44.0"
 python_version: "3.11"
@@ -11,18 +11,17 @@ pinned: false
 license: apache-2.0
 hardware: zero-gpu
 tags:
-  - audio
   - music-generation
-  - game-assets
-  - audiocraft
+  - game-audio
+  - musicgen
   - assgen
-short_description: Generate game music tracks from text using MusicGen
+short_description: Seamless looping game music via MusicGen Medium
 ---
 
-# assgen · Music Composer
+# assgen · Music Loop Generator
 
-Generate game music tracks from text descriptions using MusicGen Medium.
+Generate seamlessly looping background music for game scenes using MusicGen Medium.
 Part of the [assgen](https://github.com/aallbrig/assgen) pipeline.
 
-**CLI equivalent:** `assgen gen audio music compose "epic battle theme" --duration 15`
+**CLI equivalent:** `assgen gen audio music loop "upbeat tavern music" --wait`
 **Model:** [facebook/musicgen-medium](https://huggingface.co/facebook/musicgen-medium)
