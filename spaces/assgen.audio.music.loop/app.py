@@ -18,7 +18,7 @@ import gradio as gr
 import torch
 from transformers import AutoProcessor, MusicgenForConditionalGeneration
 
-MODEL_ID = "facebook/musicgen-medium"
+MODEL_ID = "facebook/musicgen-stereo-medium"
 SAMPLE_RATE = 32_000
 FRAME_RATE = 50  # 32000 Hz / 640 hop_length
 
@@ -46,8 +46,8 @@ def generate_loop(description: str, duration: float) -> str:
     with torch.no_grad():
         audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
 
-    # shape: (batch=1, channels=1, samples)
-    audio_np = audio_values[0, 0].cpu().float().numpy()
+    # Stereo model: shape (batch=1, channels=2, samples); write as (samples, 2)
+    audio_np = audio_values[0].cpu().float().numpy().T
     tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     scipy.io.wavfile.write(tmp.name, SAMPLE_RATE, audio_np)
     return tmp.name

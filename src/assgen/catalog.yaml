@@ -209,10 +209,10 @@ catalog:
     notes: "Fill seams, holes, or damaged regions in a texture; pass --input + --mask; 359 likes, ungated"
 
   visual.texture.upscale:
-    model_id: "ai-forever/Real-ESRGAN"
-    name: "Real-ESRGAN"
-    task: null
-    notes: "4× texture upscaling via Real-ESRGAN; no HF pipeline_tag (validation skipped); ~65 M params, very fast"
+    model_id: "stabilityai/stable-diffusion-x4-upscaler"
+    name: "Stable Diffusion x4 Upscaler"
+    task: "image-to-image"
+    notes: "4× texture upscaling via SD x4 Upscaler; accepts an optional text prompt as a style hint. Replaces ai-forever/Real-ESRGAN (basicsr/realesrgan broken with torchvision >= 0.16). Requires diffusers (already in assgen[spaces])."
 
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:

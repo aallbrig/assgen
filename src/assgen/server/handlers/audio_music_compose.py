@@ -1,9 +1,7 @@
 """Handler for audio.music.compose — MusicGen single-stem track generation.
 
-Requires the ``audiocraft`` package (Meta):
-    pip install audiocraft
-
-Falls back to the stub handler if audiocraft is not installed.
+Requires transformers and torch:
+    pip install transformers accelerate torch scipy numpy
 """
 from __future__ import annotations
 
@@ -12,14 +10,17 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from audiocraft.data.audio import audio_write
-    from audiocraft.models import MusicGen
-    _AUDIOCRAFT_AVAILABLE = True
+    from transformers import MusicgenForConditionalGeneration  # noqa: F401
+    _AVAILABLE = True
 except ImportError:
-    _AUDIOCRAFT_AVAILABLE = False
-
+    _AVAILABLE = False
 
 ProgressCallback = Callable[[float, str], None]
+
+_DEFAULT_MODEL = "facebook/musicgen-large"
+# MusicGen EnCodec: 32 kHz / 640 hop_length = 50 frames/second
+_SAMPLE_RATE = 32_000
+_FRAME_RATE = 50
 
 
 def run(
@@ -32,46 +33,63 @@ def run(
     output_dir: Path,
 ) -> dict[str, Any]:
     """Generate a music track from a text prompt."""
-    if not _AUDIOCRAFT_AVAILABLE:
+    if not _AVAILABLE:
         raise RuntimeError(
-            "audiocraft is not installed.  "
-            "Run: pip install audiocraft"
+            "transformers is required.  "
+            "Run: pip install transformers accelerate torch scipy numpy"
         )
+
+    import scipy.io.wavfile
+    import torch
+    from transformers import AutoProcessor, MusicgenForConditionalGeneration
 
     prompt: str = params.get("prompt") or params.get("description") or "game soundtrack"
     duration: float = float(params.get("duration", 30.0))
     variations: int = max(1, int(params.get("variations", 1)))
 
-    progress_cb(0.25, "Loading MusicGen model…")
-    load_from = model_path or model_id or "facebook/musicgen-large"
-    model = MusicGen.get_pretrained(load_from)
-    model.set_generation_params(duration=duration)
+    progress_cb(0.1, "Loading MusicGen model…")
+    load_from = model_path or model_id or _DEFAULT_MODEL
+    processor = AutoProcessor.from_pretrained(load_from)
+    model = MusicgenForConditionalGeneration.from_pretrained(load_from)
+    model.to(device)
 
-    progress_cb(0.40, f"Composing {variations} track(s) — this may take a minute…")
+    max_new_tokens = int(duration * _FRAME_RATE)
     prompts = [prompt] * variations
-    wavs = model.generate(prompts)
+
+    progress_cb(0.3, f"Composing {variations} track(s)…")
+    inputs = processor(text=prompts, padding=True, return_tensors="pt").to(device)
+    with torch.no_grad():
+        audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
+
+    # audio_values shape: (batch, channels, samples)
+    # channels=1 for mono models, channels=2 for stereo models
+    channels = audio_values.shape[1]
 
     progress_cb(0.85, "Writing WAV files…")
     saved: list[str] = []
-    for idx, wav in enumerate(wavs):
+    for idx in range(variations):
         stem = f"track_{idx:02d}" if variations > 1 else "track"
-        out_path = output_dir / stem
-        audio_write(
-            str(out_path),
-            wav[0].cpu(),
-            model.sample_rate,
-            strategy="loudness",
-        )
-        saved.append(out_path.with_suffix(".wav").name)
+        out_name = f"{stem}.wav"
+        out_path = Path(output_dir) / out_name
+
+        if channels > 1:
+            # Stereo: (channels, samples) → (samples, channels) for scipy
+            audio_np = audio_values[idx].cpu().float().numpy().T
+        else:
+            # Mono: (1, samples) → (samples,)
+            audio_np = audio_values[idx, 0].cpu().float().numpy()
+
+        scipy.io.wavfile.write(str(out_path), _SAMPLE_RATE, audio_np)
+        saved.append(out_name)
 
     progress_cb(1.0, "Music generation complete")
     return {
         "files": saved,
         "metadata": {
-            "model_id": model_id or "facebook/musicgen-large",
+            "model_id": load_from,
             "prompt": prompt,
             "duration_seconds": duration,
             "variations": variations,
-            "sample_rate": model.sample_rate,
+            "sample_rate": _SAMPLE_RATE,
         },
     }

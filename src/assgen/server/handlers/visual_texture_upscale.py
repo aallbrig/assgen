@@ -1,81 +1,86 @@
-"""visual.texture.upscale — AI-based texture upscaling via Real-ESRGAN.
+"""visual.texture.upscale — AI texture upscaling via Stable Diffusion x4 Upscaler.
 
-  pip install realesrgan basicsr torch Pillow
+Uses diffusers StableDiffusionUpscalePipeline with stabilityai/stable-diffusion-x4-upscaler.
+basicsr/realesrgan are NOT used — they are broken with torchvision >= 0.16.
 
 Params:
     input       (str):  path to input texture (PNG/JPG/WEBP)
-    scale       (int):  upscale factor 2 or 4 (default: 4)
-    tile        (int):  tile size for VRAM-limited GPUs (default: 0 = auto)
-    output      (str):  output filename (default: <stem>_x<scale>.png)
+    prompt      (str):  optional style hint (default: "high resolution, seamless game texture")
+    output      (str):  output filename (default: <stem>_upscaled.png)
+    steps       (int):  diffusion steps (default: 20; increase for higher quality)
 """
 from __future__ import annotations
 
-try:
-    from realesrgan import RealESRGANer  # noqa: F401
-    _AVAILABLE = True
-except ImportError:
-    _AVAILABLE = False
+from pathlib import Path
+
+import torch
+from PIL import Image
+
+MODEL_ID = "stabilityai/stable-diffusion-x4-upscaler"
+# SD x4 upscaler works on small input patches; 128×128 → 512×512 at 12 GB VRAM budget.
+# Larger inputs are tiled automatically by the pipeline but may OOM on small GPUs.
+MAX_INPUT_PX = 128
+DEFAULT_PROMPT = "high resolution, seamless game texture, 4K, detailed"
+
+_pipe = None
+
+
+def _load(model_id: str, device: str):
+    global _pipe
+    if _pipe is None:
+        from diffusers import StableDiffusionUpscalePipeline
+
+        _pipe = StableDiffusionUpscalePipeline.from_pretrained(
+            model_id, torch_dtype=torch.float16 if device != "cpu" else torch.float32
+        )
+        _pipe.to(device)
+    return _pipe
 
 
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
-    """Upscale a texture using Real-ESRGAN."""
-    if not _AVAILABLE:
-        raise RuntimeError(
-            "realesrgan is required. Run: pip install realesrgan basicsr torch"
-        )
-
-    from pathlib import Path
-
-    import cv2
-    from basicsr.archs.rrdbnet_arch import RRDBNet
-    from realesrgan import RealESRGANer
+    """Upscale a texture 4× using Stable Diffusion x4 Upscaler."""
+    used_model = model_id or MODEL_ID
 
     raw_input = params.get("input") or ""
     input_path = Path(raw_input) if raw_input else Path("")
     if not raw_input or not input_path.is_file():
         raise ValueError(f"Input file not found: {input_path!r}")
 
-    scale = int(params.get("scale", 4))
-    tile = int(params.get("tile", 0))
-    out_name = params.get("output") or f"{input_path.stem}_x{scale}.png"
+    prompt = params.get("prompt") or DEFAULT_PROMPT
+    steps = int(params.get("steps", 20))
+    out_name = params.get("output") or f"{input_path.stem}_upscaled.png"
     out_path = Path(output_dir) / out_name
 
-    if scale == 2:
-        arch = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2)
-        dn_model = "RealESRGAN_x2plus.pth"
-    else:
-        arch = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
-        dn_model = "RealESRGAN_x4plus.pth"
+    progress_cb(0.1, "Loading SD x4 Upscaler…")
+    pipe = _load(used_model, device)
 
-    model_weights = model_path or dn_model
+    progress_cb(0.2, "Reading image…")
+    image = Image.open(input_path).convert("RGB")
 
-    progress_cb(0.1, f"Loading Real-ESRGAN ({dn_model})…")
-    use_half = (device != "cpu")
-    upsampler = RealESRGANer(
-        scale=scale,
-        model_path=model_weights,
-        model=arch,
-        tile=tile,
-        tile_pad=10,
-        pre_pad=0,
-        half=use_half,
-        device=device,
-    )
+    # Cap input so the pipeline fits in a typical 12 GB GPU budget
+    w, h = image.size
+    if w > MAX_INPUT_PX or h > MAX_INPUT_PX:
+        ratio = min(MAX_INPUT_PX / w, MAX_INPUT_PX / h)
+        image = image.resize(
+            (int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS
+        )
 
-    progress_cb(0.3, "Reading image…")
-    img = cv2.imread(str(input_path), cv2.IMREAD_UNCHANGED)
-    if img is None:
-        raise ValueError(f"Could not read image: {input_path}")
-
-    progress_cb(0.5, "Upscaling…")
-    out_img, _ = upsampler.enhance(img, outscale=scale)
+    progress_cb(0.4, f"Upscaling {image.width}×{image.height} → {image.width * 4}×{image.height * 4}…")
+    result = pipe(prompt=prompt, image=image, num_inference_steps=steps)
+    out_img = result.images[0]
 
     progress_cb(0.9, "Saving…")
-    cv2.imwrite(str(out_path), out_img)
+    out_img.save(str(out_path))
     progress_cb(1.0, "Done")
 
-    h, w = out_img.shape[:2]
     return {
         "files": [out_name],
-        "metadata": {"scale": scale, "width": w, "height": h},
+        "metadata": {
+            "scale": 4,
+            "input_width": image.width,
+            "input_height": image.height,
+            "output_width": out_img.width,
+            "output_height": out_img.height,
+            "model": used_model,
+        },
     }

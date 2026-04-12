@@ -148,9 +148,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     """Generate 6 surrounding views from a single concept image via Zero123++."""
     out_dir = Path(output_dir)
     if not _AVAILABLE:
-        return _stub_multiview(params, out_dir, progress_cb)
-    try:
-        return _run_real_multiview(params, model_path or model_id, device, progress_cb, out_dir)
-    except Exception as exc:
-        logger.warning("visual.model.multiview real inference failed (%s), using stub", exc)
-        return _stub_multiview(params, out_dir, progress_cb)
+        raise RuntimeError(
+            "diffusers is required. Run: pip install diffusers transformers accelerate torch"
+        )
+    return _run_real_multiview(params, model_path or model_id, device, progress_cb, out_dir)

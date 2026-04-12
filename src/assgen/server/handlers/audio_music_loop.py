@@ -1,12 +1,7 @@
 """Handler for audio.music.loop — looping game music with crossfade stitching.
 
-Generates a music clip with MusicGen and applies a crossfade at the loop point
-so the audio loops seamlessly in a game engine.
-
-Requires the ``audiocraft`` package (Meta):
-    pip install audiocraft
-
-Falls back to the stub handler if audiocraft is not installed.
+Requires transformers and torch:
+    pip install transformers accelerate torch scipy numpy
 """
 from __future__ import annotations
 
@@ -15,49 +10,49 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from audiocraft.data.audio import audio_write
-    from audiocraft.models import MusicGen
-    _AUDIOCRAFT_AVAILABLE = True
+    from transformers import MusicgenForConditionalGeneration  # noqa: F401
+    _AVAILABLE = True
 except ImportError:
-    _AUDIOCRAFT_AVAILABLE = False
-
+    _AVAILABLE = False
 
 ProgressCallback = Callable[[float, str], None]
 
-# Default crossfade length in seconds
+_DEFAULT_MODEL = "facebook/musicgen-stereo-medium"
+# MusicGen EnCodec: 32 kHz / 640 hop_length = 50 frames/second
+_SAMPLE_RATE = 32_000
+_FRAME_RATE = 50
 _DEFAULT_FADE_SEC = 1.5
 
 
-def _crossfade_loop(audio, sample_rate: int, fade_sec: float = _DEFAULT_FADE_SEC):
+def _crossfade_loop(audio: "Any", fade_sec: float = _DEFAULT_FADE_SEC) -> "Any":
     """Apply a crossfade between the tail and the head of *audio*.
 
     Returns a slightly shorter clip whose end blends into its beginning,
     creating a seamless loop point.
 
     Args:
-        audio: Float32 array of shape ``(channels, samples)``.
-        sample_rate: Audio sample rate in Hz.
+        audio:    Float32 numpy array of shape ``(channels, samples)`` or ``(samples,)``
+                  for mono.
         fade_sec: Duration of the crossfade in seconds.
 
     Returns:
-        Crossfaded float32 array of the same channel count.
+        Crossfaded float32 array of the same leading dimensions.
     """
     import numpy as np
 
-    fade_samples = int(fade_sec * sample_rate)
+    fade_samples = int(fade_sec * _SAMPLE_RATE)
     if fade_samples * 2 >= audio.shape[-1]:
-        # Track too short to crossfade — return as-is
-        return audio
+        return audio  # track too short to crossfade — return as-is
 
     fade_out = np.linspace(1.0, 0.0, fade_samples, dtype=np.float32)
     fade_in  = np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
 
     result = audio.copy()
-    # Blend the last *fade_samples* of the tail into the first *fade_samples* of the head
-    result[..., :fade_samples]  = audio[..., :fade_samples]  * fade_in  + audio[..., -fade_samples:] * fade_out
-    # Drop the tail (it has been folded into the head)
-    result = result[..., :-fade_samples]
-    return result
+    result[..., :fade_samples] = (
+        audio[..., :fade_samples] * fade_in
+        + audio[..., -fade_samples:] * fade_out
+    )
+    return result[..., :-fade_samples]
 
 
 def run(
@@ -70,51 +65,63 @@ def run(
     output_dir: Path,
 ) -> dict[str, Any]:
     """Generate a seamlessly looping music clip."""
-    if not _AUDIOCRAFT_AVAILABLE:
+    if not _AVAILABLE:
         raise RuntimeError(
-            "audiocraft is not installed.  "
-            "Run: pip install audiocraft"
+            "transformers is required.  "
+            "Run: pip install transformers accelerate torch scipy numpy"
         )
+
+    import scipy.io.wavfile
+    import torch
+    from transformers import AutoProcessor, MusicgenForConditionalGeneration
 
     prompt: str = params.get("prompt") or params.get("description") or "ambient game loop"
     duration: float = float(params.get("duration", 20.0))
     fade_sec: float = float(params.get("fade_sec", _DEFAULT_FADE_SEC))
 
-    progress_cb(0.25, "Loading MusicGen Stereo model…")
-    load_from = model_path or model_id or "facebook/musicgen-stereo-medium"
-    model = MusicGen.get_pretrained(load_from)
-    # Generate slightly longer than requested so the crossfade doesn't shorten below target
+    # Generate slightly longer than requested so crossfade doesn't shorten below target
     generate_sec = duration + fade_sec
-    model.set_generation_params(duration=generate_sec)
 
-    progress_cb(0.40, "Generating loop clip…")
-    wavs = model.generate([prompt])
-    audio_np = wavs[0].cpu().numpy()  # shape: (channels, samples)
+    progress_cb(0.1, "Loading MusicGen model…")
+    load_from = model_path or model_id or _DEFAULT_MODEL
+    processor = AutoProcessor.from_pretrained(load_from)
+    model = MusicgenForConditionalGeneration.from_pretrained(load_from)
+    model.to(device)
+
+    max_new_tokens = int(generate_sec * _FRAME_RATE)
+
+    progress_cb(0.3, "Generating loop clip…")
+    inputs = processor(text=[prompt], padding=True, return_tensors="pt").to(device)
+    with torch.no_grad():
+        audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
+
+    # audio_values shape: (batch=1, channels, samples)
+    audio_np = audio_values[0].cpu().float().numpy()  # (channels, samples)
 
     progress_cb(0.75, "Applying crossfade loop stitching…")
-    looped = _crossfade_loop(audio_np, model.sample_rate, fade_sec=fade_sec)
+    looped = _crossfade_loop(audio_np, fade_sec=fade_sec)
 
-    progress_cb(0.88, "Writing loop WAV…")
-    import torch
-    looped_tensor = torch.from_numpy(looped)
-    out_path = output_dir / "loop"
-    audio_write(
-        str(out_path),
-        looped_tensor,
-        model.sample_rate,
-        strategy="loudness",
-    )
-    wav_name = out_path.with_suffix(".wav").name
+    progress_cb(0.9, "Writing loop WAV…")
+    out_name = "loop.wav"
+    out_path = Path(output_dir) / out_name
+
+    channels = looped.shape[0]
+    if channels > 1:
+        # Stereo: (channels, samples) → (samples, channels) for scipy
+        scipy.io.wavfile.write(str(out_path), _SAMPLE_RATE, looped.T)
+    else:
+        # Mono: (1, samples) → (samples,)
+        scipy.io.wavfile.write(str(out_path), _SAMPLE_RATE, looped[0])
 
     progress_cb(1.0, "Loop generation complete")
     return {
-        "files": [wav_name],
+        "files": [out_name],
         "metadata": {
-            "model_id": model_id or "facebook/musicgen-stereo-medium",
+            "model_id": load_from,
             "prompt": prompt,
             "requested_duration_seconds": duration,
             "fade_sec": fade_sec,
-            "sample_rate": model.sample_rate,
+            "sample_rate": _SAMPLE_RATE,
             "loop_ready": True,
         },
     }

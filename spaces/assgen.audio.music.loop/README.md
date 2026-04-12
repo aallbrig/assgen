@@ -14,13 +14,13 @@ tags:
   - game-audio
   - musicgen
   - assgen
-short_description: Seamless looping game music via MusicGen Medium
+short_description: Seamless looping game music via MusicGen Stereo Medium
 ---
 
 # assgen · Music Loop Generator
 
-Generate seamlessly looping background music for game scenes using MusicGen Medium.
+Generate seamlessly looping stereo background music for game scenes using MusicGen Stereo Medium.
 Part of the [assgen](https://github.com/aallbrig/assgen) pipeline.
 
 **CLI equivalent:** `assgen gen audio music loop "upbeat tavern music" --wait`
-**Model:** [facebook/musicgen-medium](https://huggingface.co/facebook/musicgen-medium)
+**Model:** [facebook/musicgen-stereo-medium](https://huggingface.co/facebook/musicgen-stereo-medium)
