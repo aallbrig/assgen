@@ -74,8 +74,8 @@ catalog:
     name: "Custom TripoSR Fine-tune"
     task: "image-to-3d"
   audio.sfx.generate:
-    model_id: "facebook/audiogen-large"
-    name: "AudioGen Large"
+    model_id: "cvssp/audioldm2"
+    name: "AudioLDM2"
     task: "text-to-audio"
 ```
 

@@ -179,7 +179,7 @@ assgen
 │       ├── hud               # health bars, minimaps
 │       └── overlay           # 2D canvas overlays
 ├── audio                     # Sound & music
-│   ├── sfx                   # Sound effects (AudioGen)
+│   ├── sfx                   # Sound effects (AudioLDM2)
 │   │   ├── generate          # text → WAV
 │   │   ├── edit              # pitch/reverb/layer
 │   │   └── library           # browse local SFX library
@@ -286,7 +286,7 @@ log_level: "info"
 
 # Security / model governance
 allow_list: []            # [] = allow all models; restrict with a list:
-                          # allow_list: ["stabilityai/TripoSR", "facebook/audiogen-medium"]
+                          # allow_list: ["stabilityai/TripoSR", "cvssp/audioldm2"]
 skip_model_validation: false  # true = bypass HF pipeline_tag compatibility checks
 ```
 
@@ -325,7 +325,7 @@ task type using the HuggingFace Hub API:
 
 ```bash
 # Restrict downloads to approved models only
-assgen server config set allow_list '["stabilityai/TripoSR","facebook/audiogen-medium"]'
+assgen server config set allow_list '["stabilityai/TripoSR","cvssp/audioldm2"]'
 
 # Trust all models (default)
 assgen server config set allow_list '[]'
@@ -364,7 +364,7 @@ journalctl -u assgen-server -f   # follow JSON-structured logs
 
 ## Hardware Notes
 
-- **RTX 4070 (12GB VRAM)**: Sufficient for SDXL, TripoSR, MusicGen-Small, AudioGen-Medium
+- **RTX 4070 (12GB VRAM)**: Sufficient for SDXL, TripoSR, MusicGen-Medium, AudioLDM2
 - Set `device: "cuda"` in `server.yaml` for GPU acceleration
 - For lighter models, `device: "cpu"` works but is slower
 - Use `HF_TOKEN` env var for authenticated Hub downloads (higher rate limits)
@@ -524,7 +524,7 @@ assgen
 │       ├── hud               # health bars, minimaps
 │       └── overlay           # 2D canvas overlays
 ├── audio                     # Sound & music
-│   ├── sfx                   # Sound effects (AudioGen)
+│   ├── sfx                   # Sound effects (AudioLDM2)
 │   │   ├── generate          # text → WAV
 │   │   ├── edit              # pitch/reverb/layer
 │   │   └── library           # browse local SFX library
@@ -643,7 +643,7 @@ journalctl -u assgen-server -f   # follow JSON-structured logs
 
 ## Hardware Notes
 
-- **RTX 4070 (12GB VRAM)**: Sufficient for SDXL, TripoSR, MusicGen-Small, AudioGen-Medium
+- **RTX 4070 (12GB VRAM)**: Sufficient for SDXL, TripoSR, MusicGen-Medium, AudioLDM2
 - Set `device: "cuda"` in `server.yaml` for GPU acceleration
 - For lighter models, `device: "cpu"` works but is slower
 - Use `HF_TOKEN` env var for authenticated Hub downloads (higher rate limits)

@@ -72,7 +72,7 @@ echo "   Monitor: assgen jobs list"
     - Impact/hit sounds: 0.5–1.0 s
     - Gunshots: 1.0–2.0 s
     - Ambience stingers: 3.0–5.0 s
-    - AudioGen works best under 5 seconds; longer clips may loop or repeat.
+    - AudioLDM2 works best under 10 seconds; longer clips may lose coherence.
 
 ---
 
@@ -217,7 +217,7 @@ and build your adaptive music container with the stems as blend tracks.
 
 | Gap | Status | Notes |
 |---|---|---|
-| Longer SFX (> 5 s) | Works with degradation | AudioGen quality drops past 5 s; stitch two clips if needed |
+| Longer SFX (> 10 s) | Works with degradation | AudioLDM2 quality drops past 10 s; stitch two clips if needed |
 | Adaptive stem key detection | Manual | Include key in prompt; no auto-detection yet |
 | Spatial audio (ambisonics) | Not in catalog | Convert stereo → ambisonics in Reaper/SPARTA post-generation |
 | Final-quality TTS | Not in scope | Bark is scratch-only; use a professional voice actor for ship |
@@ -227,5 +227,5 @@ and build your adaptive music container with the stems as blend tracks.
 ## Next steps
 
 - [CLI Reference](cli-reference.md) — `sfx generate`, `music loop`, `voice tts`, `voice clone` flags
-- [Configuration](configuration.md) — swap in a larger MusicGen or AudioGen model for higher quality
+- [Configuration](configuration.md) — swap in a larger MusicGen model or a different AudioLDM2 variant for higher quality
 - [Server Setup](server-setup.md) — run inference on a dedicated machine, submit from your DAW workstation

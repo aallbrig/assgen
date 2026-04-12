@@ -108,7 +108,7 @@ log_level: "INFO"
 # Any job that would require a different model returns HTTP 403.
 allow_list:
   - "stabilityai/TripoSR"
-  - "facebook/audiogen-medium"
+  - "cvssp/audioldm2"
   - "suno/bark"
   - "stabilityai/stable-diffusion-xl-base-1.0"
   - "microsoft/Phi-3.5-mini-instruct"
@@ -233,7 +233,7 @@ Pre-bake the cache during runner setup so jobs start immediately:
 ```bash
 # In your runner AMI / Docker image build script:
 assgen models install stabilityai/TripoSR
-assgen models install facebook/audiogen-medium
+assgen models install cvssp/audioldm2
 assgen models install suno/bark
 ```
 

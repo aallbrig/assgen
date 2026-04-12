@@ -19,8 +19,8 @@ Set `allow_list` in `server.yaml` to a non-empty list to restrict models:
 ```yaml
 allow_list:
   - "stabilityai/TripoSR"
-  - "facebook/audiogen-medium"
-  - "facebook/musicgen-small"
+  - "cvssp/audioldm2"
+  - "facebook/musicgen-medium"
 ```
 
 Any job submitted with a `--model-id` not on this list is rejected with HTTP
@@ -29,7 +29,7 @@ all models.
 
 ```bash
 # Add a model to the allow-list
-assgen server config set allow_list '["stabilityai/TripoSR","facebook/audiogen-medium"]'
+assgen server config set allow_list '["stabilityai/TripoSR","cvssp/audioldm2"]'
 
 # Check current list
 assgen server config show
@@ -55,8 +55,8 @@ The full task → allowed-tags map lives in
 ### Failure example
 
 ```bash
-$ assgen visual model create --prompt "sword" --model-id "facebook/audiogen-medium"
-Error 422: Model 'facebook/audiogen-medium' has pipeline_tag='text-to-audio'
+$ assgen visual model create --prompt "sword" --model-id "cvssp/audioldm2"
+Error 422: Model 'cvssp/audioldm2' has pipeline_tag='text-to-audio'
 which is not compatible with task 'image-to-3d'.
 Expected one of: ['image-to-3d', 'text-to-3d'].
 Set skip_model_validation: true in server.yaml to override.

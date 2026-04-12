@@ -112,7 +112,7 @@ assgen --help
 
 | GPU | VRAM | Suitable models |
 |-----|------|----------------|
-| RTX 4070 / 3080 | 12 GB | SDXL, TripoSR, AudioGen-Medium, MusicGen-Small |
+| RTX 4070 / 3080 | 12 GB | SDXL, TripoSR, MusicGen-Medium, AudioLDM2 |
 | RTX 4090 / 3090 | 24 GB | All catalog models |
 | Any CPU | — | Orchestration, job queue, text models |
 

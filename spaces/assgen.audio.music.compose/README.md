@@ -13,7 +13,7 @@ tags:
   - audio
   - music-generation
   - game-assets
-  - audiocraft
+  - musicgen
   - assgen
 short_description: Generate game music tracks from text using MusicGen
 ---

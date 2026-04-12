@@ -63,7 +63,7 @@ assgen client config set-server http://my-gpu-desktop:8432
     - Animation: keyframe generation, mocap from video
 
 === "Audio"
-    - Sound effects from text prompts (AudioGen)
+    - Sound effects from text prompts (AudioLDM2)
     - Music composition (MusicGen)
     - Voice/TTS and NPC dialog batching (Bark)
 
@@ -81,7 +81,7 @@ assgen client config set-server http://my-gpu-desktop:8432
 ## Requirements
 
 - Python 3.11+
-- For inference: an NVIDIA GPU (RTX 4070 or better recommended — 12GB VRAM handles SDXL, TripoSR, AudioGen)
+- For inference: an NVIDIA GPU (RTX 4070 or better recommended — 12GB VRAM handles SDXL, TripoSR, AudioLDM2)
 - For check-only / orchestration: CPU is fine
 
 ## Workflow Guides

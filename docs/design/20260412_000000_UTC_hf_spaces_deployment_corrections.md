@@ -243,7 +243,7 @@ All 10 Tier 1 Spaces are RUNNING on HF Hub (v0.3.3):
 | Space | Model | Status |
 |-------|-------|--------|
 | assgen.concept.generate | stabilityai/stable-diffusion-xl-base-1.0 | ✓ RUNNING |
-| assgen.audio.sfx.generate | facebook/audiogen-medium (via pipeline) | ✓ RUNNING |
+| assgen.audio.sfx.generate | cvssp/audioldm2 (AudioLDM2 via diffusers) | ✓ RUNNING |
 | assgen.audio.music.compose | facebook/musicgen-medium (via pipeline) | ✓ RUNNING |
 | assgen.audio.voice.tts | suno/bark (via transformers BarkModel) | ✓ RUNNING |
 | assgen.texture.upscale | stabilityai/stable-diffusion-x4-upscaler | ✓ RUNNING |
