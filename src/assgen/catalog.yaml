@@ -216,10 +216,10 @@ catalog:
 
   # ── Audio / SFX ──────────────────────────────────────────────────────────
   audio.sfx.generate:
-    model_id: "facebook/audiogen-medium"
-    name: "AudioGen Medium"
-    task: null
-    notes: "Meta AudioGen 1.5B — purpose-built for sound effects (footsteps, explosions, UI clicks, ambience). No HF pipeline_tag (validation auto-skipped). Requires AudioCraft; output is a WAV clip."
+    model_id: "cvssp/audioldm2"
+    name: "AudioLDM2"
+    task: "text-to-audio"
+    notes: "AudioLDM2 — trained on general audio and sound effects via latent diffusion. Replaces facebook/audiogen-medium (removed from transformers 5.x; audiocraft broken on Python 3.13+). Requires diffusers."
 
   # ── Audio / Music ────────────────────────────────────────────────────────
   audio.music.compose:

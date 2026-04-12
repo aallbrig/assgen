@@ -49,12 +49,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not _AVAILABLE:
         return _stub_silent_wav(params, output_dir, progress_cb)
 
-    try:
-        return _run_real_tts(params, model_id, model_path, device, progress_cb, output_dir)
-    except Exception as exc:
-        import logging
-        logging.getLogger(__name__).warning("Bark TTS failed (%s) — using stub", exc)
-        return _stub_silent_wav(params, output_dir, progress_cb)
+    return _run_real_tts(params, model_id, model_path, device, progress_cb, output_dir)
 
 
 def _run_real_tts(params, model_id, model_path, device, progress_cb, output_dir):
