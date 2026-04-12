@@ -352,6 +352,7 @@ jobs:
     runs-on: windows-latest
     needs: binaries
     if: ${{ !contains(github.ref_name, '-') }}   # skip pre-releases
+    continue-on-error: true   # first submission requires manual moderation on chocolatey.org
 
     steps:
       - uses: actions/checkout@v4
