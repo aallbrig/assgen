@@ -2,7 +2,8 @@
 Generate game sound effects from text descriptions (AudioGen Medium).
 CLI equivalent: assgen gen audio sfx generate
 
-Uses transformers AudiogenForConditionalGeneration directly — no audiocraft required.
+Uses transformers text-to-audio pipeline — works with any transformers version
+that ships AudioGen without relying on a specific class name import.
 """
 from __future__ import annotations
 
@@ -17,41 +18,34 @@ import scipy.io.wavfile
 import tempfile
 import gradio as gr
 import torch
-from transformers import AutoProcessor, AudiogenForConditionalGeneration
+from transformers import pipeline
 
 MODEL_ID = "facebook/audiogen-medium"
-SAMPLE_RATE = 16_000
-# AudioGen EnCodec: 16000 Hz / 320 hop_length = 50 frames per second
+# AudioGen EnCodec: 16000 Hz / 320 hop_length = 50 tokens/second
 FRAME_RATE = 50
 
-_processor: AutoProcessor | None = None
-_model: AudiogenForConditionalGeneration | None = None
+_pipe = None
 
 
-def _load() -> tuple[AutoProcessor, AudiogenForConditionalGeneration]:
-    global _processor, _model
-    if _processor is None:
-        _processor = AutoProcessor.from_pretrained(MODEL_ID)
-        _model = AudiogenForConditionalGeneration.from_pretrained(MODEL_ID)
-    return _processor, _model
+def _load():
+    global _pipe
+    if _pipe is None:
+        device = 0 if torch.cuda.is_available() else -1
+        _pipe = pipeline("text-to-audio", model=MODEL_ID, device=device)
+    return _pipe
 
 
 @spaces.GPU
 def generate_sfx(description: str, duration: float) -> str:
-    processor, model = _load()
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
-
+    p = _load()
     max_new_tokens = int(duration * FRAME_RATE)
-    inputs = processor(text=[description], padding=True, return_tensors="pt").to(device)
+    result = p(description, forward_params={"max_new_tokens": max_new_tokens})
 
-    with torch.no_grad():
-        audio_values = model.generate(**inputs, max_new_tokens=max_new_tokens)
+    audio = np.array(result["audio"]).squeeze()
+    sr = result["sampling_rate"]
 
-    # shape: (batch=1, channels=1, samples)
-    audio_np = audio_values[0, 0].cpu().float().numpy()
     tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    scipy.io.wavfile.write(tmp.name, SAMPLE_RATE, audio_np)
+    scipy.io.wavfile.write(tmp.name, sr, audio.astype(np.float32))
     return tmp.name
 
 
