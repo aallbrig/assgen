@@ -1,9 +1,10 @@
 """assgen.audio.sfx.generate — HuggingFace Space
-Generate game sound effects from text descriptions (AudioGen Medium).
+Generate game sound effects from text descriptions (MusicGen Small).
 CLI equivalent: assgen gen audio sfx generate
 
-Uses transformers text-to-audio pipeline — works with any transformers version
-that ships AudioGen without relying on a specific class name import.
+Note: facebook/audiogen-medium was removed in transformers 5.x.
+Uses facebook/musicgen-small which is fully supported and produces
+comparable results for game SFX with appropriate text prompts.
 """
 from __future__ import annotations
 
@@ -20,8 +21,9 @@ import gradio as gr
 import torch
 from transformers import pipeline
 
-MODEL_ID = "facebook/audiogen-medium"
-# AudioGen EnCodec: 16000 Hz / 320 hop_length = 50 tokens/second
+MODEL_ID = "facebook/musicgen-small"
+# MusicGen EnCodec: 32000 Hz / 640 hop_length = 50 tokens/second
+SAMPLE_RATE = 32_000
 FRAME_RATE = 50
 
 _pipe = None
@@ -64,7 +66,7 @@ with gr.Blocks(title="assgen · Audio SFX Generator") as demo:
     gr.Markdown(
         "# 🔊 assgen · Audio SFX Generator\n"
         "Generate game sound effects from text. "
-        "Powered by [AudioGen Medium](https://huggingface.co/facebook/audiogen-medium). "
+        "Powered by [MusicGen Small](https://huggingface.co/facebook/musicgen-small). "
         "Part of the [assgen](https://github.com/aallbrig/assgen) pipeline.\n\n"
         "_ZeroGPU — may queue briefly during high traffic._"
     )
