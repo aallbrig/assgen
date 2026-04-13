@@ -24,8 +24,8 @@ The standard `app.py` structure for ZeroGPU Spaces:
 """assgen.<name> — HuggingFace Space"""
 from __future__ import annotations
 try:
-    import spaces                # pre-installed in HF Spaces environment
-except ImportError:              # running locally — no-op shim
+    import spaces; spaces.GPU  # AttributeError if wrong package (e.g. hf-gradio shim)
+except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)
 import gradio as gr
@@ -47,6 +47,30 @@ CPU-only Spaces: omit the `spaces` import block and `@spaces.GPU` decorator enti
 > **Local testing:** With the `try/except` shim in place, run `python app.py` from the Space
 > directory and Gradio opens at `http://127.0.0.1:7860`. `@spaces.GPU` becomes a no-op and
 > inference runs on whatever device is locally available.
+>
+> **Why `spaces.GPU` inside the `try`:** When `gradio>=5.23` is installed locally, a `spaces`
+> module from `hf-gradio` or similar is importable but lacks `.GPU`. Catching `AttributeError`
+> on the attribute access (not just `ImportError` on the import) ensures the shim is applied.
+
+---
+
+## New Space Checklist
+
+Every time a new HuggingFace Space is created, **all three steps are required**:
+
+```
+1.  Create spaces/assgen.<name>/app.py   — Gradio shim using the pattern above
+2.  Create spaces/assgen.<name>/README.md — HF Space card (YAML frontmatter)
+3.  Add PyCharm run config               — see docs/design/20260411_131500_UTC_pycharm_run_configs.md
+```
+
+**Step 3 in detail:**
+- Add `("assgen.<name>", "Spaces: <Domain>")` to `SPACES` in `scripts/generate_run_configs.py`
+- Run `python scripts/generate_run_configs.py` to generate `.idea/runConfigurations/space_assgen_<name_with_underscores>.xml`
+- Commit the new XML alongside the space files
+
+Skipping step 3 means the space can't be tested from PyCharm with a single click.
+The run configs are the local dev test harness — they must stay in sync with the spaces directory.
 
 ---
 

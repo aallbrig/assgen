@@ -14,6 +14,11 @@ This document provides **abbreviated specs** for Tier 2 and Tier 3 Spaces. Each 
 The implementing agent should follow the exact same file structure and patterns from the Tier 1
 spec (`20260411_120100_UTC_hf_spaces_spec_tier1.md`) — only the inference logic and UI differ.
 
+**Required for every new Space (including all Tier 2/3):** Follow the "New Space Checklist" in
+the Tier 1 spec. This includes adding a PyCharm run config by updating `SPACES` in
+`scripts/generate_run_configs.py` and running the script. Do not create a space without its
+corresponding `.idea/runConfigurations/space_assgen_<name>.xml`.
+
 > **`requirements.txt` blocks are for reference only — do NOT create them in the repo.**
 > Per the packaging decision in `20260411_120400_UTC_hf_spaces_packaging_and_sdk.md` Section 4,
 > each Space directory contains only `app.py` and `README.md`. The `requirements.txt` is
