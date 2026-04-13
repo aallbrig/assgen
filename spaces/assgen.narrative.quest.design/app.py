@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 try:
-    import spaces
+    import spaces; spaces.GPU  # AttributeError if wrong package
 except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)

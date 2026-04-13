@@ -9,7 +9,7 @@ MusicGen was tried but produces music-like noise for SFX prompts.
 from __future__ import annotations
 
 try:
-    import spaces
+    import spaces; spaces.GPU  # AttributeError if wrong package
 except (ImportError, AttributeError):
     import types
     spaces = types.SimpleNamespace(GPU=lambda fn: fn)
