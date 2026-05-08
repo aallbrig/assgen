@@ -44,8 +44,8 @@ def run(
             "Run: pip install diffusers transformers accelerate"
         )
 
-    import torch
     import scipy.io.wavfile
+    import torch
 
     prompt: str = params.get("prompt") or params.get("description") or "sound effect"
     duration: float = float(params.get("duration", 4.0))

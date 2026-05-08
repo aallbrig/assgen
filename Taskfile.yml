@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  lint:
+    cmds:
+      - task lint-python
+
+  lint-python:
+    cmds:
+      - /home/aallbright/.local/bin/ruff check src/ tests/

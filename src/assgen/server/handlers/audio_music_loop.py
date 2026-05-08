@@ -24,7 +24,7 @@ _FRAME_RATE = 50
 _DEFAULT_FADE_SEC = 1.5
 
 
-def _crossfade_loop(audio: "Any", fade_sec: float = _DEFAULT_FADE_SEC) -> "Any":
+def _crossfade_loop(audio: Any, fade_sec: float = _DEFAULT_FADE_SEC) -> Any:
     """Apply a crossfade between the tail and the head of *audio*.
 
     Returns a slightly shorter clip whose end blends into its beginning,
