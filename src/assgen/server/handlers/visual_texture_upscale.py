@@ -38,7 +38,9 @@ def _load(model_id: str, device: str):
 
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Upscale a texture 4× using Stable Diffusion x4 Upscaler."""
-    from PIL import Image  # requires 'inference' extras; lazy to allow module import without GPU deps
+    from PIL import (
+        Image,  # requires 'inference' extras; lazy to allow module import without GPU deps
+    )
 
     used_model = model_id or MODEL_ID
 
