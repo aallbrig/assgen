@@ -13,8 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image
-
 MODEL_ID = "stabilityai/stable-diffusion-x4-upscaler"
 # SD x4 upscaler works on small input patches; 128×128 → 512×512 at 12 GB VRAM budget.
 # Larger inputs are tiled automatically by the pipeline but may OOM on small GPUs.
@@ -40,6 +38,8 @@ def _load(model_id: str, device: str):
 
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Upscale a texture 4× using Stable Diffusion x4 Upscaler."""
+    from PIL import Image  # requires 'inference' extras; lazy to allow module import without GPU deps
+
     used_model = model_id or MODEL_ID
 
     raw_input = params.get("input") or ""
