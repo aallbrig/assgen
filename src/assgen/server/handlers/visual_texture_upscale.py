@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import torch
 from PIL import Image
 
 MODEL_ID = "stabilityai/stable-diffusion-x4-upscaler"
@@ -26,6 +25,8 @@ _pipe = None
 
 
 def _load(model_id: str, device: str):
+    import torch  # requires 'inference' extras; lazy to allow module import without GPU deps
+
     global _pipe
     if _pipe is None:
         from diffusers import StableDiffusionUpscalePipeline
