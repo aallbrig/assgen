@@ -85,6 +85,7 @@ packages = ["src/assgen"]
 src = ["src"]
 line-length = 100
 target-version = "py311"
+exclude = ["src/assgen/_version.py"]
 
 [tool.ruff.lint]
 select = [
