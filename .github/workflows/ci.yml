@@ -31,7 +31,10 @@ jobs:
           cache: pip
 
       - name: Install dev dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -e ".[dev]"
 
       - name: Format check
         run: task format-check
@@ -78,7 +81,10 @@ jobs:
           cache: pip
 
       - name: Install dev dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -e ".[dev]"
 
       - name: Run HuggingFace integration tests
         run: task test-integration
