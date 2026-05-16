@@ -20,6 +20,7 @@ target_faces   int        Max triangle count after decimation (default 10 000)
 convert_mesh   bool       Also export a .ply alongside the .glb
 output         str|None   Unused server-side (client controls save path)
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,6 +34,7 @@ try:
     from PIL import Image
     from tsr.system import TSR  # noqa: F401
     from tsr.utils import remove_background, resize_foreground  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -50,6 +52,7 @@ _CHUNK_SIZE = 131_072
 def _stub_capsule_mesh(params: dict, output_dir: Path, progress_cb: ProgressCallback) -> dict:
     """Return a placeholder capsule mesh when TripoSR is not installed."""
     import trimesh
+
     progress_cb(0.2, "TripoSR not installed — generating placeholder capsule mesh…")
     mesh = trimesh.creation.capsule(height=1.6, radius=0.4, count=[8, 8])
     out_path = output_dir / "mesh.glb"

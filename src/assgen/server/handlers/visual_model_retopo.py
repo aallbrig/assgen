@@ -10,10 +10,12 @@ Params:
     output         (str):  output filename (default: <stem>_retopo.<ext>)
     format         (str):  output format override (glb/obj/ply/stl)
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -57,6 +59,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         import pyfqmr
+
         progress_cb(0.3, "Running QEM simplification (pyfqmr)…")
         simplifier = pyfqmr.Simplify()
         simplifier.setMesh(mesh.vertices, mesh.faces)

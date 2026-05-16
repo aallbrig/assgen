@@ -8,6 +8,7 @@ GET    /jobs/{id}/events             — SSE stream of progress events (text/eve
 GET    /jobs/{id}/files              — list output files for a completed job
 GET    /jobs/{id}/files/{filename}   — download a specific output file
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -40,6 +41,7 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 # ---------------------------------------------------------------------------
 # Pydantic schemas
 # ---------------------------------------------------------------------------
+
 
 class JobRequest(BaseModel):
     job_type: str = Field(..., description="e.g. 'visual.model.create'")
@@ -79,6 +81,7 @@ class JobResponse(BaseModel):
 # Dependency: DB connection from app state
 # ---------------------------------------------------------------------------
 
+
 def _get_conn(request: Any = None):  # noqa: ANN001
     """Injected by app.py via request.app.state.conn."""
     # This will be overridden in app.py — stub here for typing
@@ -88,6 +91,7 @@ def _get_conn(request: Any = None):  # noqa: ANN001
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
 
 @router.post(
     "",
@@ -118,6 +122,7 @@ async def enqueue_job(body: JobRequest, request: Request) -> dict:
     if effective_model_id:
         # Validate model against allow-list and task compatibility
         from assgen.server.validation import validate_job_model
+
         try:
             validate_job_model(effective_model_id, catalog_task, server_cfg)
         except ValueError as exc:
@@ -190,7 +195,9 @@ async def cancel_job(job_id: str, request: Request) -> None:
     if not job:
         raise HTTPException(status_code=404, detail=f"Job {job_id!r} not found")
     if job["status"] in JobStatus.TERMINAL:
-        raise HTTPException(status_code=409, detail=f"Job already in terminal state: {job['status']}")
+        raise HTTPException(
+            status_code=409, detail=f"Job already in terminal state: {job['status']}"
+        )
     update_job_status(conn, job_id, JobStatus.CANCELLED)
     logger.info("Job cancelled", extra={"job_id": job_id})
 
@@ -262,7 +269,11 @@ async def stream_job_events(job_id: str, request: Request) -> StreamingResponse:
     return StreamingResponse(
         _generate(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
     )
 
 
@@ -334,13 +345,16 @@ async def download_job_file(job_id: str, filename: str, request: Request) -> Fil
         )
     file_path: Path = get_outputs_dir() / job_id / filename
     if not file_path.exists() or not file_path.is_file():
-        raise HTTPException(status_code=404, detail=f"File {filename!r} not found for job {job_id[:8]}")
+        raise HTTPException(
+            status_code=404, detail=f"File {filename!r} not found for job {job_id[:8]}"
+        )
     return FileResponse(path=str(file_path), filename=filename)
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _normalise(job: dict | None) -> dict:
     if not job:

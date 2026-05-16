@@ -7,6 +7,7 @@ worker thread starts, and requests flow through the real route handlers.
 A temporary database (isolated per test module via a module-scoped fixture)
 prevents interference with any real user data.
 """
+
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -21,6 +22,7 @@ from assgen.server.app import create_app
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def tmp_db_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
@@ -50,6 +52,7 @@ def client(tmp_db_path: Path) -> Generator[TestClient, None, None]:
 # ---------------------------------------------------------------------------
 # /health
 # ---------------------------------------------------------------------------
+
 
 class TestHealth:
     def test_health_returns_ok(self, client: TestClient) -> None:
@@ -86,6 +89,7 @@ class TestHealth:
 # POST /jobs — enqueue
 # ---------------------------------------------------------------------------
 
+
 class TestEnqueueJob:
     def test_enqueue_known_job_type_returns_201(self, client: TestClient) -> None:
         r = client.post("/jobs", json={"job_type": "visual.model.create"})
@@ -102,24 +106,33 @@ class TestEnqueueJob:
         assert r.json()["status"] == "QUEUED"
 
     def test_enqueue_stores_params(self, client: TestClient) -> None:
-        r = client.post("/jobs", json={
-            "job_type": "visual.model.create",
-            "params": {"prompt": "medieval sword"},
-        })
+        r = client.post(
+            "/jobs",
+            json={
+                "job_type": "visual.model.create",
+                "params": {"prompt": "medieval sword"},
+            },
+        )
         assert r.json()["params"]["prompt"] == "medieval sword"
 
     def test_enqueue_stores_tags(self, client: TestClient) -> None:
-        r = client.post("/jobs", json={
-            "job_type": "audio.sfx.generate",
-            "tags": ["test", "sfx"],
-        })
+        r = client.post(
+            "/jobs",
+            json={
+                "job_type": "audio.sfx.generate",
+                "tags": ["test", "sfx"],
+            },
+        )
         assert set(r.json()["tags"]) == {"test", "sfx"}
 
     def test_enqueue_custom_priority(self, client: TestClient) -> None:
-        r = client.post("/jobs", json={
-            "job_type": "audio.music.compose",
-            "priority": 10,
-        })
+        r = client.post(
+            "/jobs",
+            json={
+                "job_type": "audio.music.compose",
+                "priority": 10,
+            },
+        )
         assert r.json()["priority"] == 10
 
     def test_enqueue_unknown_job_type_returns_422(self, client: TestClient) -> None:
@@ -127,10 +140,13 @@ class TestEnqueueJob:
         assert r.status_code == 422
 
     def test_enqueue_with_model_id_override(self, client: TestClient) -> None:
-        r = client.post("/jobs", json={
-            "job_type": "visual.model.create",
-            "model_id": "stabilityai/TripoSR",
-        })
+        r = client.post(
+            "/jobs",
+            json={
+                "job_type": "visual.model.create",
+                "model_id": "stabilityai/TripoSR",
+            },
+        )
         assert r.status_code == 201
         # Override is stashed in params
         assert r.json()["params"].get("_model_id_override") == "stabilityai/TripoSR"
@@ -139,6 +155,7 @@ class TestEnqueueJob:
 # ---------------------------------------------------------------------------
 # GET /jobs — list
 # ---------------------------------------------------------------------------
+
 
 class TestListJobs:
     def test_list_returns_200(self, client: TestClient) -> None:
@@ -174,6 +191,7 @@ class TestListJobs:
 # GET /jobs/{id}
 # ---------------------------------------------------------------------------
 
+
 class TestGetJob:
     def test_get_by_full_id(self, client: TestClient) -> None:
         r_create = client.post("/jobs", json={"job_type": "visual.rig.auto"})
@@ -198,6 +216,7 @@ class TestGetJob:
 # ---------------------------------------------------------------------------
 # DELETE /jobs/{id} — cancel
 # ---------------------------------------------------------------------------
+
 
 class TestCancelJob:
     def test_cancel_queued_job_returns_204(self, client: TestClient) -> None:
@@ -229,6 +248,7 @@ class TestCancelJob:
 # Allow-list enforcement
 # ---------------------------------------------------------------------------
 
+
 class TestAllowList:
     def test_allow_list_blocks_unlisted_model(self, tmp_db_path: Path) -> None:
         cfg = {
@@ -240,10 +260,13 @@ class TestAllowList:
             with patch("assgen.config.get_db_path", return_value=tmp_db_path):
                 app = create_app(server_config=cfg)
                 with TestClient(app) as tc:
-                    r = tc.post("/jobs", json={
-                        "job_type": "audio.sfx.generate",
-                        "model_id": "facebook/audiogen-medium",
-                    })
+                    r = tc.post(
+                        "/jobs",
+                        json={
+                            "job_type": "audio.sfx.generate",
+                            "model_id": "facebook/audiogen-medium",
+                        },
+                    )
                     assert r.status_code == 422
                     assert "allow_list" in r.json()["detail"]
 
@@ -257,16 +280,20 @@ class TestAllowList:
             with patch("assgen.config.get_db_path", return_value=tmp_db_path):
                 app = create_app(server_config=cfg)
                 with TestClient(app) as tc:
-                    r = tc.post("/jobs", json={
-                        "job_type": "visual.model.create",
-                        "model_id": "stabilityai/TripoSR",
-                    })
+                    r = tc.post(
+                        "/jobs",
+                        json={
+                            "job_type": "visual.model.create",
+                            "model_id": "stabilityai/TripoSR",
+                        },
+                    )
                     assert r.status_code == 201
 
 
 # ---------------------------------------------------------------------------
 # GET /jobs/{id}/files  and  GET /jobs/{id}/files/{filename}
 # ---------------------------------------------------------------------------
+
 
 class TestJobFiles:
     """Tests for the file-download endpoints.
@@ -327,9 +354,7 @@ class TestJobFiles:
         r = client.get("/jobs/00000000-0000-0000-0000-000000000000/files")
         assert r.status_code == 404
 
-    def test_download_file_returns_200(
-        self, client: TestClient, tmp_path: Path
-    ) -> None:
+    def test_download_file_returns_200(self, client: TestClient, tmp_path: Path) -> None:
         from unittest.mock import patch as _patch
 
         job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["mesh.glb"])
@@ -338,9 +363,7 @@ class TestJobFiles:
         assert r.status_code == 200
         assert b"stub content" in r.content
 
-    def test_download_unknown_file_returns_404(
-        self, client: TestClient, tmp_path: Path
-    ) -> None:
+    def test_download_unknown_file_returns_404(self, client: TestClient, tmp_path: Path) -> None:
         from unittest.mock import patch as _patch
 
         job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["exists.txt"])
@@ -348,9 +371,7 @@ class TestJobFiles:
             r = client.get(f"/jobs/{job_id}/files/does_not_exist.txt")
         assert r.status_code == 404
 
-    def test_download_path_traversal_returns_400(
-        self, client: TestClient, tmp_path: Path
-    ) -> None:
+    def test_download_path_traversal_returns_400(self, client: TestClient, tmp_path: Path) -> None:
         from unittest.mock import patch as _patch
 
         job_id, job_out_dir = self._make_completed_job(client, tmp_path, ["x.txt"])
@@ -363,6 +384,7 @@ class TestJobFiles:
 # ---------------------------------------------------------------------------
 # SSE — GET /jobs/{id}/events
 # ---------------------------------------------------------------------------
+
 
 class TestJobEvents:
     """Tests for the SSE progress-streaming endpoint.
@@ -463,4 +485,3 @@ class TestJobEvents:
         for event in events:
             p = event.get("progress", 0)
             assert 0.0 <= p <= 1.0, f"Invalid progress value {p!r} in event: {event}"
-

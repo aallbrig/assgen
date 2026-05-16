@@ -19,6 +19,7 @@ Params:
     fps             (int):  output frame rate (default: 30)
     output          (str):  output directory stem (default: animations)
 """
+
 from __future__ import annotations
 
 import math
@@ -28,10 +29,11 @@ from typing import Any
 
 # ── Bundled clip metadata ────────────────────────────────────────────────────
 
+
 @dataclass
 class _ClipDef:
     name: str
-    duration_s: float    # approx clip duration
+    duration_s: float  # approx clip duration
     loop: bool
     description: str
     # Joint euler angles per frame as {bone: [(rx,ry,rz),...]} — simplified
@@ -44,14 +46,16 @@ def _build_walk_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]
     kf: dict[str, list[tuple[float, float, float]]] = {}
     for i in range(n_frames):
         t = i / n_frames * 2 * math.pi
-        kf.setdefault("Hips",         []).append((0.0, math.sin(t) * 2.0, 0.0))
+        kf.setdefault("Hips", []).append((0.0, math.sin(t) * 2.0, 0.0))
         kf.setdefault("LeftUpperLeg", []).append((math.sin(t) * 30.0, 0.0, 0.0))
-        kf.setdefault("RightUpperLeg",[]).append((math.sin(t + math.pi) * 30.0, 0.0, 0.0))
+        kf.setdefault("RightUpperLeg", []).append((math.sin(t + math.pi) * 30.0, 0.0, 0.0))
         kf.setdefault("LeftLowerLeg", []).append((max(0.0, math.sin(t + 0.5) * 20.0), 0.0, 0.0))
-        kf.setdefault("RightLowerLeg",[]).append((max(0.0, math.sin(t + 0.5 + math.pi) * 20.0), 0.0, 0.0))
+        kf.setdefault("RightLowerLeg", []).append(
+            (max(0.0, math.sin(t + 0.5 + math.pi) * 20.0), 0.0, 0.0)
+        )
         kf.setdefault("LeftUpperArm", []).append((math.sin(t + math.pi) * 15.0, 0.0, 0.0))
-        kf.setdefault("RightUpperArm",[]).append((math.sin(t) * 15.0, 0.0, 0.0))
-        kf.setdefault("Spine",        []).append((0.0, math.sin(t) * 3.0, 0.0))
+        kf.setdefault("RightUpperArm", []).append((math.sin(t) * 15.0, 0.0, 0.0))
+        kf.setdefault("Spine", []).append((0.0, math.sin(t) * 3.0, 0.0))
     return kf
 
 
@@ -61,13 +65,13 @@ def _build_idle_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]
     for i in range(n_frames):
         t = i / n_frames * 2 * math.pi
         breath = math.sin(t * 0.5) * 1.5
-        sway   = math.sin(t * 0.25) * 0.5
-        kf.setdefault("Spine",        []).append((breath, sway, 0.0))
-        kf.setdefault("Chest",        []).append((breath * 0.5, 0.0, 0.0))
-        kf.setdefault("Head",         []).append((0.0, sway * 0.3, 0.0))
+        sway = math.sin(t * 0.25) * 0.5
+        kf.setdefault("Spine", []).append((breath, sway, 0.0))
+        kf.setdefault("Chest", []).append((breath * 0.5, 0.0, 0.0))
+        kf.setdefault("Head", []).append((0.0, sway * 0.3, 0.0))
         kf.setdefault("LeftUpperArm", []).append((0.0, 0.0, math.sin(t * 0.3) * 2.0))
-        kf.setdefault("RightUpperArm",[]).append((0.0, 0.0, -math.sin(t * 0.3) * 2.0))
-        kf.setdefault("Hips",         []).append((0.0, sway * 0.5, 0.0))
+        kf.setdefault("RightUpperArm", []).append((0.0, 0.0, -math.sin(t * 0.3) * 2.0))
+        kf.setdefault("Hips", []).append((0.0, sway * 0.5, 0.0))
     return kf
 
 
@@ -78,12 +82,12 @@ def _build_talk_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]
         t = i / n_frames * 2 * math.pi
         nod = math.sin(t * 2) * 4.0
         gesture = math.sin(t) * 10.0
-        kf.setdefault("Head",         []).append((nod, 0.0, 0.0))
-        kf.setdefault("Spine",        []).append((2.0, math.sin(t * 0.5) * 1.0, 0.0))
-        kf.setdefault("RightUpperArm",[]).append((-20.0 + gesture, 0.0, gesture * 0.3))
-        kf.setdefault("RightLowerArm",[]).append((-30.0 + gesture * 0.5, 0.0, 0.0))
+        kf.setdefault("Head", []).append((nod, 0.0, 0.0))
+        kf.setdefault("Spine", []).append((2.0, math.sin(t * 0.5) * 1.0, 0.0))
+        kf.setdefault("RightUpperArm", []).append((-20.0 + gesture, 0.0, gesture * 0.3))
+        kf.setdefault("RightLowerArm", []).append((-30.0 + gesture * 0.5, 0.0, 0.0))
         kf.setdefault("LeftUpperArm", []).append((-10.0, 0.0, -3.0))
-        kf.setdefault("Hips",         []).append((0.0, math.sin(t * 0.3) * 1.0, 0.0))
+        kf.setdefault("Hips", []).append((0.0, math.sin(t * 0.3) * 1.0, 0.0))
     return kf
 
 
@@ -92,14 +96,16 @@ def _build_run_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]]
     kf: dict[str, list[tuple[float, float, float]]] = {}
     for i in range(n_frames):
         t = i / n_frames * 2 * math.pi
-        kf.setdefault("Hips",         []).append((0.0, math.sin(t) * 4.0, 0.0))
+        kf.setdefault("Hips", []).append((0.0, math.sin(t) * 4.0, 0.0))
         kf.setdefault("LeftUpperLeg", []).append((math.sin(t) * 55.0, 0.0, 0.0))
-        kf.setdefault("RightUpperLeg",[]).append((math.sin(t + math.pi) * 55.0, 0.0, 0.0))
+        kf.setdefault("RightUpperLeg", []).append((math.sin(t + math.pi) * 55.0, 0.0, 0.0))
         kf.setdefault("LeftLowerLeg", []).append((max(0.0, math.sin(t + 0.3) * 35.0), 0.0, 0.0))
-        kf.setdefault("RightLowerLeg",[]).append((max(0.0, math.sin(t + 0.3 + math.pi) * 35.0), 0.0, 0.0))
+        kf.setdefault("RightLowerLeg", []).append(
+            (max(0.0, math.sin(t + 0.3 + math.pi) * 35.0), 0.0, 0.0)
+        )
         kf.setdefault("LeftUpperArm", []).append((math.sin(t + math.pi) * 40.0, 0.0, 0.0))
-        kf.setdefault("RightUpperArm",[]).append((math.sin(t) * 40.0, 0.0, 0.0))
-        kf.setdefault("Spine",        []).append((-5.0, math.sin(t) * 4.0, 0.0))
+        kf.setdefault("RightUpperArm", []).append((math.sin(t) * 40.0, 0.0, 0.0))
+        kf.setdefault("Spine", []).append((-5.0, math.sin(t) * 4.0, 0.0))
     return kf
 
 
@@ -109,11 +115,11 @@ def _build_attack_light_keyframes(fps: int) -> dict[str, list[tuple[float, float
     for i in range(n_frames):
         t = i / n_frames
         windup = max(0.0, 1.0 - t * 4) * -30.0
-        swing  = max(0.0, t * 3 - 1.0) * 70.0 if t > 0.33 else 0.0
+        swing = max(0.0, t * 3 - 1.0) * 70.0 if t > 0.33 else 0.0
         kf.setdefault("RightUpperArm", []).append((-30.0 + swing - windup, 0.0, 0.0))
         kf.setdefault("RightLowerArm", []).append((max(0.0, swing * 0.5), 0.0, 0.0))
-        kf.setdefault("Spine",         []).append((0.0, -windup * 0.2 + swing * 0.3, 0.0))
-        kf.setdefault("Hips",          []).append((0.0, -windup * 0.1 + swing * 0.15, 0.0))
+        kf.setdefault("Spine", []).append((0.0, -windup * 0.2 + swing * 0.3, 0.0))
+        kf.setdefault("Hips", []).append((0.0, -windup * 0.1 + swing * 0.15, 0.0))
     return kf
 
 
@@ -123,12 +129,12 @@ def _build_death_keyframes(fps: int) -> dict[str, list[tuple[float, float, float
     for i in range(n_frames):
         t = min(1.0, i / n_frames * 1.2)
         fall = t * 90.0
-        kf.setdefault("Hips",          []).append((-fall * 0.3, 0.0, 0.0))
-        kf.setdefault("Spine",         []).append((-fall * 0.4, 0.0, 0.0))
-        kf.setdefault("Chest",         []).append((-fall * 0.3, 0.0, 0.0))
-        kf.setdefault("LeftUpperLeg",  []).append((fall * 0.2, 0.0, 0.0))
+        kf.setdefault("Hips", []).append((-fall * 0.3, 0.0, 0.0))
+        kf.setdefault("Spine", []).append((-fall * 0.4, 0.0, 0.0))
+        kf.setdefault("Chest", []).append((-fall * 0.3, 0.0, 0.0))
+        kf.setdefault("LeftUpperLeg", []).append((fall * 0.2, 0.0, 0.0))
         kf.setdefault("RightUpperLeg", []).append((fall * 0.15, 0.0, 5.0))
-        kf.setdefault("LeftUpperArm",  []).append((fall * 0.5, 0.0, 45.0))
+        kf.setdefault("LeftUpperArm", []).append((fall * 0.5, 0.0, 45.0))
         kf.setdefault("RightUpperArm", []).append((fall * 0.4, 0.0, -45.0))
     return kf
 
@@ -140,29 +146,33 @@ def _build_jump_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]
         t = i / n_frames
         phase = math.sin(t * math.pi)  # 0→1→0
         crouch = (1.0 - t * 2) * 20 if t < 0.25 else 0.0
-        tuck   = phase * -30.0
-        kf.setdefault("Hips",          []).append((crouch + tuck, 0.0, 0.0))
-        kf.setdefault("LeftUpperLeg",  []).append((tuck * 0.8, 0.0, 0.0))
+        tuck = phase * -30.0
+        kf.setdefault("Hips", []).append((crouch + tuck, 0.0, 0.0))
+        kf.setdefault("LeftUpperLeg", []).append((tuck * 0.8, 0.0, 0.0))
         kf.setdefault("RightUpperLeg", []).append((tuck * 0.8, 0.0, 0.0))
-        kf.setdefault("LeftLowerLeg",  []).append((abs(tuck) * 0.6, 0.0, 0.0))
+        kf.setdefault("LeftLowerLeg", []).append((abs(tuck) * 0.6, 0.0, 0.0))
         kf.setdefault("RightLowerLeg", []).append((abs(tuck) * 0.6, 0.0, 0.0))
-        kf.setdefault("LeftUpperArm",  []).append((-phase * 30.0, 0.0, 0.0))
+        kf.setdefault("LeftUpperArm", []).append((-phase * 30.0, 0.0, 0.0))
         kf.setdefault("RightUpperArm", []).append((-phase * 30.0, 0.0, 0.0))
     return kf
 
 
-def _build_turn_keyframes(fps: int, direction: float = 1.0) -> dict[str, list[tuple[float, float, float]]]:
+def _build_turn_keyframes(
+    fps: int, direction: float = 1.0
+) -> dict[str, list[tuple[float, float, float]]]:
     n_frames = int(fps * 0.8)
     kf: dict[str, list[tuple[float, float, float]]] = {}
     for i in range(n_frames):
         t = i / n_frames
         angle = t * 90.0 * direction
-        kf.setdefault("Hips",  []).append((0.0, angle, 0.0))
+        kf.setdefault("Hips", []).append((0.0, angle, 0.0))
         kf.setdefault("Spine", []).append((0.0, angle * 0.3, 0.0))
     return kf
 
 
-def _build_strafe_keyframes(fps: int, direction: float = 1.0) -> dict[str, list[tuple[float, float, float]]]:
+def _build_strafe_keyframes(
+    fps: int, direction: float = 1.0
+) -> dict[str, list[tuple[float, float, float]]]:
     return _build_walk_keyframes(fps)  # simplified — same as walk for now
 
 
@@ -174,8 +184,8 @@ def _build_wave_keyframes(fps: int) -> dict[str, list[tuple[float, float, float]
         wave = math.sin(t * 3) * 15.0
         kf.setdefault("RightUpperArm", []).append((-70.0, wave, 0.0))
         kf.setdefault("RightLowerArm", []).append((-20.0 + wave * 0.5, 0.0, 0.0))
-        kf.setdefault("Head",          []).append((0.0, math.sin(t * 0.5) * 5.0, 0.0))
-        kf.setdefault("Spine",         []).append((0.0, math.sin(t * 0.3) * 2.0, 0.0))
+        kf.setdefault("Head", []).append((0.0, math.sin(t * 0.5) * 5.0, 0.0))
+        kf.setdefault("Spine", []).append((0.0, math.sin(t * 0.3) * 2.0, 0.0))
     return kf
 
 
@@ -184,11 +194,11 @@ def _build_crouch_idle_keyframes(fps: int) -> dict[str, list[tuple[float, float,
     kf: dict[str, list[tuple[float, float, float]]] = {}
     for i in range(n_frames):
         t = i / n_frames * 2 * math.pi
-        kf.setdefault("Hips",          []).append((-15.0, math.sin(t * 0.3) * 1.5, 0.0))
-        kf.setdefault("Spine",         []).append((-20.0, 0.0, 0.0))
-        kf.setdefault("LeftUpperLeg",  []).append((45.0, 0.0, 0.0))
+        kf.setdefault("Hips", []).append((-15.0, math.sin(t * 0.3) * 1.5, 0.0))
+        kf.setdefault("Spine", []).append((-20.0, 0.0, 0.0))
+        kf.setdefault("LeftUpperLeg", []).append((45.0, 0.0, 0.0))
         kf.setdefault("RightUpperLeg", []).append((45.0, 0.0, 0.0))
-        kf.setdefault("LeftLowerLeg",  []).append((-70.0, 0.0, 0.0))
+        kf.setdefault("LeftLowerLeg", []).append((-70.0, 0.0, 0.0))
         kf.setdefault("RightLowerLeg", []).append((-70.0, 0.0, 0.0))
     return kf
 
@@ -198,76 +208,94 @@ def _build_sit_idle_keyframes(fps: int) -> dict[str, list[tuple[float, float, fl
     kf: dict[str, list[tuple[float, float, float]]] = {}
     for i in range(n_frames):
         t = i / n_frames * 2 * math.pi
-        kf.setdefault("Hips",          []).append((-10.0, 0.0, 0.0))
-        kf.setdefault("Spine",         []).append((5.0, math.sin(t * 0.3) * 1.0, 0.0))
-        kf.setdefault("LeftUpperLeg",  []).append((90.0, 0.0, 0.0))
+        kf.setdefault("Hips", []).append((-10.0, 0.0, 0.0))
+        kf.setdefault("Spine", []).append((5.0, math.sin(t * 0.3) * 1.0, 0.0))
+        kf.setdefault("LeftUpperLeg", []).append((90.0, 0.0, 0.0))
         kf.setdefault("RightUpperLeg", []).append((90.0, 0.0, 0.0))
-        kf.setdefault("LeftLowerLeg",  []).append((-70.0, 0.0, 0.0))
+        kf.setdefault("LeftLowerLeg", []).append((-70.0, 0.0, 0.0))
         kf.setdefault("RightLowerLeg", []).append((-70.0, 0.0, 0.0))
-        kf.setdefault("LeftUpperArm",  []).append((-10.0, 0.0, 0.0))
+        kf.setdefault("LeftUpperArm", []).append((-10.0, 0.0, 0.0))
         kf.setdefault("RightUpperArm", []).append((-10.0, 0.0, 0.0))
     return kf
 
 
 def _get_clip_builders(fps: int) -> dict[str, dict[str, list[tuple[float, float, float]]]]:
     return {
-        "idle":          _build_idle_keyframes(fps),
-        "walk":          _build_walk_keyframes(fps),
-        "run":           _build_run_keyframes(fps),
-        "turn_left":     _build_turn_keyframes(fps, direction=-1.0),
-        "turn_right":    _build_turn_keyframes(fps, direction=1.0),
-        "talk":          _build_talk_keyframes(fps),
-        "attack_light":  _build_attack_light_keyframes(fps),
-        "attack_heavy":  _build_attack_light_keyframes(fps),   # reuse, different timing
-        "death":         _build_death_keyframes(fps),
-        "jump":          _build_jump_keyframes(fps),
-        "strafe_left":   _build_strafe_keyframes(fps, direction=-1.0),
-        "strafe_right":  _build_strafe_keyframes(fps, direction=1.0),
-        "crouch_idle":   _build_crouch_idle_keyframes(fps),
-        "wave":          _build_wave_keyframes(fps),
-        "sit_idle":      _build_sit_idle_keyframes(fps),
+        "idle": _build_idle_keyframes(fps),
+        "walk": _build_walk_keyframes(fps),
+        "run": _build_run_keyframes(fps),
+        "turn_left": _build_turn_keyframes(fps, direction=-1.0),
+        "turn_right": _build_turn_keyframes(fps, direction=1.0),
+        "talk": _build_talk_keyframes(fps),
+        "attack_light": _build_attack_light_keyframes(fps),
+        "attack_heavy": _build_attack_light_keyframes(fps),  # reuse, different timing
+        "death": _build_death_keyframes(fps),
+        "jump": _build_jump_keyframes(fps),
+        "strafe_left": _build_strafe_keyframes(fps, direction=-1.0),
+        "strafe_right": _build_strafe_keyframes(fps, direction=1.0),
+        "crouch_idle": _build_crouch_idle_keyframes(fps),
+        "wave": _build_wave_keyframes(fps),
+        "sit_idle": _build_sit_idle_keyframes(fps),
     }
 
 
 # ── Unity Humanoid bone name convention ─────────────────────────────────────
 
 _HUMANOID_BONE_NAMES = [
-    "Hips", "Spine", "Chest", "UpperChest", "Neck", "Head",
-    "LeftShoulder", "LeftUpperArm", "LeftLowerArm", "LeftHand",
-    "RightShoulder", "RightUpperArm", "RightLowerArm", "RightHand",
-    "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToes",
-    "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToes",
+    "Hips",
+    "Spine",
+    "Chest",
+    "UpperChest",
+    "Neck",
+    "Head",
+    "LeftShoulder",
+    "LeftUpperArm",
+    "LeftLowerArm",
+    "LeftHand",
+    "RightShoulder",
+    "RightUpperArm",
+    "RightLowerArm",
+    "RightHand",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "LeftFoot",
+    "LeftToes",
+    "RightUpperLeg",
+    "RightLowerLeg",
+    "RightFoot",
+    "RightToes",
 ]
 
 # Common source-name → Humanoid mapping
 _AUTO_BONE_MAP: dict[str, str] = {
     # UniRig naming → Humanoid
-    "pelvis":         "Hips",
-    "spine":          "Spine",
-    "spine1":         "Chest",
-    "spine2":         "UpperChest",
-    "neck":           "Neck",
-    "head":           "Head",
-    "l_shoulder":     "LeftShoulder",
-    "l_arm":          "LeftUpperArm",
-    "l_forearm":      "LeftLowerArm",
-    "l_hand":         "LeftHand",
-    "r_shoulder":     "RightShoulder",
-    "r_arm":          "RightUpperArm",
-    "r_forearm":      "RightLowerArm",
-    "r_hand":         "RightHand",
-    "l_thigh":        "LeftUpperLeg",
-    "l_knee":         "LeftLowerLeg",
-    "l_ankle":        "LeftFoot",
-    "r_thigh":        "RightUpperLeg",
-    "r_knee":         "RightLowerLeg",
-    "r_ankle":        "RightFoot",
+    "pelvis": "Hips",
+    "spine": "Spine",
+    "spine1": "Chest",
+    "spine2": "UpperChest",
+    "neck": "Neck",
+    "head": "Head",
+    "l_shoulder": "LeftShoulder",
+    "l_arm": "LeftUpperArm",
+    "l_forearm": "LeftLowerArm",
+    "l_hand": "LeftHand",
+    "r_shoulder": "RightShoulder",
+    "r_arm": "RightUpperArm",
+    "r_forearm": "RightLowerArm",
+    "r_hand": "RightHand",
+    "l_thigh": "LeftUpperLeg",
+    "l_knee": "LeftLowerLeg",
+    "l_ankle": "LeftFoot",
+    "r_thigh": "RightUpperLeg",
+    "r_knee": "RightLowerLeg",
+    "r_ankle": "RightFoot",
     # Already humanoid
     **{n: n for n in _HUMANOID_BONE_NAMES},
 }
 
 
 # ── BVH writer ───────────────────────────────────────────────────────────────
+
 
 def _write_bvh(
     clip_name: str,
@@ -284,7 +312,10 @@ def _write_bvh(
     lines: list[str] = ["HIERARCHY"]
 
     # Simple flat hierarchy rooted at Hips (or first bone)
-    root = next((b for b in bones if "hip" in b.lower() or "pelvi" in b.lower()), bones[0] if bones else "Hips")
+    root = next(
+        (b for b in bones if "hip" in b.lower() or "pelvi" in b.lower()),
+        bones[0] if bones else "Hips",
+    )
     others = [b for b in bones if b != root]
 
     def _bone_lines(name: str, depth: int, is_end: bool = False) -> list[str]:
@@ -330,8 +361,16 @@ def _write_bvh(
 
 # ── Main handler ─────────────────────────────────────────────────────────────
 
-def run(job_type: str, params: dict, model_id: str, model_path: str,
-        device: str, progress_cb: Any, output_dir: str) -> dict:
+
+def run(
+    job_type: str,
+    params: dict,
+    model_id: str,
+    model_path: str,
+    device: str,
+    progress_cb: Any,
+    output_dir: str,
+) -> dict:
     """Retarget bundled BVH motion clips onto the character skeleton."""
 
     out_dir = Path(output_dir)
@@ -352,9 +391,7 @@ def run(job_type: str, params: dict, model_id: str, model_path: str,
     # Validate
     unknown = [c for c in requested if c not in available_clips]
     if unknown:
-        raise ValueError(
-            f"Unknown clip(s): {unknown}. Available: {available_clips}"
-        )
+        raise ValueError(f"Unknown clip(s): {unknown}. Available: {available_clips}")
 
     # Build bone remapping
     skeleton_mode = str(params.get("skeleton", "auto")).lower()
@@ -379,12 +416,22 @@ def run(job_type: str, params: dict, model_id: str, model_path: str,
 
     # Emit a manifest JSON listing all clips
     import json
+
     manifest = {
         "clips": [
             {
                 "name": c,
                 "file": f"{out_stem}_{c}.bvh",
-                "loop": c in {"idle", "walk", "run", "strafe_left", "strafe_right", "crouch_idle", "sit_idle"},
+                "loop": c
+                in {
+                    "idle",
+                    "walk",
+                    "run",
+                    "strafe_left",
+                    "strafe_right",
+                    "crouch_idle",
+                    "sit_idle",
+                },
                 "fps": fps,
             }
             for c in requested

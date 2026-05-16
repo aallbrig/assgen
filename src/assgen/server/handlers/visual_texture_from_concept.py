@@ -24,6 +24,7 @@ Params:
     steps           (int):  inference steps (default: 30)
     output          (str):  output filename stem (default: texture)
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -41,6 +43,7 @@ except ImportError:
 def _stub_flat_texture(params: dict, output_dir: Path, progress_cb) -> dict:
     """Return a flat placeholder texture when IP-Adapter / model is unavailable."""
     from PIL import Image
+
     progress_cb(0.2, "IP-Adapter not available — generating flat placeholder texture…")
     w = int(params.get("width", 1024))
     h = int(params.get("height", 1024))
@@ -50,7 +53,12 @@ def _stub_flat_texture(params: dict, output_dir: Path, progress_cb) -> dict:
     progress_cb(1.0, "Stub texture saved")
     return {
         "files": ["albedo.png"],
-        "metadata": {"stub": True, "reason": "IP-Adapter model not available", "width": w, "height": h},
+        "metadata": {
+            "stub": True,
+            "reason": "IP-Adapter model not available",
+            "width": w,
+            "height": h,
+        },
     }
 
 
@@ -60,7 +68,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         return _stub_flat_texture(params, Path(output_dir), progress_cb)
 
     try:
-        return _run_real(job_type, params, model_id, model_path, device, progress_cb, Path(output_dir))
+        return _run_real(
+            job_type, params, model_id, model_path, device, progress_cb, Path(output_dir)
+        )
     except Exception as exc:
         logger.warning("IP-Adapter texture generation failed (%s) — using stub", exc)
         return _stub_flat_texture(params, Path(output_dir), progress_cb)
@@ -78,9 +88,7 @@ def _run_real(job_type, params, model_id, model_path, device, progress_cb, out_d
     # ── Resolve concept image ────────────────────────────────────────────────
     concept_path: str | None = params.get("concept_image")
     if not concept_path:
-        concept_path = next(
-            (f for f in upstream if Path(f).suffix.lower() in image_exts), None
-        )
+        concept_path = next((f for f in upstream if Path(f).suffix.lower() in image_exts), None)
     if not concept_path:
         raise ValueError("'concept_image' param or upstream image file required")
 
@@ -108,15 +116,17 @@ def _run_real(job_type, params, model_id, model_path, device, progress_cb, out_d
     pipe = StableDiffusionXLPipeline.from_pretrained(
         hf_id, torch_dtype=dtype, image_encoder=image_encoder
     ).to(device)
-    pipe.load_ip_adapter("h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin")
+    pipe.load_ip_adapter(
+        "h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin"
+    )
     pipe.set_ip_adapter_scale(ip_scale)
 
     # ── Generate 4 texture views ─────────────────────────────────────────────
     _VIEW_PROMPTS = [
-        ("front",  "character texture sheet, front view, flat lighting, UV albedo"),
-        ("back",   "character texture sheet, back view, flat lighting, UV albedo"),
-        ("left",   "character texture sheet, side view left, flat lighting, UV albedo"),
-        ("right",  "character texture sheet, side view right, flat lighting, UV albedo"),
+        ("front", "character texture sheet, front view, flat lighting, UV albedo"),
+        ("back", "character texture sheet, back view, flat lighting, UV albedo"),
+        ("left", "character texture sheet, side view left, flat lighting, UV albedo"),
+        ("right", "character texture sheet, side view right, flat lighting, UV albedo"),
     ]
     negative = "shadows, background, specular highlights, depth of field, gradients"
 

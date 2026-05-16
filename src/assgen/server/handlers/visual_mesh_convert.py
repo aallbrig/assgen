@@ -6,10 +6,12 @@ Params:
     input  (str): path to source mesh
     format (str): target format (default "glb")
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

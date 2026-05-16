@@ -18,6 +18,7 @@ Usage::
         on_step=lambda step_id, status, msg: print(f"[{step_id}] {status}: {msg}"),
     )
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -54,8 +55,8 @@ def run_pipeline(
     completed: dict[str, StepResult] = {}
 
     for step in steps:
-        step_id   = step["id"]
-        job_type  = step["job_type"]
+        step_id = step["id"]
+        job_type = step["job_type"]
         step_params = {**global_params, **step.get("params", {})}
 
         # Resolve upstream files from named prior steps
@@ -80,9 +81,7 @@ def run_pipeline(
             try:
                 job = client.enqueue_job(job_type, step_params)
             except APIError as exc:
-                raise RuntimeError(
-                    f"Pipeline step {step_id!r} failed to enqueue: {exc}"
-                ) from exc
+                raise RuntimeError(f"Pipeline step {step_id!r} failed to enqueue: {exc}") from exc
 
         job_id = job["id"]
         on_step(step_id, "RUNNING", f"job {job_id[:8]}")
@@ -98,8 +97,7 @@ def run_pipeline(
         status = finished.get("status", "UNKNOWN")
         if status != "COMPLETED":
             raise RuntimeError(
-                f"Pipeline step {step_id!r} finished with status {status!r}. "
-                "Pipeline halted."
+                f"Pipeline step {step_id!r} finished with status {status!r}. Pipeline halted."
             )
 
         completed[step_id] = finished

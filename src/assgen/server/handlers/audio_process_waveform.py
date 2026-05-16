@@ -9,10 +9,12 @@ Params:
     height (int): output image height in pixels (default 200)
     color  (str): hex colour for waveform, e.g. "#00ff88" (default "#00ff88")
 """
+
 from __future__ import annotations
 
 try:
     from pydub import AudioSegment  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -64,7 +66,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     peak_neg = np.zeros(n_chunks, dtype=np.float32)
 
     for i in range(n_chunks):
-        chunk = samples[i * chunk_size: (i + 1) * chunk_size]
+        chunk = samples[i * chunk_size : (i + 1) * chunk_size]
         if len(chunk) > 0:
             peak_pos[i] = float(np.max(chunk))
             peak_neg[i] = float(np.min(chunk))

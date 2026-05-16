@@ -1,4 +1,5 @@
 """Tests for assgen.db — schema, CRUD helpers, and crash-recovery utilities."""
+
 from __future__ import annotations
 
 from datetime import UTC
@@ -10,15 +11,13 @@ import pytest
 # Schema
 # ---------------------------------------------------------------------------
 
+
 def test_init_creates_all_tables(tmp_path: Path) -> None:
     from assgen.db import init_db
 
     conn = init_db(tmp_path / "test.db")
     tables = {
-        r[0]
-        for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()
+        r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     }
     assert {"jobs", "models", "model_usage", "schema_version"} <= tables
 
@@ -43,6 +42,7 @@ def test_idempotent_init(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Job CRUD
 # ---------------------------------------------------------------------------
+
 
 def test_create_job_returns_uuid(tmp_path: Path) -> None:
     from assgen.db import create_job, init_db
@@ -166,6 +166,7 @@ def test_terminal_state_sets_completed_at(tmp_path: Path) -> None:
 # Crash recovery
 # ---------------------------------------------------------------------------
 
+
 def test_reset_stale_running_jobs(tmp_path: Path) -> None:
     from assgen.db import (
         JobStatus,
@@ -212,6 +213,7 @@ def test_reset_stale_leaves_terminal_jobs(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Model upsert
 # ---------------------------------------------------------------------------
+
 
 def test_upsert_model_insert_and_update(tmp_path: Path) -> None:
     from assgen.db import init_db, upsert_model

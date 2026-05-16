@@ -23,25 +23,27 @@ Params:
                              runtime (default: False)
     output          (str):   output filename stem (default: button)
 """
+
 from __future__ import annotations
 
 import json
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 # Prompt modifiers per state — appended to the base prompt before inference
 _STATE_MODIFIERS: dict[str, str] = {
-    "normal":   "",
-    "hover":    ", soft glow highlight, slightly lighter tone",
-    "pressed":  ", darker, depressed inset, inner shadow, pushed down",
+    "normal": "",
+    "hover": ", soft glow highlight, slightly lighter tone",
+    "pressed": ", darker, depressed inset, inner shadow, pushed down",
     "disabled": ", greyscale, desaturated, flat, low contrast, muted",
-    "focused":  ", bright outline border, keyboard focus ring, glowing edge",
+    "focused": ", bright outline border, keyboard focus ring, glowing edge",
     "selected": ", strongly lit, toggled-on, active state, highlighted fill",
-    "locked":   ", desaturated, dark overlay, padlock motif, inaccessible look",
+    "locked": ", desaturated, dark overlay, padlock motif, inaccessible look",
 }
 
 
@@ -85,11 +87,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not prompt:
         raise ValueError("'prompt' is required")
 
-    style          = params.get("style", "")
-    base_width     = max(8, int(params.get("width", 256)))
-    base_height    = max(8, int(params.get("height", 128)))
+    style = params.get("style", "")
+    base_width = max(8, int(params.get("width", 256)))
+    base_height = max(8, int(params.get("height", 128)))
     # snap to multiples of 8 (SDXL requirement)
-    base_width  -= base_width  % 8
+    base_width -= base_width % 8
     base_height -= base_height % 8
 
     raw_states = params.get("states") or ["normal"]
@@ -99,30 +101,30 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if not valid_states:
         valid_states = ["normal"]
 
-    steps          = int(params.get("steps", 25))
-    nine_slice     = str(params.get("nine_slice", "off")).lower()
-    ns_inset_raw   = params.get("nine_slice_inset")
-    ns_override    = int(ns_inset_raw) if ns_inset_raw is not None else None
-    dpi_scales     = _parse_dpi_scales(params.get("dpi", "1x"))
+    steps = int(params.get("steps", 25))
+    nine_slice = str(params.get("nine_slice", "off")).lower()
+    ns_inset_raw = params.get("nine_slice_inset")
+    ns_override = int(ns_inset_raw) if ns_inset_raw is not None else None
+    dpi_scales = _parse_dpi_scales(params.get("dpi", "1x"))
     greyscale_base = bool(params.get("greyscale_base", False))
-    out_stem       = params.get("output") or "button"
-    out_dir        = Path(output_dir)
-    multi_state    = len(valid_states) > 1
+    out_stem = params.get("output") or "button"
+    out_dir = Path(output_dir)
+    multi_state = len(valid_states) > 1
 
     # Generate at the highest requested DPI scale, then downsample
-    max_scale   = dpi_scales[0]
-    gen_width   = base_width  * max_scale
-    gen_height  = base_height * max_scale
+    max_scale = dpi_scales[0]
+    gen_width = base_width * max_scale
+    gen_height = base_height * max_scale
     # keep snapped to 8 after scaling
-    gen_width  -= gen_width  % 8
+    gen_width -= gen_width % 8
     gen_height -= gen_height % 8
 
     progress_cb(0.05, "Loading SDXL pipeline…")
-    hf_id  = model_path or model_id or "stabilityai/stable-diffusion-xl-base-1.0"
-    dtype  = torch.float16 if device != "cpu" else torch.float32
-    pipe   = StableDiffusionXLPipeline.from_pretrained(hf_id, torch_dtype=dtype).to(device)
+    hf_id = model_path or model_id or "stabilityai/stable-diffusion-xl-base-1.0"
+    dtype = torch.float16 if device != "cpu" else torch.float32
+    pipe = StableDiffusionXLPipeline.from_pretrained(hf_id, torch_dtype=dtype).to(device)
 
-    style_tag   = f", {style} style" if style else ""
+    style_tag = f", {style} style" if style else ""
     base_prompt = (
         f"{prompt}{style_tag}, game UI button, isolated on transparent background, "
         "clean sharp edges, no background, no text, PNG asset"
@@ -130,11 +132,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     negative = "background, scenery, clutter, text, watermark, frame, border"
 
     out_files: list[str] = []
-    all_meta:  list[dict] = []
+    all_meta: list[dict] = []
     n = len(valid_states)
 
     for i, state in enumerate(valid_states):
-        modifier    = _STATE_MODIFIERS[state]
+        modifier = _STATE_MODIFIERS[state]
         full_prompt = base_prompt + modifier
         progress_cb(0.1 + 0.75 * (i / n), f"Generating '{state}' state…")
 
@@ -164,7 +166,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             if scale == max_scale:
                 save_img = image
             else:
-                w = max(1, base_width  * scale)
+                w = max(1, base_width * scale)
                 h = max(1, base_height * scale)
                 save_img = image.resize((w, h), Image.LANCZOS)
 
@@ -172,20 +174,20 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             out_files.append(fname)
 
             if nine_slice == "auto":
-                sw, sh    = save_img.size
-                insets    = _nine_slice_insets(sw, sh, ns_override)
+                sw, sh = save_img.size
+                insets = _nine_slice_insets(sw, sh, ns_override)
                 meta_name = fname.replace(".png", ".meta.json")
-                meta_obj  = {"file": fname, "nine_slice": insets}
+                meta_obj = {"file": fname, "nine_slice": insets}
                 (out_dir / meta_name).write_text(json.dumps(meta_obj, indent=2))
                 out_files.append(meta_name)
                 all_meta.append(meta_obj)
 
     progress_cb(1.0, "Done")
     metadata: dict = {
-        "base_width":     base_width,
-        "base_height":    base_height,
-        "states":         valid_states,
-        "dpi_scales":     dpi_scales,
+        "base_width": base_width,
+        "base_height": base_height,
+        "states": valid_states,
+        "dpi_scales": dpi_scales,
         "greyscale_base": greyscale_base,
     }
     if nine_slice == "auto":

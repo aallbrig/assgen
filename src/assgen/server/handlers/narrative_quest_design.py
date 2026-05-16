@@ -3,6 +3,7 @@
 Requires ``transformers`` and ``torch``:
     pip install transformers accelerate torch
 """
+
 from __future__ import annotations
 
 import json
@@ -13,6 +14,7 @@ from typing import Any
 try:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from transformers import pipeline as hf_pipeline
+
     _TRANSFORMERS_AVAILABLE = True
 except ImportError:
     _TRANSFORMERS_AVAILABLE = False
@@ -57,11 +59,12 @@ def run(
     """Generate a structured quest design document."""
     if not _TRANSFORMERS_AVAILABLE:
         raise RuntimeError(
-            "transformers is not installed.  "
-            "Run: pip install transformers accelerate"
+            "transformers is not installed.  Run: pip install transformers accelerate"
         )
 
-    topic: str = params.get("topic") or params.get("description") or params.get("prompt") or "side quest"
+    topic: str = (
+        params.get("topic") or params.get("description") or params.get("prompt") or "side quest"
+    )
     quest_type: str = params.get("quest_type", "side-quest")
 
     context_map: dict[str, str] = params.get("context_map") or {}
@@ -91,7 +94,7 @@ def run(
     pipe = hf_pipeline("text-generation", model=model_obj, tokenizer=tokenizer)
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user",   "content": f"Design a {quest_type} about: {topic}"},
+        {"role": "user", "content": f"Design a {quest_type} about: {topic}"},
     ]
     outputs = pipe(messages, max_new_tokens=1500, do_sample=True, temperature=0.75)
     generated = outputs[0]["generated_text"]

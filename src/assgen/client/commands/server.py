@@ -1,12 +1,13 @@
 """assgen server — manage the local assgen-server process from the client CLI.
 
-  assgen server start               [--daemon]
-  assgen server stop
-  assgen server status
-  assgen server config show         server runtime settings (host, port, device…)
-  assgen server config set          update a runtime setting key/value
-  assgen server config models       task → model catalog (same as assgen config)
+assgen server start               [--daemon]
+assgen server stop
+assgen server status
+assgen server config show         server runtime settings (host, port, device…)
+assgen server config set          update a runtime setting key/value
+assgen server config models       task → model catalog (same as assgen config)
 """
+
 from __future__ import annotations
 
 import typer
@@ -68,6 +69,7 @@ def server_stop() -> None:
     import subprocess
 
     from assgen.client.auto_server import find_server_executable
+
     try:
         exe = find_server_executable()
     except FileNotFoundError as e:
@@ -98,13 +100,16 @@ def server_status() -> None:
         # Also try a health check
         try:
             import httpx
+
             r = httpx.get(f"{url}/health", timeout=2.0)
             healthy = r.status_code == 200
             version = r.json().get("version", "?") if healthy else "?"
         except Exception:
             healthy = False
             version = "?"
-        status_str = "[green]Running[/green]" if healthy else "[yellow]Running (unreachable)[/yellow]"
+        status_str = (
+            "[green]Running[/green]" if healthy else "[yellow]Running (unreachable)[/yellow]"
+        )
         console.print(f"Status:  {status_str}")
         console.print(f"PID:     {pid}")
         console.print(f"URL:     {url}")
@@ -123,14 +128,14 @@ def server_config_show() -> None:
     console.print(f"\n[bold]Config directory:[/bold] {cfg_dir}")
     console.print("\n[bold]Server runtime settings:[/bold]")
     _DESCRIPTIONS = {
-        "host":                  "Bind address",
-        "port":                  "Listen port",
-        "workers":               "Concurrent worker threads",
-        "device":                "Inference device (auto / cuda / cpu)",
-        "log_level":             "Logging verbosity",
-        "model_load_timeout":    "Max seconds to wait for a model download",
-        "job_retention_days":    "Days to keep completed jobs in DB",
-        "allow_list":            "Allowed model IDs ([] = all allowed)",
+        "host": "Bind address",
+        "port": "Listen port",
+        "workers": "Concurrent worker threads",
+        "device": "Inference device (auto / cuda / cpu)",
+        "log_level": "Logging verbosity",
+        "model_load_timeout": "Max seconds to wait for a model download",
+        "job_retention_days": "Days to keep completed jobs in DB",
+        "allow_list": "Allowed model IDs ([] = all allowed)",
         "skip_model_validation": "Bypass HF pipeline_tag compatibility checks",
     }
     for k, v in srv.items():
@@ -189,6 +194,7 @@ def server_config_set(
         coerced = value.lower() in {"true", "1", "yes"}
     elif key in _LIST_KEYS:
         import json
+
         try:
             parsed = json.loads(value)
             if not isinstance(parsed, list):
@@ -228,6 +234,7 @@ def server_config_models(
       assgen config set <job-type> [--model-id <id>]
     """
     from assgen.client.commands.config import config_list
+
     # Delegate to the top-level config list command
     config_list(domain=domain, installed=False)
 

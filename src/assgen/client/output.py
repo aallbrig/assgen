@@ -1,4 +1,5 @@
 """Shared CLI utilities: wait-with-progress, job result rendering, file download."""
+
 from __future__ import annotations
 
 import json
@@ -21,6 +22,7 @@ err_console = Console(stderr=True, highlight=False)
 # ---------------------------------------------------------------------------
 # Progress / wait helper
 # ---------------------------------------------------------------------------
+
 
 def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -> dict[str, Any]:
     """Poll (or stream via SSE) the server until the job reaches a terminal state.
@@ -122,6 +124,7 @@ def wait_for_job(client: APIClient, job_id: str, timeout: float | None = None) -
 # Output file download
 # ---------------------------------------------------------------------------
 
+
 def download_job_output(
     client: APIClient,
     job: dict[str, Any],
@@ -171,6 +174,7 @@ def download_job_output(
 # Rendering helpers
 # ---------------------------------------------------------------------------
 
+
 def print_job_summary(
     job: dict[str, Any],
     saved_files: list[Path] | None = None,
@@ -214,8 +218,10 @@ def print_job_summary(
     output = job.get("output") or {}
     if isinstance(output, dict) and output.get("stub"):
         console.print()
-        console.print("  [bold yellow]stub result[/bold yellow] [yellow]— ML dependencies not installed on server.[/yellow]")
-        console.print("  [dim]Install inference deps: pip install \"assgen[inference]\"[/dim]")
+        console.print(
+            "  [bold yellow]stub result[/bold yellow] [yellow]— ML dependencies not installed on server.[/yellow]"
+        )
+        console.print('  [dim]Install inference deps: pip install "assgen[inference]"[/dim]')
         console.print("  [dim]Check server capabilities: assgen server status[/dim]")
 
     if job.get("error"):
@@ -229,8 +235,11 @@ def print_job(job: dict[str, Any]) -> None:
     """Pretty-print a single job (used by assgen jobs status)."""
     status = job["status"]
     status_color = {
-        "QUEUED": "yellow", "RUNNING": "blue", "COMPLETED": "green",
-        "FAILED": "red", "CANCELLED": "dim",
+        "QUEUED": "yellow",
+        "RUNNING": "blue",
+        "COMPLETED": "green",
+        "FAILED": "red",
+        "CANCELLED": "dim",
     }.get(status, "white")
 
     console.print()
@@ -245,8 +254,10 @@ def print_job(job: dict[str, Any]) -> None:
         console.print(f"started  [dim]{job['started_at'][:19].replace('T', ' ')}[/dim]")
     if job.get("completed_at"):
         dur = _duration(job)
-        console.print(f"done     [dim]{job['completed_at'][:19].replace('T', ' ')}[/dim]"
-                      + (f"  [dim]({dur})[/dim]" if dur else ""))
+        console.print(
+            f"done     [dim]{job['completed_at'][:19].replace('T', ' ')}[/dim]"
+            + (f"  [dim]({dur})[/dim]" if dur else "")
+        )
 
     param_pairs = _user_param_pairs(job.get("params") or {})
     if param_pairs:
@@ -266,9 +277,13 @@ def print_job(job: dict[str, Any]) -> None:
             console.print(f"  [dim]assgen jobs download {job['id'][:8]}[/dim]")
         if output.get("stub"):
             console.print()
-            console.print("  [bold yellow]⚠  NOT IMPLEMENTED[/bold yellow] [yellow]— stub output returned.[/yellow]")
+            console.print(
+                "  [bold yellow]⚠  NOT IMPLEMENTED[/bold yellow] [yellow]— stub output returned.[/yellow]"
+            )
             console.print("  [yellow]This job type has no real handler installed yet.[/yellow]")
-            console.print("  [dim]Install the required model/library or check docs: https://aallbrig.github.io/assgen/[/dim]")
+            console.print(
+                "  [dim]Install the required model/library or check docs: https://aallbrig.github.io/assgen/[/dim]"
+            )
 
     if job.get("error"):
         console.print()
@@ -278,15 +293,18 @@ def print_job(job: dict[str, Any]) -> None:
 def print_jobs_table(jobs: list[dict[str, Any]]) -> None:
     """Print a plain-text list of jobs — no box-drawing characters."""
     status_colors = {
-        "QUEUED": "yellow", "RUNNING": "blue",
-        "COMPLETED": "green", "FAILED": "red", "CANCELLED": "dim",
+        "QUEUED": "yellow",
+        "RUNNING": "blue",
+        "COMPLETED": "green",
+        "FAILED": "red",
+        "CANCELLED": "dim",
     }
     # Header
     console.print(f"\n[dim]{'ID':<10}  {'TYPE':<30}  {'STATUS':<12}  {'CREATED':<19}  MSG[/dim]")
     console.print(f"[dim]{'─' * 10}  {'─' * 30}  {'─' * 12}  {'─' * 19}  {'─' * 20}[/dim]")
     for j in jobs:
         status = j["status"]
-        color  = status_colors.get(status, "white")
+        color = status_colors.get(status, "white")
         created = j["created_at"][:19].replace("T", " ")
         msg = j.get("progress_message") or ""
         console.print(
@@ -300,6 +318,7 @@ def print_jobs_table(jobs: list[dict[str, Any]]) -> None:
 # ---------------------------------------------------------------------------
 # JSON output helpers
 # ---------------------------------------------------------------------------
+
 
 def job_to_dict(job: dict[str, Any], saved_files: list[Path] | None = None) -> dict[str, Any]:
     """Serialise a job + saved file list to a plain dict suitable for JSON output."""
@@ -338,7 +357,12 @@ def print_job_json(job: dict[str, Any], saved_files: list[Path] | None = None) -
 def print_job_yaml(job: dict[str, Any], saved_files: list[Path] | None = None) -> None:
     """Emit a single job result as YAML on stdout."""
     import yaml
-    print(yaml.dump(job_to_dict(job, saved_files), default_flow_style=False, sort_keys=False), end="", flush=True)
+
+    print(
+        yaml.dump(job_to_dict(job, saved_files), default_flow_style=False, sort_keys=False),
+        end="",
+        flush=True,
+    )
 
 
 def abort_with_error(msg: str, code: int = 1) -> None:
@@ -351,9 +375,11 @@ def abort_with_error(msg: str, code: int = 1) -> None:
 # ---------------------------------------------------------------------------
 
 # Params that are injected by the CLI/server and not meaningful to display.
-_INTERNAL_PARAM_KEYS = frozenset({
-    "upstream_files",   # raw file-path list from --from-job; shown via job chain
-})
+_INTERNAL_PARAM_KEYS = frozenset(
+    {
+        "upstream_files",  # raw file-path list from --from-job; shown via job chain
+    }
+)
 
 
 def _user_params(params: Any) -> dict[str, Any]:
@@ -366,9 +392,9 @@ def _user_params(params: Any) -> dict[str, Any]:
     if not isinstance(params, dict):
         return {}
     return {
-        k: v for k, v in params.items()
-        if not k.startswith("_") and k not in _INTERNAL_PARAM_KEYS
-        and v not in (None, "", [], {})
+        k: v
+        for k, v in params.items()
+        if not k.startswith("_") and k not in _INTERNAL_PARAM_KEYS and v not in (None, "", [], {})
     }
 
 
@@ -402,8 +428,9 @@ def _duration(job: dict[str, Any]) -> str:
     if not (job.get("started_at") and job.get("completed_at")):
         return ""
     from datetime import datetime
+
     try:
-        started  = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+        started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
         finished = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
         secs = int((finished - started).total_seconds())
         return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
@@ -415,8 +442,9 @@ def _duration_seconds(job: dict[str, Any]) -> int | None:
     if not (job.get("started_at") and job.get("completed_at")):
         return None
     from datetime import datetime
+
     try:
-        started  = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
+        started = datetime.fromisoformat(job["started_at"].replace("Z", "+00:00"))
         finished = datetime.fromisoformat(job["completed_at"].replace("Z", "+00:00"))
         return int((finished - started).total_seconds())
     except Exception:

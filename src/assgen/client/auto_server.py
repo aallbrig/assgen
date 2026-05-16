@@ -6,6 +6,7 @@ session.  The server persists across CLI invocations (using a PID file)
 so that multiple `assgen` commands in quick succession don't each spin up
 a new server.
 """
+
 from __future__ import annotations
 
 import logging
@@ -26,8 +27,8 @@ from assgen.config import (
 
 logger = logging.getLogger(__name__)
 
-_STARTUP_TIMEOUT = 15   # seconds to wait for server to become healthy
-_STARTUP_POLL    = 0.5  # seconds between health check polls
+_STARTUP_TIMEOUT = 15  # seconds to wait for server to become healthy
+_STARTUP_POLL = 0.5  # seconds between health check polls
 
 
 def get_or_start_server() -> str:
@@ -65,6 +66,7 @@ def get_or_start_server() -> str:
 
 def _start_local_server(host: str = "127.0.0.1", port: int = 8432, url: str | None = None) -> str:
     from rich.console import Console
+
     _console = Console(stderr=True)
 
     srv_cfg = load_server_config()

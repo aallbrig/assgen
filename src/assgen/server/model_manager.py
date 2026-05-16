@@ -6,6 +6,7 @@ Responsible for:
 - Tracking installed models in the SQLite database
 - Reporting model status (configured / downloading / installed)
 """
+
 from __future__ import annotations
 
 import logging
@@ -27,6 +28,7 @@ ProgressCallback = Callable[[float, str], None]
 # ---------------------------------------------------------------------------
 # HuggingFace download progress helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_hf_tqdm_class(cb: ProgressCallback, start_frac: float, end_frac: float) -> type:
     """Return a tqdm subclass that translates per-file download progress into *cb* calls.
@@ -71,15 +73,18 @@ def _make_hf_tqdm_class(cb: ProgressCallback, start_frac: float, end_frac: float
 
     return _HFTqdm
 
+
 # ---------------------------------------------------------------------------
 # Device detection
 # ---------------------------------------------------------------------------
+
 
 def detect_device(preference: str = "auto") -> str:
     if preference != "auto":
         return preference
     try:
         import torch
+
         if torch.cuda.is_available():
             return "cuda"
         if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
@@ -92,6 +97,7 @@ def detect_device(preference: str = "auto") -> str:
 # ---------------------------------------------------------------------------
 # Model manager
 # ---------------------------------------------------------------------------
+
 
 class ModelManager:
     """Manage HuggingFace model downloads, caching, and status tracking.
@@ -153,6 +159,7 @@ class ModelManager:
             Exception: Re-raised from ``huggingface_hub.snapshot_download`` on
                 network or authentication errors.
         """
+
         def _cb(frac: float, msg: str) -> None:
             if progress_cb:
                 progress_cb(frac, msg)
@@ -162,6 +169,7 @@ class ModelManager:
 
         # Enforce allow-list before any I/O
         from assgen.server.validation import check_allow_list
+
         check_allow_list(model_id, self._server_cfg)
 
         cache_path = self._cache_dir / _safe_name(model_id)
@@ -178,6 +186,7 @@ class ModelManager:
         )
         try:
             from huggingface_hub import snapshot_download
+
             tqdm_cls = _make_hf_tqdm_class(_cb, start_frac=0.05, end_frac=0.18)
             dl_kwargs: dict = dict(
                 repo_id=model_id,
@@ -199,6 +208,7 @@ class ModelManager:
         # Open a fresh connection for the write — ensure_model runs in the
         # worker thread, but self.conn was created in the startup thread.
         import sqlite3 as _s
+
         if self._db_path:
             _write_conn = _s.connect(self._db_path)
             _write_conn.row_factory = _s.Row
@@ -284,11 +294,7 @@ class ModelManager:
 
     def install_all(self) -> None:
         """Download every model referenced in the catalog."""
-        for mid in set(
-            e["model_id"]
-            for e in load_catalog().values()
-            if e.get("model_id")
-        ):
+        for mid in set(e["model_id"] for e in load_catalog().values() if e.get("model_id")):
             try:
                 self.ensure_model(mid)
             except Exception as exc:
@@ -298,6 +304,7 @@ class ModelManager:
 # ---------------------------------------------------------------------------
 # Utilities
 # ---------------------------------------------------------------------------
+
 
 def _safe_name(model_id: str) -> str:
     """Convert 'org/repo' to 'org--repo' for use as a directory name."""

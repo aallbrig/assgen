@@ -17,17 +17,18 @@ try:
         StableDiffusionXLImg2ImgPipeline,
         StableDiffusionXLPipeline,
     )
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 # Job-type-specific prompt prefixes that steer the model towards the right output
 _JOB_PREFIXES: dict[str, str] = {
-    "visual.concept.generate":  "",
-    "visual.texture.generate":  "seamless tileable texture, top-down view, no shadows, ",
-    "visual.ui.icon":           "flat vector icon, clean lines, transparent background, game UI, ",
-    "visual.blockout.create":   "architectural greybox level sketch, top-down blueprint, orthographic, ",
-    "visual.vfx.particle":      "sprite sheet, particle effect frames on black background, transparent, ",
+    "visual.concept.generate": "",
+    "visual.texture.generate": "seamless tileable texture, top-down view, no shadows, ",
+    "visual.ui.icon": "flat vector icon, clean lines, transparent background, game UI, ",
+    "visual.blockout.create": "architectural greybox level sketch, top-down blueprint, orthographic, ",
+    "visual.vfx.particle": "sprite sheet, particle effect frames on black background, transparent, ",
 }
 
 _TURBO_MODELS = {"stabilityai/sdxl-turbo"}

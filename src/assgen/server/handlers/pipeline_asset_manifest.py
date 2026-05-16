@@ -6,6 +6,7 @@ metadata: path, size, SHA-256 hash, type category, and image dimensions.
 Params:
     directory (str): root directory to scan
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # pure Python stdlib only
@@ -55,6 +56,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         if entry["type"] == "texture":
             try:
                 from PIL import Image
+
                 img = Image.open(str(f))
                 entry["width"] = img.width
                 entry["height"] = img.height

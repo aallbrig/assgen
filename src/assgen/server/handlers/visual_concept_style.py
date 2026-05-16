@@ -15,10 +15,12 @@ Params:
     height          (int):  output height (default: 1024)
     output          (str):  output filename (default: styled.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

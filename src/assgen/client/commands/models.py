@@ -1,10 +1,11 @@
 """assgen models — model catalog and installation management.
 
-  assgen models list          list all configured models with install status
-  assgen models status <id>   show detail for a specific model
-  assgen models install        install all models from the catalog
-  assgen models install <id>  install a specific model
+assgen models list          list all configured models with install status
+assgen models status <id>   show detail for a specific model
+assgen models install        install all models from the catalog
+assgen models install <id>  install a specific model
 """
+
 from __future__ import annotations
 
 import typer
@@ -31,22 +32,29 @@ def models_list(
         models = [m for m in models if m["installed"]]
 
     from assgen.client.context import is_json_mode, is_yaml_mode
+
     if is_json_mode():
         import json
+
         print(json.dumps({"models": models}), flush=True)
         return
     if is_yaml_mode():
         import yaml
-        print(yaml.dump({"models": models}, default_flow_style=False, sort_keys=False), end="", flush=True)
+
+        print(
+            yaml.dump({"models": models}, default_flow_style=False, sort_keys=False),
+            end="",
+            flush=True,
+        )
         return
 
     table = Table(title="Model Catalog", show_lines=True, header_style="bold cyan")
-    table.add_column("Model ID",     min_width=30)
-    table.add_column("Name",         min_width=20)
-    table.add_column("Installed",    width=10)
-    table.add_column("Last Used",    width=20)
-    table.add_column("Size",         width=10)
-    table.add_column("Job Types",    min_width=30)
+    table.add_column("Model ID", min_width=30)
+    table.add_column("Name", min_width=20)
+    table.add_column("Installed", width=10)
+    table.add_column("Last Used", width=20)
+    table.add_column("Size", width=10)
+    table.add_column("Job Types", min_width=30)
 
     for m in models:
         installed_str = "[green]✓[/green]" if m["installed"] else "[dim]–[/dim]"
@@ -93,11 +101,11 @@ def models_status(model_id: str = typer.Argument(..., help="HuggingFace model ID
 
 
 _RECOMMENDED_MODELS = [
-    "stabilityai/stable-diffusion-xl-base-1.0",   # concept art, textures, UI
-    "stabilityai/TripoSR",                         # image-to-3D mesh
-    "facebook/musicgen-stereo-large",              # music generation
-    "facebook/audiogen-medium",                    # sound effects
-    "suno/bark",                                   # text-to-speech
+    "stabilityai/stable-diffusion-xl-base-1.0",  # concept art, textures, UI
+    "stabilityai/TripoSR",  # image-to-3D mesh
+    "facebook/musicgen-stereo-large",  # music generation
+    "facebook/audiogen-medium",  # sound effects
+    "suno/bark",  # text-to-speech
 ]
 
 
@@ -108,11 +116,15 @@ def models_install(
         help="Model IDs to install. Omit to install all catalog models.",
     ),
     all_models: bool = typer.Option(
-        False, "--all", "-a",
+        False,
+        "--all",
+        "-a",
         help="Install every model in the catalog",
     ),
     recommended: bool = typer.Option(
-        False, "--recommended", "-r",
+        False,
+        "--recommended",
+        "-r",
         help="Install the 5 most commonly used models (~25 GB total)",
     ),
 ) -> None:
@@ -150,6 +162,7 @@ def models_install(
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _fmt_bytes(n: int | None) -> str:
     if n is None:

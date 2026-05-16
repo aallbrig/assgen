@@ -1,24 +1,27 @@
 """assgen visual mesh — mesh processing and conversion tools.
 
-  assgen gen visual mesh validate      check manifold-ness, non-manifold edges
-  assgen gen visual mesh convert       format conversion glb↔obj↔ply↔stl
-  assgen gen visual mesh merge         combine N meshes into one
-  assgen gen visual mesh bounds        AABB, OBB, bounding sphere
-  assgen gen visual mesh flip-normals  flip face winding order
-  assgen gen visual mesh weld          merge near-duplicate vertices
-  assgen gen visual mesh center        reposition mesh pivot
-  assgen gen visual mesh scale         scale mesh by factor or units
+assgen gen visual mesh validate      check manifold-ness, non-manifold edges
+assgen gen visual mesh convert       format conversion glb↔obj↔ply↔stl
+assgen gen visual mesh merge         combine N meshes into one
+assgen gen visual mesh bounds        AABB, OBB, bounding sphere
+assgen gen visual mesh flip-normals  flip face winding order
+assgen gen visual mesh weld          merge near-duplicate vertices
+assgen gen visual mesh center        reposition mesh pivot
+assgen gen visual mesh scale         scale mesh by factor or units
 """
+
 from __future__ import annotations
 
 import typer
 
 from assgen.client.commands.submit import submit_job
 
-app = typer.Typer(help="Mesh processing: validate, convert, merge, and repair.", no_args_is_help=True)
+app = typer.Typer(
+    help="Mesh processing: validate, convert, merge, and repair.", no_args_is_help=True
+)
 
 _WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("validate")
@@ -39,7 +42,9 @@ def mesh_convert(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Convert a mesh between formats (glb, obj, ply, stl)."""
-    submit_job("visual.mesh.convert", {"input": input_file, "format": format, "output": output}, wait=wait)
+    submit_job(
+        "visual.mesh.convert", {"input": input_file, "format": format, "output": output}, wait=wait
+    )
 
 
 @app.command("merge")
@@ -50,7 +55,9 @@ def mesh_merge(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Merge multiple meshes into a single file."""
-    submit_job("visual.mesh.merge", {"inputs": list(inputs), "format": format, "output": output}, wait=wait)
+    submit_job(
+        "visual.mesh.merge", {"inputs": list(inputs), "format": format, "output": output}, wait=wait
+    )
 
 
 @app.command("bounds")
@@ -76,13 +83,18 @@ def mesh_flipnormals(
 @app.command("weld")
 def mesh_weld(
     input_file: str = typer.Argument(..., help="Mesh file"),
-    threshold: float = typer.Option(1e-5, "--threshold", "-t",
-                                    help="Distance threshold for merging vertices"),
+    threshold: float = typer.Option(
+        1e-5, "--threshold", "-t", help="Distance threshold for merging vertices"
+    ),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Merge near-duplicate vertices within a threshold distance."""
-    submit_job("visual.mesh.weld", {"input": input_file, "threshold": threshold, "output": output}, wait=wait)
+    submit_job(
+        "visual.mesh.weld",
+        {"input": input_file, "threshold": threshold, "output": output},
+        wait=wait,
+    )
 
 
 @app.command("center")
@@ -93,7 +105,9 @@ def mesh_center(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Reposition the mesh pivot to the origin or bounding-box centre."""
-    submit_job("visual.mesh.center", {"input": input_file, "mode": mode, "output": output}, wait=wait)
+    submit_job(
+        "visual.mesh.center", {"input": input_file, "mode": mode, "output": output}, wait=wait
+    )
 
 
 @app.command("scale")
@@ -106,10 +120,14 @@ def mesh_scale(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Scale a mesh by a factor or perform unit conversion."""
-    submit_job("visual.mesh.scale", {
-        "input": input_file,
-        "scale": scale,
-        "units_from": units_from,
-        "units_to": units_to,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.mesh.scale",
+        {
+            "input": input_file,
+            "scale": scale,
+            "units_from": units_from,
+            "units_to": units_to,
+            "output": output,
+        },
+        wait=wait,
+    )

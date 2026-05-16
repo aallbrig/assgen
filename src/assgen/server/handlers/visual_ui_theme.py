@@ -15,18 +15,20 @@ Params:
     steps           (int):  inference steps (default: 30)
     output          (str):  output filename stem (default: theme)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 _ELEMENT_PROMPTS = {
-    "icon":   ("game UI icon, isolated, flat icon, no background", 128, 128),
+    "icon": ("game UI icon, isolated, flat icon, no background", 128, 128),
     "button": ("game button control, isolated, no background", 256, 96),
-    "panel":  ("game UI panel frame dialog box, isolated, no background", 512, 256),
+    "panel": ("game UI panel frame dialog box, isolated, no background", 512, 256),
     "widget": ("game UI slider widget control, isolated, no background", 320, 80),
 }
 
@@ -70,7 +72,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     pipe = StableDiffusionXLPipeline.from_pretrained(hf_id, torch_dtype=dtype).to(device)
 
     progress_cb(0.1, "Loading IP-Adapter…")
-    pipe.load_ip_adapter("h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin")
+    pipe.load_ip_adapter(
+        "h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin"
+    )
     pipe.set_ip_adapter_scale(ip_scale)
 
     style_img = Image.open(style_image_path).convert("RGB")

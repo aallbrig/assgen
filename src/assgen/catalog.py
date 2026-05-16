@@ -12,6 +12,7 @@ Example:
     >>> entry["model_id"]
     'stabilityai/TripoSR'
 """
+
 from __future__ import annotations
 
 from functools import lru_cache

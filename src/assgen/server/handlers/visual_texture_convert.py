@@ -6,10 +6,12 @@ Params:
     input  (str): input image path
     format (str): target format — png, jpg, tga, webp, exr (default "png")
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

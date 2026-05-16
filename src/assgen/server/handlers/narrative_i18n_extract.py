@@ -12,6 +12,7 @@ Params:
     pattern   (str):   glob pattern for files (default "**/*.json")
     key_field (str):   JSON field to extract as translatable string (default "text")
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # pure Python stdlib
@@ -45,12 +46,15 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
                 val = obj[key_field]
                 # Generate a stable key from value hash
                 import hashlib
-                short_hash = hashlib.md5(val.encode()).hexdigest()[:8]
-                strings.append({
-                    "key": f"str_{short_hash}",
-                    "value": val,
-                    "source_file": source_rel,
-                })
+
+                short_hash = hashlib.md5(val.encode(), usedforsecurity=False).hexdigest()[:8]
+                strings.append(
+                    {
+                        "key": f"str_{short_hash}",
+                        "value": val,
+                        "source_file": source_rel,
+                    }
+                )
             for v in obj.values():
                 _extract(v, source_rel)
         elif isinstance(obj, list):

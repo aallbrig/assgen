@@ -8,6 +8,7 @@ Falls back to trimesh's built-in planar UV if xatlas is not installed.
 
 try:
     import xatlas  # type: ignore[import]
+
     _XATLAS_AVAILABLE = True
 except ImportError:
     _XATLAS_AVAILABLE = False
@@ -61,7 +62,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     else:
         # Trimesh fallback: simple spherical projection
         import warnings
-        warnings.warn("xatlas not installed — using spherical UV fallback. pip install xatlas for better results.", stacklevel=2)
+
+        warnings.warn(
+            "xatlas not installed — using spherical UV fallback. pip install xatlas for better results.",
+            stacklevel=2,
+        )
         center = vertices.mean(axis=0)
         vn = vertices - center
         norms = np.linalg.norm(vn, axis=1, keepdims=True) + 1e-8

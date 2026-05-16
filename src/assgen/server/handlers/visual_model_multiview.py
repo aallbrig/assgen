@@ -12,6 +12,7 @@ Params:
     prompt          (str):  optional text prompt to guide generation (usually blank for Zero123++)
     output          (str):  output filename stem (default: multiview)
 """
+
 from __future__ import annotations
 
 import logging
@@ -21,13 +22,18 @@ logger = logging.getLogger(__name__)
 
 try:
     from diffusers import DiffusionPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 _VIEW_LABELS = [
-    "front_right", "right", "back_right",
-    "front_left",  "left",  "back_left",
+    "front_right",
+    "right",
+    "back_right",
+    "front_left",
+    "left",
+    "back_left",
 ]
 
 

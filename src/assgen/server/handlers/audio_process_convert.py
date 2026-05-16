@@ -4,10 +4,12 @@ Primary dep: pydub (requires ffmpeg for ogg/mp3 output)
 
     pip install pydub
 """
+
 from __future__ import annotations
 
 try:
     from pydub import AudioSegment
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

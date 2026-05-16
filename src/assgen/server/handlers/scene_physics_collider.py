@@ -14,10 +14,12 @@ Params:
     output      (str): output filename (default: <stem>_collider.<ext>)
     format      (str): output format (glb/obj/ply/stl, default: glb)
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -75,6 +77,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     elif collider_type == "compound":
         try:
             import coacd  # type: ignore[import]
+
             progress_cb(0.3, f"Running CoACD decomposition (max {max_shapes} shapes)…")
             parts = coacd.run_coacd(
                 coacd.Mesh(mesh.vertices, mesh.faces),

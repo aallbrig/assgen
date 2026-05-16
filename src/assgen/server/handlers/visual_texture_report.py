@@ -7,10 +7,12 @@ Params:
     inputs    (list[str]): explicit list of image paths
     directory (str):       directory to scan (used if 'inputs' not provided)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

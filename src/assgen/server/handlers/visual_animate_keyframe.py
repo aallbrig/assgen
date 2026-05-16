@@ -17,10 +17,12 @@ Params:
     height          (int):  frame height (default: 512)
     output          (str):  output filename stem (default: animation)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import AnimateDiffPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

@@ -1,4 +1,5 @@
 """assgen upgrade — check GitHub releases and optionally install the latest."""
+
 from __future__ import annotations
 
 import sys
@@ -61,8 +62,7 @@ def upgrade(
 
     if not is_newer:
         console.print(
-            f"[green]✓[/green]  You are running the latest release "
-            f"([cyan]{current}[/cyan]).\n"
+            f"[green]✓[/green]  You are running the latest release ([cyan]{current}[/cyan]).\n"
         )
         raise typer.Exit(0)
 
@@ -77,9 +77,7 @@ def upgrade(
         raise typer.Exit(1)  # non-zero so scripts can detect "outdated"
 
     if not yes:
-        confirmed = typer.confirm(
-            f"\nUpgrade from {current} → {latest_version}?", default=True
-        )
+        confirmed = typer.confirm(f"\nUpgrade from {current} → {latest_version}?", default=True)
         if not confirmed:
             console.print("[dim]Upgrade cancelled.[/dim]")
             raise typer.Exit(0)
@@ -91,10 +89,12 @@ def upgrade(
 # GitHub API helpers
 # ---------------------------------------------------------------------------
 
+
 def _fetch_latest(pre: bool = False) -> tuple[str | None, dict | None]:
     """Return (tag_name, release_dict) for the newest applicable release."""
     try:
         import httpx
+
         if not pre:
             # /releases/latest always returns the newest non-prerelease
             r = httpx.get(f"{RELEASES_API}/latest", timeout=10.0, follow_redirects=True)
@@ -124,7 +124,10 @@ def _print_release_summary(tag: str, rel: dict) -> None:
     table = Table(show_header=False, box=None, padding=(0, 1))
     table.add_row("[bold]Version[/bold]", f"[cyan]{version}[/cyan]")
     table.add_row("[bold]Published[/bold]", published)
-    table.add_row("[bold]Release page[/bold]", f"[link={RELEASES_URL}/tag/{tag}]{RELEASES_URL}/tag/{tag}[/link]")
+    table.add_row(
+        "[bold]Release page[/bold]",
+        f"[link={RELEASES_URL}/tag/{tag}]{RELEASES_URL}/tag/{tag}[/link]",
+    )
 
     console.print()
     console.print(Panel(table, title=f"[bold green]New release: {name}[/bold green]", expand=False))
@@ -143,6 +146,7 @@ def _print_release_summary(tag: str, rel: dict) -> None:
 # ---------------------------------------------------------------------------
 # Installation helpers
 # ---------------------------------------------------------------------------
+
 
 def _do_upgrade(version: str) -> None:
     """Run pip install --upgrade assgen=={version} in the current Python env."""
@@ -190,9 +194,11 @@ def _find_pip() -> str:
 # Version comparison (PEP 440-ish, no external deps)
 # ---------------------------------------------------------------------------
 
+
 def _parse_version(v: str) -> tuple[int, ...]:
     """Parse a version string like '0.1.2' or '0.1.dev5' into a sortable tuple."""
     import re
+
     v = v.strip().lstrip("v")
     # Strip local / dev suffixes for comparison
     v = re.split(r"[+-]", v)[0]

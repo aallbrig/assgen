@@ -3,6 +3,7 @@
 Requires ``transformers`` and ``torch``:
     pip install transformers accelerate torch
 """
+
 from __future__ import annotations
 
 import json
@@ -13,6 +14,7 @@ from typing import Any
 try:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from transformers import pipeline as hf_pipeline
+
     _TRANSFORMERS_AVAILABLE = True
 except ImportError:
     _TRANSFORMERS_AVAILABLE = False
@@ -23,10 +25,10 @@ ProgressCallback = Callable[[float, str], None]
 _DEFAULT_MODEL = "microsoft/Phi-3.5-mini-instruct"
 
 _FORMATS = {
-    "prose":             "flowing narrative prose",
-    "codex":             "a codex entry with a title, body, and 'Known to Scholars' sidebar",
-    "item-description":  "a game item description with name, flavour text, and stats block",
-    "quest":             "a quest description with objectives, backstory, and rewards",
+    "prose": "flowing narrative prose",
+    "codex": "a codex entry with a title, body, and 'Known to Scholars' sidebar",
+    "item-description": "a game item description with name, flavour text, and stats block",
+    "quest": "a quest description with objectives, backstory, and rewards",
 }
 
 
@@ -42,8 +44,7 @@ def run(
     """Generate world-building lore text in the requested format."""
     if not _TRANSFORMERS_AVAILABLE:
         raise RuntimeError(
-            "transformers is not installed.  "
-            "Run: pip install transformers accelerate"
+            "transformers is not installed.  Run: pip install transformers accelerate"
         )
 
     topic: str = params.get("topic") or params.get("prompt") or "world lore"
@@ -82,7 +83,9 @@ def run(
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"Write lore about: {topic}"},
     ]
-    outputs = pipe(messages, max_new_tokens=min(word_count * 2, 2048), do_sample=True, temperature=0.85)
+    outputs = pipe(
+        messages, max_new_tokens=min(word_count * 2, 2048), do_sample=True, temperature=0.85
+    )
     generated = outputs[0]["generated_text"]
     if isinstance(generated, list):
         lore_text: str = generated[-1].get("content", "")
@@ -96,7 +99,9 @@ def run(
     # Also write a JSON envelope for machine chaining
     meta_file = output_dir / "lore.json"
     meta_file.write_text(
-        json.dumps({"topic": topic, "format": fmt, "text": lore_text.strip()}, indent=2, ensure_ascii=False),
+        json.dumps(
+            {"topic": topic, "format": fmt, "text": lore_text.strip()}, indent=2, ensure_ascii=False
+        ),
         encoding="utf-8",
     )
 

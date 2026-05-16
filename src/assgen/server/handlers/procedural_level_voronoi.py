@@ -13,10 +13,12 @@ Params:
     regions (int): number of Voronoi regions (default 12)
     seed    (int): random seed (default 42)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -50,6 +52,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         from scipy.spatial import cKDTree  # type: ignore
+
         tree = cKDTree(points)
         _, indices = tree.query(coords, k=1)
         indices = indices.reshape(height, width)
@@ -69,6 +72,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     # Draw region seed points
     from PIL import ImageDraw
+
     draw = ImageDraw.Draw(img)
     for px, py in points:
         draw.ellipse(

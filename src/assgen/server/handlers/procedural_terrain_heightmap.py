@@ -12,10 +12,12 @@ Params:
     scale   (float): noise coordinate scale factor (default 100.0)
     octaves (int):   fractal octave count (default 6)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -24,6 +26,7 @@ except ImportError:
 def _numpy_noise(w: int, h: int, seed: int, scale: float, octaves: int):
     """Minimal fractal noise using numpy only (no external noise library)."""
     import numpy as np
+
     rng = np.random.default_rng(seed)
     result = np.zeros((h, w), dtype=np.float32)
     amplitude = 1.0
@@ -35,9 +38,8 @@ def _numpy_noise(w: int, h: int, seed: int, scale: float, octaves: int):
         base = rng.random((noise_h, noise_w)).astype(np.float32)
         # Upsample via zoom
         from PIL import Image as _PILImage
-        zoomed = np.array(
-            _PILImage.fromarray(base).resize((w, h), _PILImage.BILINEAR)
-        )
+
+        zoomed = np.array(_PILImage.fromarray(base).resize((w, h), _PILImage.BILINEAR))
         result += zoomed * amplitude
         max_val += amplitude
         amplitude *= 0.5
@@ -64,6 +66,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         import noise as _noise
+
         _NOISE_LIB = True
     except ImportError:
         _NOISE_LIB = False
@@ -72,18 +75,26 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     if _NOISE_LIB:
         import noise as _noise
+
         arr = np.zeros((height, width), dtype=np.float32)
         for y in range(height):
             ny = (y / height * scale + seed * 777.0) / scale
             for x in range(width):
                 nx = (x / width * scale + seed * 1000.0) / scale
                 if noise_type == "ridged":
-                    val = 1.0 - abs(_noise.pnoise2(nx, ny, octaves=octaves,
-                                                    repeatx=width, repeaty=height))
+                    val = 1.0 - abs(
+                        _noise.pnoise2(nx, ny, octaves=octaves, repeatx=width, repeaty=height)
+                    )
                 else:  # fractal (fBm) or perlin
-                    val = _noise.pnoise2(nx, ny, octaves=octaves,
-                                         persistence=0.5, lacunarity=2.0,
-                                         repeatx=width, repeaty=height)
+                    val = _noise.pnoise2(
+                        nx,
+                        ny,
+                        octaves=octaves,
+                        persistence=0.5,
+                        lacunarity=2.0,
+                        repeatx=width,
+                        repeaty=height,
+                    )
                 arr[y, x] = val
             progress_cb(0.05 + 0.85 * (y + 1) / height, "")
     else:

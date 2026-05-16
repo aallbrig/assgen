@@ -14,22 +14,24 @@ Params:
     steps           (int):  inference steps (default: 25)
     output          (str):  output filename (default: widget.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 _WIDGET_HINTS = {
-    "slider":      "horizontal slider control, track and thumb, game UI widget",
-    "toggle":      "toggle switch, on/off button, game UI widget",
-    "checkbox":    "checkbox control, tick mark, game UI widget",
+    "slider": "horizontal slider control, track and thumb, game UI widget",
+    "toggle": "toggle switch, on/off button, game UI widget",
+    "checkbox": "checkbox control, tick mark, game UI widget",
     "progressbar": "progress bar, filled bar, game UI widget",
-    "spinner":     "loading spinner, circular progress, game UI widget",
-    "radio":       "radio button, selection circle, game UI widget",
-    "knob":        "rotary knob, dial control, game UI widget",
+    "spinner": "loading spinner, circular progress, game UI widget",
+    "radio": "radio button, selection circle, game UI widget",
+    "knob": "rotary knob, dial control, game UI widget",
 }
 
 

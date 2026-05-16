@@ -16,16 +16,19 @@ Params:
     controlnet_scale (float): ControlNet strength (default: 0.7)
     output          (str):  output filename (default: layout.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 try:
     from diffusers import ControlNetModel, StableDiffusionXLControlNetPipeline  # noqa: F401
+
     _CONTROLNET_AVAILABLE = True
 except ImportError:
     _CONTROLNET_AVAILABLE = False
@@ -59,8 +62,17 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     if has_reference and _CONTROLNET_AVAILABLE:
         image = _generate_with_controlnet(
-            prompt, reference_path, negative_prompt,
-            width, height, steps, cn_scale, device, model_path, model_id, progress_cb
+            prompt,
+            reference_path,
+            negative_prompt,
+            width,
+            height,
+            steps,
+            cn_scale,
+            device,
+            model_path,
+            model_id,
+            progress_cb,
         )
     else:
         if has_reference and not _CONTROLNET_AVAILABLE:
@@ -77,15 +89,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     return {
         "files": [out_name],
         "metadata": {
-            "width": w, "height": h,
+            "width": w,
+            "height": h,
             "method": "controlnet" if (has_reference and _CONTROLNET_AVAILABLE) else "sdxl",
         },
     }
 
 
-def _generate_sdxl(prompt, negative_prompt, width, height, steps, device, model_path, model_id, progress_cb):
+def _generate_sdxl(
+    prompt, negative_prompt, width, height, steps, device, model_path, model_id, progress_cb
+):
     import torch
     from diffusers import StableDiffusionXLPipeline
+
     hf_id = model_path or model_id or "stabilityai/stable-diffusion-xl-base-1.0"
     dtype = torch.float16 if device != "cpu" else torch.float32
     progress_cb(0.1, "Loading SDXL pipeline…")
@@ -101,7 +117,19 @@ def _generate_sdxl(prompt, negative_prompt, width, height, steps, device, model_
     ).images[0]
 
 
-def _generate_with_controlnet(prompt, reference_path, negative_prompt, width, height, steps, cn_scale, device, model_path, model_id, progress_cb):
+def _generate_with_controlnet(
+    prompt,
+    reference_path,
+    negative_prompt,
+    width,
+    height,
+    steps,
+    cn_scale,
+    device,
+    model_path,
+    model_id,
+    progress_cb,
+):
     import torch
     from diffusers import ControlNetModel, StableDiffusionXLControlNetPipeline
     from PIL import Image

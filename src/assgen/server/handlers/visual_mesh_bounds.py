@@ -5,10 +5,12 @@ Outputs a JSON report with AABB, OBB, bounding sphere, and centroid.
 Params:
     input (str): path to mesh file
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

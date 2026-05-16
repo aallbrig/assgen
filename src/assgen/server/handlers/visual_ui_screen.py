@@ -16,21 +16,23 @@ Params:
     guidance_scale  (float):CFG scale (default: 7.5)
     output          (str):  output filename (default: screen.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 _SCREEN_HINTS = {
-    "gameplay":  "game screen with HUD overlay, health bar, minimap, in-game UI",
-    "mainmenu":  "main menu screen, title card, menu buttons, background art",
-    "pause":     "pause screen, semi-transparent overlay, resume/quit options",
+    "gameplay": "game screen with HUD overlay, health bar, minimap, in-game UI",
+    "mainmenu": "main menu screen, title card, menu buttons, background art",
+    "pause": "pause screen, semi-transparent overlay, resume/quit options",
     "inventory": "inventory screen, item grid, equipment slots, stats panel",
-    "loading":   "loading screen, progress bar, atmospheric background art",
-    "cutscene":  "cutscene frame, cinematic letterbox, subtitle bar",
+    "loading": "loading screen, progress bar, atmospheric background art",
+    "cutscene": "cutscene frame, cinematic letterbox, subtitle bar",
 }
 
 
@@ -51,7 +53,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         raise ValueError("'prompt' is required")
 
     screen_type = (params.get("screen_type") or "gameplay").lower()
-    negative_prompt = params.get("negative_prompt", "blurry, low quality, text artifacts, watermark")
+    negative_prompt = params.get(
+        "negative_prompt", "blurry, low quality, text artifacts, watermark"
+    )
     width = int(params.get("width", 1920))
     height = int(params.get("height", 1080))
     width = max(8, width - (width % 8))
@@ -67,10 +71,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     pipe = StableDiffusionXLPipeline.from_pretrained(hf_id, torch_dtype=dtype).to(device)
 
     screen_hint = _SCREEN_HINTS.get(screen_type, _SCREEN_HINTS["gameplay"])
-    full_prompt = (
-        f"{prompt}, {screen_hint}, "
-        "game UI design, digital art, high resolution, detailed"
-    )
+    full_prompt = f"{prompt}, {screen_hint}, game UI design, digital art, high resolution, detailed"
 
     progress_cb(0.2, f"Generating {screen_type} screen ({width}×{height})…")
     image = pipe(

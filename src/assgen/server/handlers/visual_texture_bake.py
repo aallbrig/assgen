@@ -14,11 +14,13 @@ Params:
     bias         (float):ray origin offset to avoid self-intersection (default: 0.001)
     output       (str):  output filename (default: <stem>_<bake_type>.png)
 """
+
 from __future__ import annotations
 
 try:
     import numpy as np  # noqa: F401
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -27,9 +29,7 @@ except ImportError:
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Bake AO/lightmap/cavity texture from a mesh."""
     if not _AVAILABLE:
-        raise RuntimeError(
-            "trimesh and numpy are required. Run: pip install trimesh numpy Pillow"
-        )
+        raise RuntimeError("trimesh and numpy are required. Run: pip install trimesh numpy Pillow")
 
     from pathlib import Path
 
@@ -84,9 +84,10 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 # Bake implementations
 # ---------------------------------------------------------------------------
 
+
 def _face_normals_and_centers(mesh) -> tuple:
-    centers = mesh.triangles_center          # (F, 3)
-    normals = mesh.face_normals              # (F, 3)
+    centers = mesh.triangles_center  # (F, 3)
+    normals = mesh.face_normals  # (F, 3)
     return centers, normals
 
 
@@ -109,7 +110,7 @@ def _bake_ao(mesh, width, height, samples, bias, progress_cb) -> np.ndarray:
         origin = centers[i] + n * bias
         # Sample hemisphere around the face normal
         raw = rng.standard_normal((samples, 3)).astype(np.float32)
-        raw /= (np.linalg.norm(raw, axis=1, keepdims=True) + 1e-8)
+        raw /= np.linalg.norm(raw, axis=1, keepdims=True) + 1e-8
         # Keep directions in the upper hemisphere
         dot = raw @ n
         raw[dot < 0] *= -1
@@ -125,6 +126,7 @@ def _bake_ao(mesh, width, height, samples, bias, progress_cb) -> np.ndarray:
 def _bake_cavity(mesh, width, height, progress_cb) -> np.ndarray:
     """Per-vertex curvature (cavity) projected to texture."""
     import numpy as np
+
     progress_cb(0.2, "Computing discrete curvature…")
     try:
         curv = tm_discrete_mean_curvature(mesh)
@@ -142,6 +144,7 @@ def _bake_cavity(mesh, width, height, progress_cb) -> np.ndarray:
 def _bake_lightmap(mesh, width, height, samples, bias, progress_cb) -> np.ndarray:
     """Simple directional lightmap (single overhead light)."""
     import numpy as np
+
     progress_cb(0.2, "Computing simple lightmap…")
     light_dir = np.array([0.3, 0.8, 0.5], dtype=np.float32)
     light_dir /= np.linalg.norm(light_dir)
@@ -155,6 +158,7 @@ def _bake_lightmap(mesh, width, height, samples, bias, progress_cb) -> np.ndarra
 def tm_discrete_mean_curvature(mesh) -> np.ndarray:
     """Estimate per-vertex mean curvature via discrete Laplacian."""
     import numpy as np
+
     verts = mesh.vertices
     n = len(verts)
     laplacian = np.zeros(n, dtype=np.float64)
@@ -181,8 +185,8 @@ def _project_face_values_to_image(mesh, face_values, width, height) -> np.ndarra
     if uvs is None:
         # Spherical projection fallback
         norms = mesh.face_normals
-        u = (np.arctan2(norms[:, 0], norms[:, 2]) / (2 * np.pi) + 0.5)
-        v = (np.arcsin(np.clip(norms[:, 1], -1, 1)) / np.pi + 0.5)
+        u = np.arctan2(norms[:, 0], norms[:, 2]) / (2 * np.pi) + 0.5
+        v = np.arcsin(np.clip(norms[:, 1], -1, 1)) / np.pi + 0.5
         px = (u * (width - 1)).astype(int)
         py = ((1.0 - v) * (height - 1)).astype(int)
         for fi in range(len(face_values)):

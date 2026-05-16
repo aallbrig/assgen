@@ -4,10 +4,12 @@ Primary dep: pydub (for audio loading); numpy (optional, falls back to array mod
 
     pip install pydub numpy
 """
+
 from __future__ import annotations
 
 try:
     from pydub import AudioSegment
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -24,6 +26,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         import numpy as np
+
         _NP = True
     except ImportError:
         _NP = False
@@ -49,8 +52,10 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     else:
         samples_list = list(raw)
         if channels == 2:
-            samples_list = [(samples_list[i] + samples_list[i + 1]) // 2
-                            for i in range(0, len(samples_list) - 1, 2)]
+            samples_list = [
+                (samples_list[i] + samples_list[i + 1]) // 2
+                for i in range(0, len(samples_list) - 1, 2)
+            ]
         samples = samples_list
 
     n = len(samples)
@@ -60,13 +65,17 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     def _find_zero_crossing_after(start_idx, end_idx):
         for i in range(start_idx, end_idx - 1):
-            if _get_sample(i) <= 0 <= _get_sample(i + 1) or _get_sample(i) >= 0 >= _get_sample(i + 1):
+            if _get_sample(i) <= 0 <= _get_sample(i + 1) or _get_sample(i) >= 0 >= _get_sample(
+                i + 1
+            ):
                 return i
         return start_idx
 
     def _find_zero_crossing_before(start_idx, end_idx):
         for i in range(end_idx, start_idx, -1):
-            if _get_sample(i) <= 0 <= _get_sample(i - 1) or _get_sample(i) >= 0 >= _get_sample(i - 1):
+            if _get_sample(i) <= 0 <= _get_sample(i - 1) or _get_sample(i) >= 0 >= _get_sample(
+                i - 1
+            ):
                 return i
         return end_idx
 

@@ -7,6 +7,7 @@ short stingers and transition layers.
 Requires the ``audiocraft`` package (Meta):
     pip install audiocraft
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable

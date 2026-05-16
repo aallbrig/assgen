@@ -9,6 +9,7 @@ Params:
     output      (str):  output filename (default: <stem>_upscaled.png)
     steps       (int):  diffusion steps (default: 20; increase for higher quality)
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -64,11 +65,11 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     w, h = image.size
     if w > MAX_INPUT_PX or h > MAX_INPUT_PX:
         ratio = min(MAX_INPUT_PX / w, MAX_INPUT_PX / h)
-        image = image.resize(
-            (int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS
-        )
+        image = image.resize((int(w * ratio), int(h * ratio)), Image.Resampling.LANCZOS)
 
-    progress_cb(0.4, f"Upscaling {image.width}×{image.height} → {image.width * 4}×{image.height * 4}…")
+    progress_cb(
+        0.4, f"Upscaling {image.width}×{image.height} → {image.width * 4}×{image.height * 4}…"
+    )
     result = pipe(prompt=prompt, image=image, num_inference_steps=steps)
     out_img = result.images[0]
 

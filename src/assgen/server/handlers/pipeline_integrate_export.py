@@ -13,19 +13,21 @@ Params:
     asset_name   (str): base name for the exported asset (default: input stem)
     output_dir   (str): sub-folder inside job output dir (default: engine name)
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 # Engine defaults
 _ENGINE_DEFAULTS = {
-    "unreal":  {"format": "fbx", "mesh_dir": "Content/Meshes",   "tex_dir": "Content/Textures"},
-    "godot":   {"format": "glb", "mesh_dir": "assets/meshes",    "tex_dir": "assets/textures"},
-    "unity":   {"format": "fbx", "mesh_dir": "Assets/Models",    "tex_dir": "Assets/Textures"},
+    "unreal": {"format": "fbx", "mesh_dir": "Content/Meshes", "tex_dir": "Content/Textures"},
+    "godot": {"format": "glb", "mesh_dir": "assets/meshes", "tex_dir": "assets/textures"},
+    "unity": {"format": "fbx", "mesh_dir": "Assets/Models", "tex_dir": "Assets/Textures"},
 }
 
 # Godot .import sidecar template

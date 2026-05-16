@@ -4,6 +4,7 @@ GET    /models           — list all models (catalog + install status)
 POST   /models/install   — trigger download of all (or specific) models
 GET    /models/{id}      — single model status
 """
+
 from __future__ import annotations
 
 import logging

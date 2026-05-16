@@ -3,10 +3,12 @@
 Params:
     input (str): path to mesh file
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

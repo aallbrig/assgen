@@ -8,10 +8,12 @@ Params:
     from_format (str): source convention "dx" or "gl" (default "dx")
                        The handler flips G to produce the opposite convention.
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

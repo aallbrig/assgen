@@ -11,10 +11,12 @@ Params:
     steps       (int):  inference steps (default: 30)
     output      (str):  output filename (default: <stem>_inpainted.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLInpaintPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -41,10 +43,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         raise ValueError(f"Mask image not found: {mask_path!r}")
 
     prompt = params.get("prompt", "seamless game texture, high quality, 4k")
-    negative_prompt = params.get(
-        "negative_prompt",
-        "blurry, low quality, seams, artifacts"
-    )
+    negative_prompt = params.get("negative_prompt", "blurry, low quality, seams, artifacts")
     strength = float(params.get("strength", 0.99))
     steps = int(params.get("steps", 30))
     out_name = params.get("output") or f"{input_path.stem}_inpainted.png"

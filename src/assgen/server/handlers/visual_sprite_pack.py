@@ -7,10 +7,12 @@ Params:
     inputs (list[str]): ordered list of frame image paths
     cols   (int):       number of columns in the grid (default 4)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -59,14 +61,20 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         x = col * frame_w
         y = row * frame_h
         sheet.paste(frame, (x, y))
-        manifest_frames.append({
-            "index": idx,
-            "file": Path(inputs[idx]).name,
-            "x": x, "y": y,
-            "w": frame_w, "h": frame_h,
-            "u": x / sheet_w, "v": y / sheet_h,
-            "u2": (x + frame_w) / sheet_w, "v2": (y + frame_h) / sheet_h,
-        })
+        manifest_frames.append(
+            {
+                "index": idx,
+                "file": Path(inputs[idx]).name,
+                "x": x,
+                "y": y,
+                "w": frame_w,
+                "h": frame_h,
+                "u": x / sheet_w,
+                "v": y / sheet_h,
+                "u2": (x + frame_w) / sheet_w,
+                "v2": (y + frame_h) / sheet_h,
+            }
+        )
         progress_cb(0.3 + 0.5 * (idx + 1) / len(frames), f"Placed frame {idx + 1}/{len(frames)}")
 
     progress_cb(0.85, "Saving sprite sheet")

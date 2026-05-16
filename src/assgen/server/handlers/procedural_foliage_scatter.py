@@ -12,10 +12,12 @@ Params:
     min_dist    (float): minimum distance between points in normalised [0,1] space (default 1.0 / sqrt(count))
     seed        (int):   random seed (default 42)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -44,8 +46,7 @@ def _poisson_disk_sample(
             continue
         # Check minimum distance
         too_close = any(
-            (x - ox) ** 2 + (y - oy) ** 2 < (min_dist / 100.0) ** 2
-            for ox, oy in placed
+            (x - ox) ** 2 + (y - oy) ** 2 < (min_dist / 100.0) ** 2 for ox, oy in placed
         )
         if not too_close:
             placed.append((x, y))
@@ -81,6 +82,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         from scipy.spatial import cKDTree  # type: ignore
+
         _SCIPY = True
     except ImportError:
         _SCIPY = False
@@ -90,8 +92,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         h, w = density.shape
         probs = density.ravel().astype(np.float32)
         probs /= probs.sum() + 1e-10
-        flat_indices = rng.choice(len(probs), size=min(count * 5, len(probs)),
-                                  replace=False, p=probs)
+        flat_indices = rng.choice(
+            len(probs), size=min(count * 5, len(probs)), replace=False, p=probs
+        )
         ys = (flat_indices // w).astype(float) / h
         xs = (flat_indices % w).astype(float) / w
         raw_pts = np.stack([xs, ys], axis=1)

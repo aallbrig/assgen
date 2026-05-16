@@ -10,6 +10,7 @@ no real server needed.  These tests verify:
 For commands that would normally auto-start a server (``jobs``, ``models``),
 we patch the HTTP layer so tests stay fast and hermetic.
 """
+
 from __future__ import annotations
 
 import re
@@ -27,6 +28,7 @@ _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 def _try_import(mod_name: str) -> bool:
     import importlib
+
     try:
         importlib.import_module(mod_name)
         return True
@@ -37,6 +39,7 @@ def _try_import(mod_name: str) -> bool:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def invoke(*args: str, input: str | None = None):
     """Invoke the root CLI and return the result."""
@@ -51,6 +54,7 @@ def strip_ansi(text: str) -> str:
 # ---------------------------------------------------------------------------
 # Root / version
 # ---------------------------------------------------------------------------
+
 
 class TestVersionCommand:
     def test_version_exits_0(self) -> None:
@@ -89,6 +93,7 @@ class TestVersionCommand:
 # assgen tasks
 # ---------------------------------------------------------------------------
 
+
 class TestTasksCommand:
     def test_tasks_exits_0(self) -> None:
         result = invoke("tasks")
@@ -117,6 +122,7 @@ class TestTasksCommand:
 # assgen server config
 # ---------------------------------------------------------------------------
 
+
 class TestServerConfigCommand:
     def test_server_config_show_exits_0(self) -> None:
         result = invoke("server", "config", "show")
@@ -141,6 +147,7 @@ class TestServerConfigCommand:
 # assgen client config
 # ---------------------------------------------------------------------------
 
+
 class TestClientConfigCommand:
     def test_client_config_show_exits_0(self) -> None:
         result = invoke("client", "config", "show")
@@ -157,6 +164,7 @@ class TestClientConfigCommand:
 # assgen config (catalog overrides)
 # ---------------------------------------------------------------------------
 
+
 class TestConfigCommand:
     def test_config_list_exits_0(self) -> None:
         result = invoke("config", "list")
@@ -171,6 +179,7 @@ class TestConfigCommand:
 # assgen upgrade --check (mocked)
 # ---------------------------------------------------------------------------
 
+
 class TestUpgradeCommand:
     def test_upgrade_check_exits_0_when_up_to_date(self) -> None:
         mock_resp = MagicMock()
@@ -184,7 +193,11 @@ class TestUpgradeCommand:
     def test_upgrade_check_mentions_version(self) -> None:
         mock_resp = MagicMock()
         mock_resp.status_code = 200
-        mock_resp.json.return_value = {"tag_name": "v99.0.0", "html_url": "https://github.com/aallbrig/assgen/releases/tag/v99.0.0", "body": ""}
+        mock_resp.json.return_value = {
+            "tag_name": "v99.0.0",
+            "html_url": "https://github.com/aallbrig/assgen/releases/tag/v99.0.0",
+            "body": "",
+        }
 
         with patch("httpx.get", return_value=mock_resp):
             result = invoke("upgrade", "--check")
@@ -193,6 +206,7 @@ class TestUpgradeCommand:
 
     def test_upgrade_check_no_network_doesnt_crash(self) -> None:
         import httpx
+
         with patch("httpx.get", side_effect=httpx.ConnectError("no network")):
             result = invoke("upgrade", "--check")
         # Should fail gracefully, not raise unhandled exception
@@ -204,6 +218,7 @@ class TestUpgradeCommand:
 # assgen models (mocked API)
 # ---------------------------------------------------------------------------
 
+
 class TestModelsCommand:
     def _mock_api_client(self, models: list) -> MagicMock:
         mc = MagicMock()
@@ -214,7 +229,11 @@ class TestModelsCommand:
 
     def test_models_list_exits_0_with_mock(self) -> None:
         mock_models = [
-            {"model_id": "stabilityai/TripoSR", "installed": True, "job_types": ["visual.model.create"]},
+            {
+                "model_id": "stabilityai/TripoSR",
+                "installed": True,
+                "job_types": ["visual.model.create"],
+            },
         ]
         with patch("assgen.client.api.APIClient", return_value=self._mock_api_client(mock_models)):
             result = invoke("models", "list")
@@ -224,6 +243,7 @@ class TestModelsCommand:
 # ---------------------------------------------------------------------------
 # --json flag
 # ---------------------------------------------------------------------------
+
 
 class TestJsonFlag:
     """--json emits valid JSON and suppresses Rich formatting."""
@@ -247,6 +267,7 @@ class TestJsonFlag:
         import json as _json
 
         from assgen.client import context
+
         context.reset()
         with patch("assgen.client.commands.submit.get_client", return_value=self._enqueue_mock()):
             result = invoke("--json", "gen", "audio", "sfx", "generate", "laser gun")
@@ -259,6 +280,7 @@ class TestJsonFlag:
 
     def test_json_flag_no_rich_markup(self) -> None:
         from assgen.client import context
+
         context.reset()
         with patch("assgen.client.commands.submit.get_client", return_value=self._enqueue_mock()):
             result = invoke("--json", "gen", "audio", "sfx", "generate", "laser gun")
@@ -271,6 +293,7 @@ class TestJsonFlag:
 # ---------------------------------------------------------------------------
 # --variants flag
 # ---------------------------------------------------------------------------
+
 
 class TestVariantsFlag:
     """--variants N submits N jobs."""
@@ -292,6 +315,7 @@ class TestVariantsFlag:
 
     def test_variants_submits_n_jobs(self) -> None:
         from assgen.client import context
+
         context.reset()
         mock_client = self._enqueue_mock(3)
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
@@ -304,6 +328,7 @@ class TestVariantsFlag:
         import json as _json
 
         from assgen.client import context
+
         context.reset()
         mock_client = self._enqueue_mock(2)
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
@@ -320,6 +345,7 @@ class TestVariantsFlag:
 # ---------------------------------------------------------------------------
 # --quality flag
 # ---------------------------------------------------------------------------
+
 
 class TestQualityFlag:
     """--quality injects _quality into job params."""
@@ -341,6 +367,7 @@ class TestQualityFlag:
 
     def test_quality_draft_sets_param(self) -> None:
         from assgen.client import context
+
         context.reset()
         mock_client = self._enqueue_mock()
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
@@ -354,6 +381,7 @@ class TestQualityFlag:
     def test_quality_standard_omits_param(self) -> None:
         """standard is the default — should NOT inject _quality (saves bandwidth)."""
         from assgen.client import context
+
         context.reset()
         mock_client = self._enqueue_mock()
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
@@ -368,10 +396,13 @@ class TestQualityFlag:
         import json as _json
 
         from assgen.client import context
+
         context.reset()
         mock_client = self._enqueue_mock()
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
-            result = invoke("--json", "--quality", "high", "gen", "audio", "music", "compose", "epic")
+            result = invoke(
+                "--json", "--quality", "high", "gen", "audio", "music", "compose", "epic"
+            )
         context.reset()
         assert result.exit_code == 0
         parsed = _json.loads(result.output.strip())
@@ -383,6 +414,7 @@ class TestQualityFlag:
 # ---------------------------------------------------------------------------
 # --from-job chaining
 # ---------------------------------------------------------------------------
+
 
 class TestFromJobFlag:
     """--from-job adds upstream job info to params."""
@@ -410,13 +442,20 @@ class TestFromJobFlag:
 
     def test_from_job_injects_upstream_info(self) -> None:
         from assgen.client import context
+
         context.reset()
         upstream_id = "upstream0000001"
         mock_client = self._make_clients(upstream_id)
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
             result = invoke(
-                "--from-job", upstream_id,
-                "gen", "visual", "texture", "generate", "--prompt", "mossy stone",
+                "--from-job",
+                upstream_id,
+                "gen",
+                "visual",
+                "texture",
+                "generate",
+                "--prompt",
+                "mossy stone",
             )
         context.reset()
         assert result.exit_code == 0
@@ -428,6 +467,7 @@ class TestFromJobFlag:
 # ---------------------------------------------------------------------------
 # jobs rerun smoke tests
 # ---------------------------------------------------------------------------
+
 
 class TestJobsRerun:
     """assgen jobs rerun re-submits with the original user params."""
@@ -468,6 +508,7 @@ class TestJobsRerun:
 
     def test_rerun_enqueues_fresh_job(self) -> None:
         from assgen.client import context
+
         context.reset()
         job_id = "original002"
         original_params = {
@@ -477,8 +518,10 @@ class TestJobsRerun:
             "upstream_job_id": "upstream001",
         }
         mc = self._make_job(job_id, "visual.concept.generate", original_params)
-        with patch("assgen.client.commands.jobs.get_client", return_value=mc), \
-             patch("assgen.client.commands.submit.get_client", return_value=mc):
+        with (
+            patch("assgen.client.commands.jobs.get_client", return_value=mc),
+            patch("assgen.client.commands.submit.get_client", return_value=mc),
+        ):
             result = invoke("jobs", "rerun", job_id)
         context.reset()
         assert result.exit_code == 0
@@ -495,32 +538,38 @@ class TestJobsRerun:
 # Handler import smoke — verify module-level ImportError → stub fallback
 # ---------------------------------------------------------------------------
 
+
 class TestHandlerImportFallback:
     """Handlers degrade gracefully when optional deps are absent."""
 
     def test_audio_sfx_generate_importable(self) -> None:
         """Module must import cleanly even without audiocraft installed."""
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.audio_sfx_generate")
         assert hasattr(mod, "run")
 
     def test_audio_music_compose_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.audio_music_compose")
         assert hasattr(mod, "run")
 
     def test_audio_music_loop_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.audio_music_loop")
         assert hasattr(mod, "run")
 
     def test_narrative_dialogue_npc_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.narrative_dialogue_npc")
         assert hasattr(mod, "run")
 
     def test_visual_texture_pbr_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.visual_texture_pbr")
         assert hasattr(mod, "run")
 
@@ -529,37 +578,44 @@ class TestHandlerImportFallback:
 # Catalog quality_variants
 # ---------------------------------------------------------------------------
 
+
 class TestCatalogQualityVariants:
     """get_model_for_job_quality resolves tier variants correctly."""
 
     def test_draft_resolves_to_small(self) -> None:
         from assgen.catalog import get_model_for_job_quality
+
         mid = get_model_for_job_quality("audio.music.compose", "draft")
         assert mid == "facebook/musicgen-small"
 
     def test_high_resolves_to_large(self) -> None:
         from assgen.catalog import get_model_for_job_quality
+
         mid = get_model_for_job_quality("audio.music.compose", "high")
         assert mid == "facebook/musicgen-large"
 
     def test_standard_resolves_to_medium(self) -> None:
         from assgen.catalog import get_model_for_job_quality
+
         mid = get_model_for_job_quality("audio.music.compose", "standard")
         assert mid == "facebook/musicgen-medium"
 
     def test_no_variants_returns_default(self) -> None:
         from assgen.catalog import get_model_for_job_quality
+
         mid = get_model_for_job_quality("visual.model.create", "draft")
         # Hunyuan3D-2 has no quality_variants — should return the default model_id
         assert mid == "tencent/Hunyuan3D-2"
 
     def test_loop_draft_resolves_stereo_small(self) -> None:
         from assgen.catalog import get_model_for_job_quality
+
         mid = get_model_for_job_quality("audio.music.loop", "draft")
         assert mid == "facebook/musicgen-stereo-small"
 
     def test_pbr_entry_in_catalog(self) -> None:
         from assgen.catalog import get_model_for_job
+
         entry = get_model_for_job("visual.texture.pbr")
         assert entry is not None
         assert entry["model_id"] is None  # algorithmic — no ML model
@@ -568,6 +624,7 @@ class TestCatalogQualityVariants:
 # ---------------------------------------------------------------------------
 # --context multi-input chaining
 # ---------------------------------------------------------------------------
+
 
 class TestContextFlag:
     """--context key=job_id loads upstream text into context_map param."""
@@ -602,13 +659,19 @@ class TestContextFlag:
 
     def test_context_resolves_to_param(self) -> None:
         from assgen.client import context
+
         context.reset()
         lore_id = "lorejob00000001"
         mock_client = self._make_client(lore_id)
         with patch("assgen.client.commands.submit.get_client", return_value=mock_client):
             result = invoke(
-                "--context", f"lore={lore_id}",
-                "gen", "support", "narrative", "dialog", "innkeeper",
+                "--context",
+                f"lore={lore_id}",
+                "gen",
+                "support",
+                "narrative",
+                "dialog",
+                "innkeeper",
             )
         context.reset()
         assert result.exit_code == 0
@@ -619,6 +682,7 @@ class TestContextFlag:
 
     def test_context_bad_format_raises(self) -> None:
         from assgen.client import context as ctx_mod
+
         ctx_mod.reset()
         with pytest.raises(ValueError, match="key=job_id"):
             ctx_mod.set_context_map(["noequalssign"])
@@ -626,6 +690,7 @@ class TestContextFlag:
 
     def test_multiple_context_entries(self) -> None:
         from assgen.client import context as ctx_mod
+
         ctx_mod.reset()
         ctx_mod.set_context_map(["lore=job1", "scene=job2"])
         cm = ctx_mod.get_context_map()
@@ -637,139 +702,273 @@ class TestContextFlag:
 # Easy-win handler importability
 # ---------------------------------------------------------------------------
 
+
 class TestEasyWinHandlers:
     """Wrapper handlers import cleanly and delegate correctly."""
 
     def test_audio_ambient_generate_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.audio_ambient_generate")
         assert hasattr(mod, "run")
 
     def test_audio_music_adaptive_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.audio_music_adaptive")
         assert hasattr(mod, "run")
 
     def test_narrative_lore_generate_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.narrative_lore_generate")
         assert hasattr(mod, "run")
 
     def test_narrative_quest_design_importable(self) -> None:
         import importlib
+
         mod = importlib.import_module("assgen.server.handlers.narrative_quest_design")
         assert hasattr(mod, "run")
 
     def test_handler_coverage_reached_29_percent(self) -> None:
         """Retained for historical reference — originally verified 9/31 handlers."""
         from assgen.catalog import load_catalog
+
         catalog = load_catalog()
         real = sum(
-            1 for jt in catalog
-            if _try_import("assgen.server.handlers." + jt.replace(".", "_"))
+            1 for jt in catalog if _try_import("assgen.server.handlers." + jt.replace(".", "_"))
         )
         assert real >= 9, f"Expected ≥9 real handlers, got {real}"
-
-
 
 
 # ---------------------------------------------------------------------------
 # Algorithmic handlers — importability + coverage
 # ---------------------------------------------------------------------------
 
+
 class TestAlgorithmicHandlers:
     """All 40 algorithmic handlers are importable and have a run() function."""
 
     def _assert_handler(self, name: str) -> None:
         import importlib
+
         mod = importlib.import_module(f"assgen.server.handlers.{name}")
         assert hasattr(mod, "run"), f"{name} missing run()"
 
     # visual mesh
-    def test_visual_mesh_validate_importable(self)     : self._assert_handler("visual_mesh_validate")
-    def test_visual_mesh_convert_importable(self)      : self._assert_handler("visual_mesh_convert")
-    def test_visual_mesh_merge_importable(self)        : self._assert_handler("visual_mesh_merge")
-    def test_visual_mesh_bounds_importable(self)       : self._assert_handler("visual_mesh_bounds")
-    def test_visual_mesh_flipnormals_importable(self)  : self._assert_handler("visual_mesh_flipnormals")
-    def test_visual_mesh_weld_importable(self)         : self._assert_handler("visual_mesh_weld")
-    def test_visual_mesh_center_importable(self)       : self._assert_handler("visual_mesh_center")
-    def test_visual_mesh_scale_importable(self)        : self._assert_handler("visual_mesh_scale")
+    def test_visual_mesh_validate_importable(self):
+        self._assert_handler("visual_mesh_validate")
+
+    def test_visual_mesh_convert_importable(self):
+        self._assert_handler("visual_mesh_convert")
+
+    def test_visual_mesh_merge_importable(self):
+        self._assert_handler("visual_mesh_merge")
+
+    def test_visual_mesh_bounds_importable(self):
+        self._assert_handler("visual_mesh_bounds")
+
+    def test_visual_mesh_flipnormals_importable(self):
+        self._assert_handler("visual_mesh_flipnormals")
+
+    def test_visual_mesh_weld_importable(self):
+        self._assert_handler("visual_mesh_weld")
+
+    def test_visual_mesh_center_importable(self):
+        self._assert_handler("visual_mesh_center")
+
+    def test_visual_mesh_scale_importable(self):
+        self._assert_handler("visual_mesh_scale")
+
     # lod
-    def test_visual_lod_generate_importable(self)      : self._assert_handler("visual_lod_generate")
+    def test_visual_lod_generate_importable(self):
+        self._assert_handler("visual_lod_generate")
+
     # texture
-    def test_visual_texture_channel_pack_importable(self)    : self._assert_handler("visual_texture_channel_pack")
-    def test_visual_texture_convert_importable(self)         : self._assert_handler("visual_texture_convert")
-    def test_visual_texture_atlas_pack_importable(self)      : self._assert_handler("visual_texture_atlas_pack")
-    def test_visual_texture_mipmap_importable(self)          : self._assert_handler("visual_texture_mipmap")
-    def test_visual_texture_normalmap_convert_importable(self): self._assert_handler("visual_texture_normalmap_convert")
-    def test_visual_texture_seamless_importable(self)        : self._assert_handler("visual_texture_seamless")
-    def test_visual_texture_resize_importable(self)          : self._assert_handler("visual_texture_resize")
-    def test_visual_texture_report_importable(self)          : self._assert_handler("visual_texture_report")
+    def test_visual_texture_channel_pack_importable(self):
+        self._assert_handler("visual_texture_channel_pack")
+
+    def test_visual_texture_convert_importable(self):
+        self._assert_handler("visual_texture_convert")
+
+    def test_visual_texture_atlas_pack_importable(self):
+        self._assert_handler("visual_texture_atlas_pack")
+
+    def test_visual_texture_mipmap_importable(self):
+        self._assert_handler("visual_texture_mipmap")
+
+    def test_visual_texture_normalmap_convert_importable(self):
+        self._assert_handler("visual_texture_normalmap_convert")
+
+    def test_visual_texture_seamless_importable(self):
+        self._assert_handler("visual_texture_seamless")
+
+    def test_visual_texture_resize_importable(self):
+        self._assert_handler("visual_texture_resize")
+
+    def test_visual_texture_report_importable(self):
+        self._assert_handler("visual_texture_report")
+
     # sprite
-    def test_visual_sprite_pack_importable(self)       : self._assert_handler("visual_sprite_pack")
+    def test_visual_sprite_pack_importable(self):
+        self._assert_handler("visual_sprite_pack")
+
     # audio process
-    def test_audio_process_normalize_importable(self)     : self._assert_handler("audio_process_normalize")
-    def test_audio_process_trim_silence_importable(self)  : self._assert_handler("audio_process_trim_silence")
-    def test_audio_process_loop_optimize_importable(self) : self._assert_handler("audio_process_loop_optimize")
-    def test_audio_process_convert_importable(self)       : self._assert_handler("audio_process_convert")
-    def test_audio_process_downmix_importable(self)       : self._assert_handler("audio_process_downmix")
-    def test_audio_process_resample_importable(self)      : self._assert_handler("audio_process_resample")
-    def test_audio_process_waveform_importable(self)      : self._assert_handler("audio_process_waveform")
+    def test_audio_process_normalize_importable(self):
+        self._assert_handler("audio_process_normalize")
+
+    def test_audio_process_trim_silence_importable(self):
+        self._assert_handler("audio_process_trim_silence")
+
+    def test_audio_process_loop_optimize_importable(self):
+        self._assert_handler("audio_process_loop_optimize")
+
+    def test_audio_process_convert_importable(self):
+        self._assert_handler("audio_process_convert")
+
+    def test_audio_process_downmix_importable(self):
+        self._assert_handler("audio_process_downmix")
+
+    def test_audio_process_resample_importable(self):
+        self._assert_handler("audio_process_resample")
+
+    def test_audio_process_waveform_importable(self):
+        self._assert_handler("audio_process_waveform")
+
     # proc
-    def test_proc_terrain_heightmap_importable(self)  : self._assert_handler("procedural_terrain_heightmap")
-    def test_proc_texture_noise_importable(self)      : self._assert_handler("procedural_texture_noise")
-    def test_proc_level_dungeon_importable(self)      : self._assert_handler("procedural_level_dungeon")
-    def test_proc_level_voronoi_importable(self)      : self._assert_handler("procedural_level_voronoi")
-    def test_proc_foliage_scatter_importable(self)    : self._assert_handler("procedural_foliage_scatter")
-    def test_proc_tileset_wfc_importable(self)        : self._assert_handler("procedural_tileset_wfc")
-    def test_proc_plant_lsystem_importable(self)      : self._assert_handler("procedural_plant_lsystem")
+    def test_proc_terrain_heightmap_importable(self):
+        self._assert_handler("procedural_terrain_heightmap")
+
+    def test_proc_texture_noise_importable(self):
+        self._assert_handler("procedural_texture_noise")
+
+    def test_proc_level_dungeon_importable(self):
+        self._assert_handler("procedural_level_dungeon")
+
+    def test_proc_level_voronoi_importable(self):
+        self._assert_handler("procedural_level_voronoi")
+
+    def test_proc_foliage_scatter_importable(self):
+        self._assert_handler("procedural_foliage_scatter")
+
+    def test_proc_tileset_wfc_importable(self):
+        self._assert_handler("procedural_tileset_wfc")
+
+    def test_proc_plant_lsystem_importable(self):
+        self._assert_handler("procedural_plant_lsystem")
+
     # pipeline
-    def test_pipeline_asset_manifest_importable(self) : self._assert_handler("pipeline_asset_manifest")
-    def test_pipeline_asset_validate_importable(self) : self._assert_handler("pipeline_asset_validate")
-    def test_pipeline_asset_rename_importable(self)   : self._assert_handler("pipeline_asset_rename")
-    def test_pipeline_asset_report_importable(self)   : self._assert_handler("pipeline_asset_report")
-    def test_pipeline_git_lfs_rules_importable(self)  : self._assert_handler("pipeline_git_lfs_rules")
+    def test_pipeline_asset_manifest_importable(self):
+        self._assert_handler("pipeline_asset_manifest")
+
+    def test_pipeline_asset_validate_importable(self):
+        self._assert_handler("pipeline_asset_validate")
+
+    def test_pipeline_asset_rename_importable(self):
+        self._assert_handler("pipeline_asset_rename")
+
+    def test_pipeline_asset_report_importable(self):
+        self._assert_handler("pipeline_asset_report")
+
+    def test_pipeline_git_lfs_rules_importable(self):
+        self._assert_handler("pipeline_git_lfs_rules")
+
     # narrative
-    def test_narrative_dialogue_validate_importable(self) : self._assert_handler("narrative_dialogue_validate")
-    def test_narrative_quest_validate_importable(self)    : self._assert_handler("narrative_quest_validate")
-    def test_narrative_i18n_extract_importable(self)      : self._assert_handler("narrative_i18n_extract")
+    def test_narrative_dialogue_validate_importable(self):
+        self._assert_handler("narrative_dialogue_validate")
+
+    def test_narrative_quest_validate_importable(self):
+        self._assert_handler("narrative_quest_validate")
+
+    def test_narrative_i18n_extract_importable(self):
+        self._assert_handler("narrative_i18n_extract")
 
     # batch 1 — SDXL delegates
-    def test_visual_blockout_create_importable(self)      : self._assert_handler("visual_blockout_create")
-    def test_visual_texture_generate_importable(self)     : self._assert_handler("visual_texture_generate")
-    def test_visual_ui_icon_importable(self)              : self._assert_handler("visual_ui_icon")
-    def test_visual_vfx_particle_importable(self)         : self._assert_handler("visual_vfx_particle")
+    def test_visual_blockout_create_importable(self):
+        self._assert_handler("visual_blockout_create")
+
+    def test_visual_texture_generate_importable(self):
+        self._assert_handler("visual_texture_generate")
+
+    def test_visual_ui_icon_importable(self):
+        self._assert_handler("visual_ui_icon")
+
+    def test_visual_vfx_particle_importable(self):
+        self._assert_handler("visual_vfx_particle")
+
     # batch 2 — algorithmic
-    def test_visual_model_retopo_importable(self)         : self._assert_handler("visual_model_retopo")
-    def test_scene_physics_collider_importable(self)      : self._assert_handler("scene_physics_collider")
-    def test_visual_texture_bake_importable(self)         : self._assert_handler("visual_texture_bake")
-    def test_pipeline_integrate_export_importable(self)   : self._assert_handler("pipeline_integrate_export")
+    def test_visual_model_retopo_importable(self):
+        self._assert_handler("visual_model_retopo")
+
+    def test_scene_physics_collider_importable(self):
+        self._assert_handler("scene_physics_collider")
+
+    def test_visual_texture_bake_importable(self):
+        self._assert_handler("visual_texture_bake")
+
+    def test_pipeline_integrate_export_importable(self):
+        self._assert_handler("pipeline_integrate_export")
+
     # batch 3 — ML models
-    def test_visual_texture_upscale_importable(self)      : self._assert_handler("visual_texture_upscale")
-    def test_visual_texture_inpaint_importable(self)      : self._assert_handler("visual_texture_inpaint")
-    def test_scene_depth_estimate_importable(self)        : self._assert_handler("scene_depth_estimate")
-    def test_scene_lighting_hdri_importable(self)         : self._assert_handler("scene_lighting_hdri")
-    def test_audio_voice_clone_importable(self)           : self._assert_handler("audio_voice_clone")
+    def test_visual_texture_upscale_importable(self):
+        self._assert_handler("visual_texture_upscale")
+
+    def test_visual_texture_inpaint_importable(self):
+        self._assert_handler("visual_texture_inpaint")
+
+    def test_scene_depth_estimate_importable(self):
+        self._assert_handler("scene_depth_estimate")
+
+    def test_scene_lighting_hdri_importable(self):
+        self._assert_handler("scene_lighting_hdri")
+
+    def test_audio_voice_clone_importable(self):
+        self._assert_handler("audio_voice_clone")
+
     # batch 4 — complex ML
-    def test_visual_animate_keyframe_importable(self)     : self._assert_handler("visual_animate_keyframe")
-    def test_visual_animate_mocap_importable(self)        : self._assert_handler("visual_animate_mocap")
-    def test_visual_concept_style_importable(self)        : self._assert_handler("visual_concept_style")
-    def test_visual_rig_auto_importable(self)             : self._assert_handler("visual_rig_auto")
+    def test_visual_animate_keyframe_importable(self):
+        self._assert_handler("visual_animate_keyframe")
+
+    def test_visual_animate_mocap_importable(self):
+        self._assert_handler("visual_animate_mocap")
+
+    def test_visual_concept_style_importable(self):
+        self._assert_handler("visual_concept_style")
+
+    def test_visual_rig_auto_importable(self):
+        self._assert_handler("visual_rig_auto")
+
     # batch 5 — UI generation
-    def test_visual_ui_button_importable(self)            : self._assert_handler("visual_ui_button")
-    def test_visual_ui_panel_importable(self)             : self._assert_handler("visual_ui_panel")
-    def test_visual_ui_widget_importable(self)            : self._assert_handler("visual_ui_widget")
-    def test_visual_ui_mockup_importable(self)            : self._assert_handler("visual_ui_mockup")
-    def test_visual_ui_layout_importable(self)            : self._assert_handler("visual_ui_layout")
-    def test_visual_ui_iconset_importable(self)           : self._assert_handler("visual_ui_iconset")
-    def test_visual_ui_theme_importable(self)             : self._assert_handler("visual_ui_theme")
-    def test_visual_ui_screen_importable(self)            : self._assert_handler("visual_ui_screen")
+    def test_visual_ui_button_importable(self):
+        self._assert_handler("visual_ui_button")
+
+    def test_visual_ui_panel_importable(self):
+        self._assert_handler("visual_ui_panel")
+
+    def test_visual_ui_widget_importable(self):
+        self._assert_handler("visual_ui_widget")
+
+    def test_visual_ui_mockup_importable(self):
+        self._assert_handler("visual_ui_mockup")
+
+    def test_visual_ui_layout_importable(self):
+        self._assert_handler("visual_ui_layout")
+
+    def test_visual_ui_iconset_importable(self):
+        self._assert_handler("visual_ui_iconset")
+
+    def test_visual_ui_theme_importable(self):
+        self._assert_handler("visual_ui_theme")
+
+    def test_visual_ui_screen_importable(self):
+        self._assert_handler("visual_ui_screen")
 
     def test_handler_coverage_full(self) -> None:
         """All 79 catalog entries have real handlers (100% coverage)."""
         import importlib
 
         from assgen.catalog import load_catalog
+
         catalog = load_catalog()
         missing = []
         for jt in catalog:
@@ -784,6 +983,7 @@ class TestAlgorithmicHandlers:
 # ---------------------------------------------------------------------------
 # New CLI commands — basic help checks
 # ---------------------------------------------------------------------------
+
 
 class TestNewCLICommands:
     """New algorithmic tool CLI commands register and respond to --help."""
@@ -890,6 +1090,7 @@ class TestNewCLICommands:
 # Procedural handler functional tests (no external deps required)
 # ---------------------------------------------------------------------------
 
+
 class TestButtonHandlerHelpers:
     """Unit tests for pure-Python helpers in visual_ui_button — no GPU needed."""
 
@@ -899,6 +1100,7 @@ class TestButtonHandlerHelpers:
             _nine_slice_insets,
             _parse_dpi_scales,
         )
+
         return _parse_dpi_scales, _nine_slice_insets, _STATE_MODIFIERS
 
     def test_parse_dpi_scales_default(self):
@@ -945,9 +1147,11 @@ class TestButtonHandlerHelpers:
         _, _, mods = self._import_helpers()
         assert mods["locked"] != mods["disabled"]
 
+
 # Skip Pillow-dependent tests if Pillow is not installed in this environment
 try:
     from PIL import Image as _TestPIL  # noqa: F401
+
     _PIL_AVAILABLE = True
 except ImportError:
     _PIL_AVAILABLE = False
@@ -961,49 +1165,89 @@ class TestProceduralHandlers:
     @_pil_required
     def test_proc_level_dungeon_run(self, tmp_path) -> None:
         from assgen.server.handlers.procedural_level_dungeon import run
-        result = run("proc.level.dungeon", {"width": 16, "height": 16, "rooms": 3, "seed": 1},
-                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+
+        result = run(
+            "proc.level.dungeon",
+            {"width": 16, "height": 16, "rooms": 3, "seed": 1},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(tmp_path),
+        )
         assert "files" in result
         assert any("dungeon.json" in f for f in result["files"])
 
     @_pil_required
     def test_proc_level_voronoi_run(self, tmp_path) -> None:
         from assgen.server.handlers.procedural_level_voronoi import run
-        result = run("proc.level.voronoi", {"width": 64, "height": 64, "regions": 4, "seed": 1},
-                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+
+        result = run(
+            "proc.level.voronoi",
+            {"width": 64, "height": 64, "regions": 4, "seed": 1},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(tmp_path),
+        )
         assert any("voronoi.png" in f for f in result["files"])
         assert any("regions.json" in f for f in result["files"])
 
     def test_proc_plant_lsystem_run(self, tmp_path) -> None:
         from assgen.server.handlers.procedural_plant_lsystem import run
-        result = run("proc.plant.lsystem",
-                     {"axiom": "F", "rules": '{"F":"F[+F][-F]"}', "iterations": 3},
-                     None, None, "cpu", lambda f, m: None, str(tmp_path))
+
+        result = run(
+            "proc.plant.lsystem",
+            {"axiom": "F", "rules": '{"F":"F[+F][-F]"}', "iterations": 3},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(tmp_path),
+        )
         assert any("plant.svg" in f for f in result["files"])
         assert result["metadata"]["branch_count"] > 0
 
     def test_pipeline_asset_manifest_run(self, tmp_path) -> None:
         from assgen.server.handlers.pipeline_asset_manifest import run
+
         # Create a dummy file
         (tmp_path / "test.png").write_bytes(b"\x89PNG")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("pipeline.asset.manifest", {"directory": str(tmp_path)},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "pipeline.asset.manifest",
+            {"directory": str(tmp_path)},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         import json
+
         manifest = json.loads((out_dir / "manifest.json").read_text())
         assert manifest["file_count"] >= 1
 
     def test_pipeline_asset_rename_dry_run(self, tmp_path) -> None:
         from assgen.server.handlers.pipeline_asset_rename import run
+
         (tmp_path / "MyAsset.png").write_bytes(b"")
         (tmp_path / "AnotherAsset.glb").write_bytes(b"")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("pipeline.asset.rename",
-                     {"directory": str(tmp_path), "convention": "snake_case", "dry_run": True},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "pipeline.asset.rename",
+            {"directory": str(tmp_path), "convention": "snake_case", "dry_run": True},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         import json
+
         plan = json.loads((out_dir / "rename_plan.json").read_text())
         assert plan["dry_run"] is True
         renames = {r["from"]: r["to"] for r in plan["renames"]}
@@ -1011,12 +1255,20 @@ class TestProceduralHandlers:
 
     def test_pipeline_git_lfs_rules_run(self, tmp_path) -> None:
         from assgen.server.handlers.pipeline_git_lfs_rules import run
+
         (tmp_path / "model.glb").write_bytes(b"")
         (tmp_path / "texture.png").write_bytes(b"")
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("pipeline.git.lfs_rules", {"directory": str(tmp_path)},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "pipeline.git.lfs_rules",
+            {"directory": str(tmp_path)},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         lfs_text = (out_dir / "lfs_rules.txt").read_text()
         assert "filter=lfs" in lfs_text
 
@@ -1024,16 +1276,26 @@ class TestProceduralHandlers:
         import json
 
         from assgen.server.handlers.narrative_dialogue_validate import run
-        dialogue = {"nodes": [
-            {"id": "start", "text": "Hello", "choices": [{"text": "Hi", "next": "end"}]},
-            {"id": "end",   "text": "Bye",   "exit": True},
-        ]}
+
+        dialogue = {
+            "nodes": [
+                {"id": "start", "text": "Hello", "choices": [{"text": "Hi", "next": "end"}]},
+                {"id": "end", "text": "Bye", "exit": True},
+            ]
+        }
         infile = tmp_path / "dialogue.json"
         infile.write_text(json.dumps(dialogue))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("narrative.dialogue.validate", {"input": str(infile)},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "narrative.dialogue.validate",
+            {"input": str(infile)},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         report = json.loads((out_dir / "validation_report.json").read_text())
         assert report["errors"] == []
 
@@ -1041,16 +1303,27 @@ class TestProceduralHandlers:
         import json
 
         from assgen.server.handlers.narrative_quest_validate import run
-        quest = {"start": "q1", "nodes": [
-            {"id": "q1", "title": "Find the key", "next": ["q2"]},
-            {"id": "q2", "title": "Open the door", "next": []},
-        ]}
+
+        quest = {
+            "start": "q1",
+            "nodes": [
+                {"id": "q1", "title": "Find the key", "next": ["q2"]},
+                {"id": "q2", "title": "Open the door", "next": []},
+            ],
+        }
         infile = tmp_path / "quest.json"
         infile.write_text(json.dumps(quest))
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("narrative.quest.validate", {"input": str(infile)},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "narrative.quest.validate",
+            {"input": str(infile)},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         report = json.loads((out_dir / "validation_report.json").read_text())
         assert report["errors"] == []
 
@@ -1058,14 +1331,26 @@ class TestProceduralHandlers:
         import json
 
         from assgen.server.handlers.narrative_i18n_extract import run
-        (tmp_path / "dialogue.json").write_text(json.dumps([
-            {"id": "n1", "text": "Hello world"},
-            {"id": "n2", "text": "Goodbye"},
-        ]))
+
+        (tmp_path / "dialogue.json").write_text(
+            json.dumps(
+                [
+                    {"id": "n1", "text": "Hello world"},
+                    {"id": "n2", "text": "Goodbye"},
+                ]
+            )
+        )
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        run("narrative.i18n.extract", {"directory": str(tmp_path)},
-                     None, None, "cpu", lambda f, m: None, str(out_dir))
+        run(
+            "narrative.i18n.extract",
+            {"directory": str(tmp_path)},
+            None,
+            None,
+            "cpu",
+            lambda f, m: None,
+            str(out_dir),
+        )
         template = json.loads((out_dir / "i18n_template.json").read_text())
         assert template["strings"]
         values = [s["value"] for s in template["strings"]]
@@ -1077,29 +1362,45 @@ class TestCriticalHandlerImports:
 
     def _assert_importable(self, module_name: str) -> None:
         import importlib
+
         mod = importlib.import_module(f"assgen.server.handlers.{module_name}")
         assert hasattr(mod, "run"), f"{module_name} missing run()"
 
-    def test_visual_uv_auto_importable(self):        self._assert_importable("visual_uv_auto")
-    def test_audio_voice_tts_importable(self):       self._assert_importable("audio_voice_tts")
-    def test_visual_concept_generate_importable(self): self._assert_importable("visual_concept_generate")
-    def test_visual_model_create_importable(self):   self._assert_importable("visual_model_create")
+    def test_visual_uv_auto_importable(self):
+        self._assert_importable("visual_uv_auto")
+
+    def test_audio_voice_tts_importable(self):
+        self._assert_importable("audio_voice_tts")
+
+    def test_visual_concept_generate_importable(self):
+        self._assert_importable("visual_concept_generate")
+
+    def test_visual_model_create_importable(self):
+        self._assert_importable("visual_model_create")
 
     def test_visual_concept_generate_covers_texture(self):
         """visual_concept_generate should also handle texture/icon/blockout/vfx job types."""
         from assgen.server.handlers.visual_concept_generate import _JOB_PREFIXES
-        for jt in ["visual.texture.generate", "visual.ui.icon", "visual.blockout.create", "visual.vfx.particle"]:
+
+        for jt in [
+            "visual.texture.generate",
+            "visual.ui.icon",
+            "visual.blockout.create",
+            "visual.vfx.particle",
+        ]:
             assert jt in _JOB_PREFIXES
 
     def test_visual_uv_auto_fallback_flag(self):
         """visual_uv_auto._XATLAS_AVAILABLE is False when xatlas not installed."""
         import sys
+
         orig = sys.modules.get("xatlas")
         sys.modules["xatlas"] = None  # type: ignore[assignment]
         try:
             import importlib
 
             import assgen.server.handlers.visual_uv_auto as mod
+
             importlib.reload(mod)
             assert not mod._XATLAS_AVAILABLE
         finally:

@@ -1,9 +1,10 @@
 """assgen client — client-side configuration.
 
-  assgen client config show          display active client settings + resolved server
-  assgen client config set-server    point the client at a specific server URL
-  assgen client config unset-server  revert to auto-start-local-server mode
+assgen client config show          display active client settings + resolved server
+assgen client config set-server    point the client at a specific server URL
+assgen client config unset-server  revert to auto-start-local-server mode
 """
+
 from __future__ import annotations
 
 import typer
@@ -32,6 +33,7 @@ app.add_typer(_config_app, name="config")
 def client_config_show() -> None:
     """Show active client configuration and the server this client will use."""
     import os
+
     cfg = load_client_config()
     cfg_dir = get_config_dir()
 
@@ -110,23 +112,24 @@ def client_unset_server() -> None:
     assgen-server if one is not already running.
     """
     save_client_config({"server_url": None})
-    console.print("[green]✓ Cleared server_url[/green] — will auto-start local server on next request.")
+    console.print(
+        "[green]✓ Cleared server_url[/green] — will auto-start local server on next request."
+    )
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _print_health(url: str) -> None:
     try:
         import httpx
+
         r = httpx.get(f"{url.rstrip('/')}/health", timeout=3.0)
         if r.status_code == 200:
             data = r.json()
-            console.print(
-                f"  health:[green] reachable[/green]  "
-                f"version={data.get('version', '?')}"
-            )
+            console.print(f"  health:[green] reachable[/green]  version={data.get('version', '?')}")
         else:
             console.print(f"  health:[yellow] HTTP {r.status_code}[/yellow]")
     except Exception as exc:

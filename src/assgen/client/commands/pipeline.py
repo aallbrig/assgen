@@ -1,15 +1,16 @@
 """assgen pipeline — workflow orchestration, batch processing, and engine integration.
 
-  assgen pipeline workflow create   define a multi-step asset workflow
-  assgen pipeline workflow run      execute a saved workflow with inputs
-  assgen pipeline workflow list     list available workflows
-  assgen pipeline batch queue       enqueue a batch of jobs from a manifest
-  assgen pipeline batch variant     generate style / damage variants of an asset
-  assgen pipeline batch status      show batch job status
-  assgen pipeline integrate export  convert and export to engine format
-  assgen pipeline integrate prefab  bundle assets into an engine prefab
-  assgen pipeline integrate script  generate attach-point / behavior stubs
+assgen pipeline workflow create   define a multi-step asset workflow
+assgen pipeline workflow run      execute a saved workflow with inputs
+assgen pipeline workflow list     list available workflows
+assgen pipeline batch queue       enqueue a batch of jobs from a manifest
+assgen pipeline batch variant     generate style / damage variants of an asset
+assgen pipeline batch status      show batch job status
+assgen pipeline integrate export  convert and export to engine format
+assgen pipeline integrate prefab  bundle assets into an engine prefab
+assgen pipeline integrate script  generate attach-point / behavior stubs
 """
+
 from __future__ import annotations
 
 import json
@@ -20,7 +21,9 @@ import typer
 from assgen.client.commands.submit import submit_job
 from assgen.client.output import console
 
-app = typer.Typer(help="Workflow orchestration, batching, and engine integration.", no_args_is_help=True)
+app = typer.Typer(
+    help="Workflow orchestration, batching, and engine integration.", no_args_is_help=True
+)
 
 # ---------------------------------------------------------------------------
 # workflow sub-app
@@ -38,7 +41,8 @@ def workflow_create(
     ),
     output: str | None = typer.Option(None, "--output", "-o", help="Save workflow YAML to path"),
     chain: bool = typer.Option(
-        True, "--chain/--no-chain",
+        True,
+        "--chain/--no-chain",
         help="Auto-chain each step's output into the next step's upstream_files (default: on)",
     ),
 ) -> None:
@@ -83,7 +87,9 @@ def workflow_run(
     from assgen.client.output import console
     from assgen.config import get_config_dir
 
-    wf_path = Path(name) if Path(name).exists() else (get_config_dir() / "workflows" / f"{name}.yaml")
+    wf_path = (
+        Path(name) if Path(name).exists() else (get_config_dir() / "workflows" / f"{name}.yaml")
+    )
     if not wf_path.exists():
         typer.echo(f"Workflow not found: {name}", err=True)
         raise typer.Exit(1)
@@ -94,7 +100,7 @@ def workflow_run(
     steps = wf.get("steps", [])
     # Support legacy format where steps is a plain list of job_type strings
     if steps and isinstance(steps[0], str):
-        steps = [{"id": f"step_{i+1}", "job_type": s} for i, s in enumerate(steps)]
+        steps = [{"id": f"step_{i + 1}", "job_type": s} for i, s in enumerate(steps)]
 
     global_params = json.loads(inputs) if inputs else {}
     wf_name = wf.get("name", name)
@@ -127,6 +133,7 @@ def workflow_run(
 def workflow_list() -> None:
     """List all saved workflows."""
     from assgen.config import get_config_dir
+
     wf_dir = get_config_dir() / "workflows"
     if not wf_dir.exists() or not list(wf_dir.glob("*.yaml")):
         console.print("[dim]No workflows defined yet. Use: assgen pipeline workflow create[/dim]")
@@ -155,8 +162,9 @@ def batch_queue(
     items = json.loads(Path(manifest).read_text())
     console.print(f"Queuing {len(items)} jobs from {manifest}")
     for item in items:
-        submit_job(item["job_type"], item.get("params", {}),
-                   priority=item.get("priority", 0), wait=wait)
+        submit_job(
+            item["job_type"], item.get("params", {}), priority=item.get("priority", 0), wait=wait
+        )
 
 
 @batch_app.command("variant")
@@ -169,13 +177,17 @@ def batch_variant(
 ) -> None:
     """Generate style or damage-state variants of an existing asset."""
     for i in range(variants):
-        submit_job("visual.texture.generate", {
-            "mode": "variant",
-            "input": input_asset,
-            "variant_index": i,
-            "style": style,
-            "damage": damage,
-        }, wait=wait)
+        submit_job(
+            "visual.texture.generate",
+            {
+                "mode": "variant",
+                "input": input_asset,
+                "variant_index": i,
+                "style": style,
+                "damage": damage,
+            },
+            wait=wait,
+        )
 
 
 @batch_app.command("status")
@@ -183,6 +195,7 @@ def batch_status(limit: int = typer.Option(20, "--limit", "-n")) -> None:
     """Show recent batch / queue status (active + recently completed jobs)."""
     from assgen.client.api import APIError, get_client
     from assgen.client.output import abort_with_error, print_jobs_table
+
     with get_client() as client:
         try:
             jobs = client.list_jobs(statuses=["QUEUED", "RUNNING"], limit=limit)
@@ -207,11 +220,15 @@ def integrate_export(
 ) -> None:
     """Export an asset to a specific game engine format."""
     fmt = format or {"unity": "prefab", "unreal": "uasset", "godot": "tres"}.get(engine, "glb")
-    submit_job("pipeline.integrate.export", {
-        "input": input_asset,
-        "engine": engine,
-        "format": fmt,
-    }, wait=wait)
+    submit_job(
+        "pipeline.integrate.export",
+        {
+            "input": input_asset,
+            "engine": engine,
+            "format": fmt,
+        },
+        wait=wait,
+    )
 
 
 @integrate_app.command("prefab")
@@ -222,29 +239,38 @@ def integrate_prefab(
     wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Bundle multiple assets into an engine prefab or scene package."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "prefab",
-        "assets": list(assets),
-        "name": name,
-        "engine": engine,
-    }, wait=wait)
+    submit_job(
+        "pipeline.integrate.export",
+        {
+            "mode": "prefab",
+            "assets": list(assets),
+            "name": name,
+            "engine": engine,
+        },
+        wait=wait,
+    )
 
 
 @integrate_app.command("script")
 def integrate_script(
     mesh: str = typer.Argument(..., help="Mesh to generate behavior stubs for"),
-    behaviors: str = typer.Option("interact,damage,loot", "--behaviors",
-                                  help="Comma-separated behavior types to stub"),
+    behaviors: str = typer.Option(
+        "interact,damage,loot", "--behaviors", help="Comma-separated behavior types to stub"
+    ),
     language: str = typer.Option("csharp", "--language", help="csharp | gdscript | blueprint"),
     wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Generate behavior script stubs and attach-point metadata for a mesh."""
-    submit_job("pipeline.integrate.export", {
-        "mode": "script",
-        "input": mesh,
-        "behaviors": [b.strip() for b in behaviors.split(",")],
-        "language": language,
-    }, wait=wait)
+    submit_job(
+        "pipeline.integrate.export",
+        {
+            "mode": "script",
+            "input": mesh,
+            "behaviors": [b.strip() for b in behaviors.split(",")],
+            "language": language,
+        },
+        wait=wait,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -266,39 +292,51 @@ def asset_manifest(
 @asset_app.command("validate")
 def asset_validate(
     directory: str = typer.Argument(..., help="Directory to validate"),
-    max_texture_mb: float = typer.Option(16.0, "--max-texture-mb",
-                                          help="Max texture file size in MB"),
-    max_mesh_verts: int = typer.Option(100_000, "--max-mesh-verts",
-                                        help="Max vertex count per mesh"),
+    max_texture_mb: float = typer.Option(
+        16.0, "--max-texture-mb", help="Max texture file size in MB"
+    ),
+    max_mesh_verts: int = typer.Option(
+        100_000, "--max-mesh-verts", help="Max vertex count per mesh"
+    ),
     wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Check for oversized textures, non-pow2 textures, and high-poly meshes."""
-    submit_job("pipeline.asset.validate", {
-        "directory": directory,
-        "max_texture_mb": max_texture_mb,
-        "max_mesh_verts": max_mesh_verts,
-    }, wait=wait)
+    submit_job(
+        "pipeline.asset.validate",
+        {
+            "directory": directory,
+            "max_texture_mb": max_texture_mb,
+            "max_mesh_verts": max_mesh_verts,
+        },
+        wait=wait,
+    )
 
 
 @asset_app.command("rename")
 def asset_rename(
     directory: str = typer.Argument(..., help="Directory containing files to rename"),
-    convention: str = typer.Option("snake_case", "--convention", "-c",
-                                    help="snake_case | PascalCase | kebab-case"),
+    convention: str = typer.Option(
+        "snake_case", "--convention", "-c", help="snake_case | PascalCase | kebab-case"
+    ),
     prefix: str | None = typer.Option(None, "--prefix", help="Optional name prefix"),
     suffix: str | None = typer.Option(None, "--suffix", help="Optional name suffix"),
-    dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run",
-                                  help="Plan only (default) or execute renames"),
+    dry_run: bool = typer.Option(
+        True, "--dry-run/--no-dry-run", help="Plan only (default) or execute renames"
+    ),
     wait: bool | None = typer.Option(None, "--wait/--no-wait"),
 ) -> None:
     """Batch rename assets to a naming convention (dry-run by default)."""
-    submit_job("pipeline.asset.rename", {
-        "directory": directory,
-        "convention": convention,
-        "prefix": prefix,
-        "suffix": suffix,
-        "dry_run": dry_run,
-    }, wait=wait)
+    submit_job(
+        "pipeline.asset.rename",
+        {
+            "directory": directory,
+            "convention": convention,
+            "prefix": prefix,
+            "suffix": suffix,
+            "dry_run": dry_run,
+        },
+        wait=wait,
+    )
 
 
 @asset_app.command("report")

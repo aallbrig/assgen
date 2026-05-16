@@ -7,10 +7,12 @@ Params:
     inputs  (list[str]): list of image paths
     size    (str): atlas dimensions, e.g. "2048x2048" (default "2048x2048")
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -34,7 +36,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     try:
         atlas_w, atlas_h = (int(v) for v in size_str.lower().split("x"))
     except Exception as exc:
-        raise ValueError(f"Invalid 'size' format — expected WxH e.g. '2048x2048', got '{size_str}'") from exc
+        raise ValueError(
+            f"Invalid 'size' format — expected WxH e.g. '2048x2048', got '{size_str}'"
+        ) from exc
 
     for p in inputs:
         if not Path(p).exists():
@@ -46,6 +50,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     # Try rectpack for bin-packing
     try:
         import rectpack  # type: ignore
+
         _RECTPACK = True
     except ImportError:
         _RECTPACK = False
@@ -65,12 +70,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             if name in placements:
                 x, y, w, h = placements[name]
                 atlas.paste(img.resize((w, h)), (x, y))
-                uv_map.append({
-                    "name": name,
-                    "x": x, "y": y, "w": w, "h": h,
-                    "u": x / atlas_w, "v": y / atlas_h,
-                    "u2": (x + w) / atlas_w, "v2": (y + h) / atlas_h,
-                })
+                uv_map.append(
+                    {
+                        "name": name,
+                        "x": x,
+                        "y": y,
+                        "w": w,
+                        "h": h,
+                        "u": x / atlas_w,
+                        "v": y / atlas_h,
+                        "u2": (x + w) / atlas_w,
+                        "v2": (y + h) / atlas_h,
+                    }
+                )
             else:
                 uv_map.append({"name": name, "packed": False})
     else:
@@ -88,12 +100,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
                 uv_map.append({"name": name, "packed": False, "reason": "atlas full"})
                 continue
             atlas.paste(img, (cursor_x, cursor_y))
-            uv_map.append({
-                "name": name,
-                "x": cursor_x, "y": cursor_y, "w": w, "h": h,
-                "u": cursor_x / atlas_w, "v": cursor_y / atlas_h,
-                "u2": (cursor_x + w) / atlas_w, "v2": (cursor_y + h) / atlas_h,
-            })
+            uv_map.append(
+                {
+                    "name": name,
+                    "x": cursor_x,
+                    "y": cursor_y,
+                    "w": w,
+                    "h": h,
+                    "u": cursor_x / atlas_w,
+                    "v": cursor_y / atlas_h,
+                    "u2": (cursor_x + w) / atlas_w,
+                    "v2": (cursor_y + h) / atlas_h,
+                }
+            )
             cursor_x += w
             row_height = max(row_height, h)
 
@@ -101,7 +120,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     atlas_path = Path(output_dir) / "atlas.png"
     manifest_path = Path(output_dir) / "uv_manifest.json"
     atlas.save(str(atlas_path))
-    manifest_path.write_text(json.dumps({"atlas_size": [atlas_w, atlas_h], "sprites": uv_map}, indent=2))
+    manifest_path.write_text(
+        json.dumps({"atlas_size": [atlas_w, atlas_h], "sprites": uv_map}, indent=2)
+    )
 
     progress_cb(1.0, "Done")
     return {

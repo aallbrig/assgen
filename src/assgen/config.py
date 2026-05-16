@@ -11,6 +11,7 @@ Layout inside the config dir:
   server.pid       — local server PID + URL (runtime, not committed)
   outputs/         — default output directory for generated assets
 """
+
 from __future__ import annotations
 
 import os
@@ -58,6 +59,7 @@ def get_models_cache_dir() -> Path:
 # Config file helpers
 # ---------------------------------------------------------------------------
 
+
 def _load_yaml(path: Path) -> dict[str, Any]:
     if path.exists():
         with path.open() as f:
@@ -76,10 +78,10 @@ def _save_yaml(path: Path, data: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 
 _CLIENT_DEFAULTS: dict[str, Any] = {
-    "server_url": None,          # None → auto-start local server
-    "default_wait": False,       # --wait default
-    "default_timeout": 300,      # seconds before giving up on --wait
-    "poll_interval": 2.0,        # seconds between status polls
+    "server_url": None,  # None → auto-start local server
+    "default_wait": False,  # --wait default
+    "default_timeout": 300,  # seconds before giving up on --wait
+    "poll_interval": 2.0,  # seconds between status polls
 }
 
 
@@ -106,14 +108,14 @@ _SERVER_DEFAULTS: dict[str, Any] = {
     "host": "127.0.0.1",
     "port": 8432,
     "workers": 1,
-    "device": "auto",                # "auto" | "cuda" | "cpu"
+    "device": "auto",  # "auto" | "cuda" | "cpu"
     "log_level": "info",
-    "model_load_timeout": 120,       # seconds to wait for a model to load
-    "job_retention_days": 30,        # days to keep completed jobs in DB
+    "model_load_timeout": 120,  # seconds to wait for a model to load
+    "job_retention_days": 30,  # days to keep completed jobs in DB
     # Security / model governance
-    "allow_list": [],                # [] = allow all; list model IDs to restrict downloads
+    "allow_list": [],  # [] = allow all; list model IDs to restrict downloads
     "skip_model_validation": False,  # True = bypass HF tag compatibility checks
-    "api_key": None,                 # None = no auth; set a string to require Bearer token
+    "api_key": None,  # None = no auth; set a string to require Bearer token
 }
 
 
@@ -139,6 +141,7 @@ def save_server_config(updates: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 # PID file helpers (local server auto-start)
 # ---------------------------------------------------------------------------
+
 
 def get_pid_file() -> Path:
     return get_config_dir() / "server.pid"

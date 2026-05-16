@@ -7,10 +7,12 @@ Params:
     input       (str):   source image path
     blend_width (float): blend zone as fraction of image size (default 0.1 = 10%)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

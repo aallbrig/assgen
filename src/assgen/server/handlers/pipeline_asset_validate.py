@@ -13,6 +13,7 @@ Params:
     max_texture_mb (float): max texture file size in MB (default 16)
     max_mesh_verts (int):   max vertex count per mesh (default 100 000)
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # PIL is optional for dimension checks
@@ -38,12 +39,14 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         from PIL import Image as _PILImage
+
         _PIL = True
     except ImportError:
         _PIL = False
 
     try:
         import trimesh as _tm
+
         _TRIMESH = True
     except ImportError:
         _TRIMESH = False

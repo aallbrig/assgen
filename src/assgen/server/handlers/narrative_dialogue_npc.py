@@ -5,6 +5,7 @@ Requires ``transformers`` and ``torch``:
 
 Falls back to the stub handler if transformers is not installed.
 """
+
 from __future__ import annotations
 
 import json
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 try:
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from transformers import pipeline as hf_pipeline
+
     _TRANSFORMERS_AVAILABLE = True
 except ImportError:
     _TRANSFORMERS_AVAILABLE = False
@@ -56,9 +58,12 @@ _STUB_LINES = [
 ]
 
 
-def _stub_dialogue(character: str, lines: int, branching: bool, output_dir: Path, progress_cb) -> dict:
+def _stub_dialogue(
+    character: str, lines: int, branching: bool, output_dir: Path, progress_cb
+) -> dict:
     """Return placeholder dialogue JSON when Phi model is unavailable."""
     import json
+
     progress_cb(0.2, "Phi model not available — generating placeholder dialogue…")
     dialogue_lines = [
         {"id": i + 1, "text": _STUB_LINES[i % len(_STUB_LINES)], "emotion": "neutral"}
@@ -99,8 +104,16 @@ def run(
 
     try:
         return _run_real_dialogue(
-            character, context, lines, branching, params,
-            model_id, model_path, device, progress_cb, output_dir
+            character,
+            context,
+            lines,
+            branching,
+            params,
+            model_id,
+            model_path,
+            device,
+            progress_cb,
+            output_dir,
         )
     except Exception as exc:
         logger.warning("Phi dialogue generation failed (%s) — using stub", exc)
@@ -108,8 +121,16 @@ def run(
 
 
 def _run_real_dialogue(
-    character, context, lines, branching, params,
-    model_id, model_path, device, progress_cb, output_dir: Path,
+    character,
+    context,
+    lines,
+    branching,
+    params,
+    model_id,
+    model_path,
+    device,
+    progress_cb,
+    output_dir: Path,
 ) -> dict:
     context_block = f"Scene context: {context}" if context else ""
     # Incorporate any --context named slots (lore, scenario, world, etc.)

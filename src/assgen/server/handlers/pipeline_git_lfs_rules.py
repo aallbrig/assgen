@@ -9,6 +9,7 @@ Outputs:
 Params:
     directory (str): directory to scan
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # pure Python stdlib
@@ -16,37 +17,37 @@ _AVAILABLE = True  # pure Python stdlib
 # Well-known binary game asset extensions → LFS lock type
 _LFS_RULES: list[tuple[str, str]] = [
     # 3D meshes
-    ("*.glb",   "lockable"),
-    ("*.gltf",  "lockable"),
-    ("*.fbx",   "lockable"),
-    ("*.obj",   "lockable"),
-    ("*.ply",   "lockable"),
-    ("*.stl",   "lockable"),
-    ("*.dae",   "lockable"),
+    ("*.glb", "lockable"),
+    ("*.gltf", "lockable"),
+    ("*.fbx", "lockable"),
+    ("*.obj", "lockable"),
+    ("*.ply", "lockable"),
+    ("*.stl", "lockable"),
+    ("*.dae", "lockable"),
     # Textures
-    ("*.png",   ""),
-    ("*.jpg",   ""),
-    ("*.jpeg",  ""),
-    ("*.tga",   "lockable"),
-    ("*.exr",   "lockable"),
-    ("*.hdr",   "lockable"),
-    ("*.webp",  ""),
-    ("*.bmp",   ""),
-    ("*.tiff",  "lockable"),
+    ("*.png", ""),
+    ("*.jpg", ""),
+    ("*.jpeg", ""),
+    ("*.tga", "lockable"),
+    ("*.exr", "lockable"),
+    ("*.hdr", "lockable"),
+    ("*.webp", ""),
+    ("*.bmp", ""),
+    ("*.tiff", "lockable"),
     # Audio
-    ("*.wav",   "lockable"),
-    ("*.ogg",   ""),
-    ("*.mp3",   ""),
-    ("*.flac",  "lockable"),
-    ("*.aiff",  "lockable"),
+    ("*.wav", "lockable"),
+    ("*.ogg", ""),
+    ("*.mp3", ""),
+    ("*.flac", "lockable"),
+    ("*.aiff", "lockable"),
     # Video / sprite
-    ("*.mp4",   "lockable"),
-    ("*.mov",   "lockable"),
+    ("*.mp4", "lockable"),
+    ("*.mov", "lockable"),
     # Documents / archives
-    ("*.psd",   "lockable"),
-    ("*.pdf",   ""),
-    ("*.zip",   ""),
-    ("*.7z",    ""),
+    ("*.psd", "lockable"),
+    ("*.pdf", ""),
+    ("*.zip", ""),
+    ("*.7z", ""),
 ]
 
 

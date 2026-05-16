@@ -25,6 +25,7 @@ Output file contract:
   This dict is stored in the ``output`` column and is served back to
   clients via ``GET /jobs/{id}/files``.
 """
+
 from __future__ import annotations
 
 import json
@@ -56,6 +57,7 @@ ProgressCallback = Callable[[float, str], None]
 # Dispatcher
 # ---------------------------------------------------------------------------
 
+
 class JobDispatcher:
     """Maps job_type → handler and invokes it."""
 
@@ -74,6 +76,7 @@ class JobDispatcher:
         quality = params.get("_quality")
         if quality and not params.get("_model_id_override"):
             from assgen.catalog import get_model_for_job_quality
+
             qmodel = get_model_for_job_quality(job_type, quality)
             if qmodel:
                 params = dict(params)
@@ -92,7 +95,8 @@ class JobDispatcher:
             except Exception as model_exc:
                 logger.warning(
                     "Model resolution failed for %s (%s); handler stub will run",
-                    job_type, model_exc,
+                    job_type,
+                    model_exc,
                 )
                 model_path = None
                 override_model = None  # treat as no model so handler stub runs
@@ -111,7 +115,8 @@ class JobDispatcher:
                 # Model unavailable (auth, network, OOM, etc.) — let handler's stub take over
                 logger.warning(
                     "Model resolution failed for %s (%s); handler stub will run",
-                    job_type, model_exc,
+                    job_type,
+                    model_exc,
                 )
                 model_id, model_path = None, None
 
@@ -157,6 +162,7 @@ def _load_handler(job_type: str) -> Callable[..., dict[str, Any]]:
     module_name = "assgen.server.handlers." + job_type.replace(".", "_")
     try:
         import importlib
+
         mod = importlib.import_module(module_name)
         return mod.run  # type: ignore[attr-defined]
     except ModuleNotFoundError:
@@ -218,13 +224,16 @@ def _stub_handler(
 # Worker thread
 # ---------------------------------------------------------------------------
 
+
 class WorkerThread(threading.Thread):
     """Single background worker that processes one job at a time."""
 
-    POLL_INTERVAL = 2.0   # seconds between DB polls when idle
+    POLL_INTERVAL = 2.0  # seconds between DB polls when idle
     WORKER_ID = "local-worker-0"
 
-    def __init__(self, conn_factory: Callable[[], sqlite3.Connection], model_manager: ModelManager) -> None:
+    def __init__(
+        self, conn_factory: Callable[[], sqlite3.Connection], model_manager: ModelManager
+    ) -> None:
         super().__init__(name="assgen-worker", daemon=True)
         self._conn_factory = conn_factory
         self._model_manager = model_manager
@@ -266,6 +275,7 @@ class WorkerThread(threading.Thread):
             return
 
         from assgen.db import _row_to_job  # avoid circular at module level
+
         job = _row_to_job(row)
         job_id = job["id"]
 

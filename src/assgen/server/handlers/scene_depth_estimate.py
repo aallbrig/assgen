@@ -8,10 +8,12 @@ Params:
     colormap    (bool): if true, also save a false-colour visualisation (default: true)
     normalise   (bool): normalise depth to full [0,255] range (default: true)
 """
+
 from __future__ import annotations
 
 try:
     from transformers import pipeline as hf_pipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -20,9 +22,7 @@ except ImportError:
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Estimate per-pixel depth from a single image with DPT-Large."""
     if not _AVAILABLE:
-        raise RuntimeError(
-            "transformers is required. Run: pip install transformers torch"
-        )
+        raise RuntimeError("transformers is required. Run: pip install transformers torch")
 
     from pathlib import Path
 
@@ -70,6 +70,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if do_colormap:
         try:
             import cv2
+
             col_arr = cv2.applyColorMap(depth_arr.astype(np.uint8), cv2.COLORMAP_INFERNO)
             col_name = f"{input_path.stem}_depth_colour.png"
             cv2.imwrite(str(Path(output_dir) / col_name), col_arr)

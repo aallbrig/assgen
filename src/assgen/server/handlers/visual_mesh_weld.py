@@ -4,10 +4,12 @@ Params:
     input     (str):   path to mesh file
     threshold (float): merge tolerance (default 1e-5)
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

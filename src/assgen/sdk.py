@@ -10,6 +10,7 @@ Example::
     result = run("audio.sfx.generate", {"prompt": "sword clash", "duration": 2.0})
     print(result["files"])   # ['/tmp/abc123/sfx.wav']
 """
+
 from __future__ import annotations
 
 import importlib
@@ -67,6 +68,7 @@ def run(
     if device == "auto":
         try:
             import torch
+
             device = "cuda" if torch.cuda.is_available() else "cpu"
         except ImportError:
             device = "cpu"
@@ -82,6 +84,7 @@ def run(
     if model_id is None:
         try:
             from assgen.catalog import get_model_for_job
+
             entry = get_model_for_job(job_type) or {}
             model_id = entry.get("model_id")
         except Exception:
@@ -119,6 +122,5 @@ def _load_handler(job_type: str):
         return mod.run  # type: ignore[attr-defined]
     except ModuleNotFoundError:
         raise NotImplementedError(
-            f"No handler found for job_type '{job_type}'. "
-            f"Expected module: {module_name}"
+            f"No handler found for job_type '{job_type}'. Expected module: {module_name}"
         ) from None

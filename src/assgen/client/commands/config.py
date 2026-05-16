@@ -11,6 +11,7 @@ Maps job types (e.g. visual.model.create) to HuggingFace models.
 When required arguments are omitted, each command prompts interactively.
 `config set` opens a HuggingFace model search when no --model-id is given.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -39,76 +40,77 @@ err = Console(stderr=True)
 # Used to pre-filter HF search results for relevant models.
 # ---------------------------------------------------------------------------
 _JOB_TYPE_TO_HF_TASK: dict[str, str | None] = {
-    "visual.concept.generate":    "text-to-image",
-    "visual.concept.ref":         "text-to-image",
-    "visual.concept.style":       "text-to-image",
-    "visual.blockout.create":     "text-to-image",
-    "visual.model.create":        "image-to-3d",
-    "visual.model.highpoly":      "image-to-3d",
-    "visual.model.retopo":        "image-to-3d",
-    "visual.model.splat":         "image-to-3d",
-    "visual.model.edit":          "image-to-3d",
-    "visual.model.optimize":      "image-to-3d",
-    "visual.uv.auto":             "image-to-3d",
-    "visual.texture.generate":    "text-to-image",
-    "visual.texture.apply":       "image-to-image",
-    "visual.texture.bake":        "image-to-3d",
-    "visual.texture.pbr":         "text-to-image",
-    "visual.rig.auto":            "image-to-3d",
-    "visual.rig.skin":            "image-to-3d",
-    "visual.rig.retarget":        "image-to-3d",
-    "visual.animate.keyframe":    "text-to-video",
-    "visual.animate.mocap":       "video-classification",
-    "visual.animate.blend":       "text-to-video",
-    "visual.animate.retarget":    "text-to-video",
-    "visual.vfx.particle":        "text-to-image",
-    "visual.vfx.decal":           "text-to-image",
-    "visual.vfx.sim":             "text-to-video",
-    "visual.ui.icon":             "text-to-image",
-    "visual.ui.hud":              "text-to-image",
-    "visual.ui.overlay":          "text-to-image",
-    "audio.sfx.generate":         "text-to-audio",
-    "audio.sfx.edit":             "audio-to-audio",
-    "audio.music.compose":        "text-to-audio",
-    "audio.music.loop":           "text-to-audio",
-    "audio.music.adaptive":       "text-to-audio",
-    "audio.voice.tts":            "text-to-speech",
-    "audio.voice.clone":          "text-to-speech",
-    "audio.voice.dialog":         "text-to-speech",
-    "scene.physics.collider":     "image-to-3d",
-    "scene.physics.rigid":        "image-to-3d",
-    "scene.physics.cloth":        "image-to-3d",
-    "scene.physics.export":       None,
-    "scene.lighting.hdri":        "text-to-image",
-    "scene.lighting.probes":      "image-to-3d",
+    "visual.concept.generate": "text-to-image",
+    "visual.concept.ref": "text-to-image",
+    "visual.concept.style": "text-to-image",
+    "visual.blockout.create": "text-to-image",
+    "visual.model.create": "image-to-3d",
+    "visual.model.highpoly": "image-to-3d",
+    "visual.model.retopo": "image-to-3d",
+    "visual.model.splat": "image-to-3d",
+    "visual.model.edit": "image-to-3d",
+    "visual.model.optimize": "image-to-3d",
+    "visual.uv.auto": "image-to-3d",
+    "visual.texture.generate": "text-to-image",
+    "visual.texture.apply": "image-to-image",
+    "visual.texture.bake": "image-to-3d",
+    "visual.texture.pbr": "text-to-image",
+    "visual.rig.auto": "image-to-3d",
+    "visual.rig.skin": "image-to-3d",
+    "visual.rig.retarget": "image-to-3d",
+    "visual.animate.keyframe": "text-to-video",
+    "visual.animate.mocap": "video-classification",
+    "visual.animate.blend": "text-to-video",
+    "visual.animate.retarget": "text-to-video",
+    "visual.vfx.particle": "text-to-image",
+    "visual.vfx.decal": "text-to-image",
+    "visual.vfx.sim": "text-to-video",
+    "visual.ui.icon": "text-to-image",
+    "visual.ui.hud": "text-to-image",
+    "visual.ui.overlay": "text-to-image",
+    "audio.sfx.generate": "text-to-audio",
+    "audio.sfx.edit": "audio-to-audio",
+    "audio.music.compose": "text-to-audio",
+    "audio.music.loop": "text-to-audio",
+    "audio.music.adaptive": "text-to-audio",
+    "audio.voice.tts": "text-to-speech",
+    "audio.voice.clone": "text-to-speech",
+    "audio.voice.dialog": "text-to-speech",
+    "scene.physics.collider": "image-to-3d",
+    "scene.physics.rigid": "image-to-3d",
+    "scene.physics.cloth": "image-to-3d",
+    "scene.physics.export": None,
+    "scene.lighting.hdri": "text-to-image",
+    "scene.lighting.probes": "image-to-3d",
     "scene.lighting.volumetrics": "text-to-image",
-    "scene.lighting.bake":        "image-to-3d",
-    "pipeline.integrate.export":  None,
-    "pipeline.integrate.prefab":  None,
-    "pipeline.integrate.script":  None,
-    "support.narrative.dialog":   "text-generation",
-    "support.narrative.lore":     "text-generation",
-    "support.data.lightmap":      "image-to-3d",
-    "support.data.proc":          "text-generation",
+    "scene.lighting.bake": "image-to-3d",
+    "pipeline.integrate.export": None,
+    "pipeline.integrate.prefab": None,
+    "pipeline.integrate.script": None,
+    "support.narrative.dialog": "text-generation",
+    "support.narrative.lore": "text-generation",
+    "support.data.lightmap": "image-to-3d",
+    "support.data.proc": "text-generation",
 }
 
 # Human-readable label for each HF pipeline_tag shown in tables
 _HF_TASK_LABEL: dict[str, str] = {
-    "text-to-image":     "text→image",
-    "image-to-3d":       "image→3D",
-    "text-to-video":     "text→video",
-    "text-to-audio":     "text→audio",
-    "text-to-speech":    "text→speech",
-    "audio-to-audio":    "audio→audio",
-    "image-to-image":    "image→image",
+    "text-to-image": "text→image",
+    "image-to-3d": "image→3D",
+    "text-to-video": "text→video",
+    "text-to-audio": "text→audio",
+    "text-to-speech": "text→speech",
+    "audio-to-audio": "audio→audio",
+    "image-to-image": "image→image",
     "video-classification": "video class.",
-    "text-generation":   "text gen",
+    "text-generation": "text gen",
 }
 
 
 # ---------------------------------------------------------------------------
 # User catalog helpers
 # ---------------------------------------------------------------------------
+
 
 def _user_catalog_path() -> Path:
     return get_config_dir() / "models.yaml"
@@ -136,6 +138,7 @@ def _save_user_catalog(catalog: dict[str, Any]) -> None:
 def _builtin_catalog() -> dict[str, Any]:
     """Return only the shipped catalog without user overrides."""
     from assgen.catalog import _BUILTIN_CATALOG
+
     with _BUILTIN_CATALOG.open() as f:
         return (yaml.safe_load(f) or {}).get("catalog", {})
 
@@ -148,10 +151,13 @@ def _source(job_type: str, user_catalog: dict[str, Any]) -> str:
 # Commands
 # ---------------------------------------------------------------------------
 
+
 @app.command("list")
 def config_list(
     domain: str | None = typer.Option(
-        None, "--domain", "-d",
+        None,
+        "--domain",
+        "-d",
         help="Filter by domain prefix, e.g. visual, audio, scene, pipeline",
     ),
     installed: bool = typer.Option(False, "--installed", help="Only show installed models"),
@@ -165,6 +171,7 @@ def config_list(
     if installed:
         try:
             from assgen.db import init_db
+
             conn = init_db()
             rows = conn.execute(
                 "SELECT model_id FROM models WHERE local_path IS NOT NULL"
@@ -179,12 +186,12 @@ def config_list(
         header_style="bold cyan",
         expand=True,
     )
-    table.add_column("Job Type",   min_width=28)
-    table.add_column("HF Task",    width=12)
-    table.add_column("Model ID",   min_width=32)
-    table.add_column("Name",       min_width=18)
-    table.add_column("Source",     width=10)
-    table.add_column("Inst.",      width=5)
+    table.add_column("Job Type", min_width=28)
+    table.add_column("HF Task", width=12)
+    table.add_column("Model ID", min_width=32)
+    table.add_column("Name", min_width=18)
+    table.add_column("Source", width=10)
+    table.add_column("Inst.", width=5)
 
     prev_domain = None
     for jt in sorted(catalog.keys()):
@@ -200,7 +207,7 @@ def config_list(
         if current_domain != prev_domain:
             prev_domain = current_domain
 
-        hf_task  = _JOB_TYPE_TO_HF_TASK.get(jt)
+        hf_task = _JOB_TYPE_TO_HF_TASK.get(jt)
         task_lbl = _HF_TASK_LABEL.get(hf_task or "", hf_task or "–")
         inst_str = "[green]✓[/green]" if mid in installed_ids else "–"
 
@@ -236,8 +243,8 @@ def config_show(
 
     entry = catalog[job_type]
     user_cat = _load_user_catalog()
-    hf_task  = _JOB_TYPE_TO_HF_TASK.get(job_type)
-    mid      = entry.get("model_id")
+    hf_task = _JOB_TYPE_TO_HF_TASK.get(job_type)
+    mid = entry.get("model_id")
 
     lines = [
         f"[bold]Job type:[/bold]  {job_type}",
@@ -250,12 +257,12 @@ def config_show(
         lines.append(f"[bold]Notes:[/bold]     {entry['notes']}")
     if mid:
         lines.append(f"\n[bold]HuggingFace:[/bold] https://huggingface.co/{mid}")
-        lines.append("[bold]Search more:[/bold] assgen config search "
-                     f"--job-type {job_type}")
+        lines.append(f"[bold]Search more:[/bold] assgen config search --job-type {job_type}")
 
     # Check install status
     try:
         from assgen.db import init_db
+
         conn = init_db()
         row = conn.execute(
             "SELECT local_path, installed_at, last_used_at, size_bytes FROM models WHERE model_id = ?",
@@ -275,12 +282,14 @@ def config_show(
 @app.command("set")
 def config_set(
     job_type: str | None = typer.Argument(None, help="Job type to configure"),
-    model_id: str | None = typer.Option(None, "--model-id", "-m",
-                                           help="HuggingFace model ID (org/repo)"),
+    model_id: str | None = typer.Option(
+        None, "--model-id", "-m", help="HuggingFace model ID (org/repo)"
+    ),
     name: str | None = typer.Option(None, "--name", "-n", help="Display name"),
     notes: str | None = typer.Option(None, "--notes", help="Optional notes"),
-    task: str | None = typer.Option(None, "--task", "-t",
-                                       help="Override HF pipeline_tag for search"),
+    task: str | None = typer.Option(
+        None, "--task", "-t", help="Override HF pipeline_tag for search"
+    ),
 ) -> None:
     """Add or update the model mapping for a job type.
 
@@ -291,10 +300,10 @@ def config_set(
     if not job_type:
         job_type = _prompt_job_type("Job type to configure")
 
-    catalog    = load_catalog()
-    user_cat   = _load_user_catalog()
-    existing   = catalog.get(job_type, {})
-    hf_task    = task or _JOB_TYPE_TO_HF_TASK.get(job_type)
+    catalog = load_catalog()
+    user_cat = _load_user_catalog()
+    existing = catalog.get(job_type, {})
+    hf_task = task or _JOB_TYPE_TO_HF_TASK.get(job_type)
 
     console.print(f"\nConfiguring [bold cyan]{job_type}[/bold cyan]")
     if existing:
@@ -334,14 +343,16 @@ def config_set(
 
     # ── 5. Confirm ───────────────────────────────────────────────────────────
     console.print()
-    console.print(Panel(
-        f"[bold]Job type:[/bold]  {job_type}\n"
-        f"[bold]Model ID:[/bold]  {model_id}\n"
-        f"[bold]Name:[/bold]      {name}\n"
-        f"[bold]Notes:[/bold]     {notes or '–'}",
-        title="[bold]Confirm new mapping[/bold]",
-        expand=False,
-    ))
+    console.print(
+        Panel(
+            f"[bold]Job type:[/bold]  {job_type}\n"
+            f"[bold]Model ID:[/bold]  {model_id}\n"
+            f"[bold]Name:[/bold]      {name}\n"
+            f"[bold]Notes:[/bold]     {notes or '–'}",
+            title="[bold]Confirm new mapping[/bold]",
+            expand=False,
+        )
+    )
 
     if not Confirm.ask("Save this mapping?", default=True):
         console.print("[dim]Aborted.[/dim]")
@@ -385,8 +396,7 @@ def config_remove(
 
     entry = user_cat[job_type]
     console.print(
-        f"Remove override for [cyan]{job_type}[/cyan]  "
-        f"([dim]{entry.get('model_id')}[/dim])?",
+        f"Remove override for [cyan]{job_type}[/cyan]  ([dim]{entry.get('model_id')}[/dim])?",
     )
     builtin = _builtin_catalog().get(job_type)
     if builtin:
@@ -405,16 +415,22 @@ def config_remove(
 def config_search(
     query: str | None = typer.Argument(None, help="Search term (model name or keyword)"),
     job_type: str | None = typer.Option(
-        None, "--job-type", "-j",
+        None,
+        "--job-type",
+        "-j",
         help="Job type to pre-filter by HF task (e.g. visual.model.create)",
     ),
     task: str | None = typer.Option(
-        None, "--task", "-t",
+        None,
+        "--task",
+        "-t",
         help="HuggingFace pipeline_tag filter (e.g. text-to-image, image-to-3d)",
     ),
     limit: int = typer.Option(10, "--limit", "-n", help="Max results to show"),
     apply: bool = typer.Option(
-        False, "--apply", "-a",
+        False,
+        "--apply",
+        "-a",
         help="Interactively pick a result and apply it to the job type",
     ),
 ) -> None:
@@ -439,8 +455,11 @@ def config_search(
     results = _hf_search(query, hf_task, limit)
 
     if not results:
-        console.print(f"[yellow]No results for {query!r}"
-                      + (f" (task: {hf_task})" if hf_task else "") + "[/yellow]")
+        console.print(
+            f"[yellow]No results for {query!r}"
+            + (f" (task: {hf_task})" if hf_task else "")
+            + "[/yellow]"
+        )
         raise typer.Exit(0)
 
     _print_search_results(results, hf_task)
@@ -457,7 +476,7 @@ def config_search(
             err.print("[red]Invalid selection.[/red]")
             raise typer.Exit(1)
         chosen = results[idx - 1]
-        mid    = chosen["id"]
+        mid = chosen["id"]
 
         # Delegate to config_set logic
         console.print(f"\n[dim]Selected: {mid}[/dim]")
@@ -474,6 +493,7 @@ def config_search(
 # Interactive helpers
 # ---------------------------------------------------------------------------
 
+
 def _prompt_job_type(prompt_text: str) -> str:
     """Prompt the user to pick a job type, with autocomplete-style numbered list."""
     known = all_job_types()
@@ -481,9 +501,9 @@ def _prompt_job_type(prompt_text: str) -> str:
     console.print(f"\n[bold]{prompt_text}[/bold]  (type a number or job-type string)\n")
 
     table = Table(show_header=True, header_style="bold cyan", show_lines=False, box=None)
-    table.add_column("#",        width=4,  style="dim")
+    table.add_column("#", width=4, style="dim")
     table.add_column("Job type", min_width=30)
-    table.add_column("HF task",  min_width=14, style="dim")
+    table.add_column("HF task", min_width=14, style="dim")
 
     for i, jt in enumerate(known, start=1):
         task_label = _HF_TASK_LABEL.get(_JOB_TYPE_TO_HF_TASK.get(jt) or "", "–")
@@ -570,11 +590,15 @@ def _interactive_hf_search(job_type: str, hf_task: str | None) -> str | None:
 
         _print_search_results(results, hf_task)
 
-        raw = Prompt.ask(
-            f"\n[bold]Select model[/bold]  ([cyan]1-{len(results)}[/cyan], "
-            "[cyan]s[/cyan]=search again, [cyan]q[/cyan]=quit)",
-            default="q",
-        ).strip().lower()
+        raw = (
+            Prompt.ask(
+                f"\n[bold]Select model[/bold]  ([cyan]1-{len(results)}[/cyan], "
+                "[cyan]s[/cyan]=search again, [cyan]q[/cyan]=quit)",
+                default="q",
+            )
+            .strip()
+            .lower()
+        )
 
         if raw == "q":
             return None
@@ -594,8 +618,9 @@ def _hf_search(query: str, hf_task: str | None, limit: int) -> list[dict[str, An
         err.print("[red]huggingface_hub not installed.[/red]")
         return []
 
-    console.print(f"[dim]Searching '{query}'"
-                  + (f" (task: {hf_task})" if hf_task else "") + "…[/dim]")
+    console.print(
+        f"[dim]Searching '{query}'" + (f" (task: {hf_task})" if hf_task else "") + "…[/dim]"
+    )
     try:
         kwargs: dict[str, Any] = {"search": query, "limit": limit, "sort": "downloads"}
         if hf_task:
@@ -607,12 +632,12 @@ def _hf_search(query: str, hf_task: str | None, limit: int) -> list[dict[str, An
 
     return [
         {
-            "id":          m.id,
+            "id": m.id,
             "pipeline_tag": getattr(m, "pipeline_tag", None) or "–",
-            "downloads":   getattr(m, "downloads", 0) or 0,
-            "likes":       getattr(m, "likes", 0) or 0,
-            "private":     getattr(m, "private", False),
-            "gated":       getattr(m, "gated", False),
+            "downloads": getattr(m, "downloads", 0) or 0,
+            "likes": getattr(m, "likes", 0) or 0,
+            "private": getattr(m, "private", False),
+            "gated": getattr(m, "gated", False),
         }
         for m in models
     ]
@@ -625,12 +650,12 @@ def _print_search_results(results: list[dict[str, Any]], hf_task: str | None) ->
         show_lines=True,
         header_style="bold cyan",
     )
-    table.add_column("#",          width=4,  style="dim")
-    table.add_column("Model ID",   min_width=35)
-    table.add_column("Task",       width=14)
-    table.add_column("Downloads",  width=11, justify="right")
-    table.add_column("Likes",      width=7,  justify="right")
-    table.add_column("Flags",      width=10)
+    table.add_column("#", width=4, style="dim")
+    table.add_column("Model ID", min_width=35)
+    table.add_column("Task", width=14)
+    table.add_column("Downloads", width=11, justify="right")
+    table.add_column("Likes", width=7, justify="right")
+    table.add_column("Flags", width=10)
 
     for i, m in enumerate(results, 1):
         flags = []
@@ -653,6 +678,4 @@ def _print_search_results(results: list[dict[str, Any]], hf_task: str | None) ->
         )
 
     console.print(table)
-    console.print(
-        "[dim]View a model: https://huggingface.co/<model-id>[/dim]"
-    )
+    console.print("[dim]View a model: https://huggingface.co/<model-id>[/dim]")

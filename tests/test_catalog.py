@@ -1,4 +1,5 @@
 """Tests for assgen.catalog — built-in catalog loading and model resolution."""
+
 from __future__ import annotations
 
 
@@ -73,6 +74,4 @@ def test_model_ids_are_org_slash_repo() -> None:
     for job_type, entry in catalog.items():
         mid = entry.get("model_id")
         if mid:
-            assert "/" in mid, (
-                f"{job_type}: model_id '{mid}' is not in 'org/repo' format"
-            )
+            assert "/" in mid, f"{job_type}: model_id '{mid}' is not in 'org/repo' format"

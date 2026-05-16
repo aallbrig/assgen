@@ -6,10 +6,12 @@ Params:
     input    (str): source image path
     min_size (int): stop generating mips when either dimension hits this size (default 1)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

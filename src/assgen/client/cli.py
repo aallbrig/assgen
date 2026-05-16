@@ -17,6 +17,7 @@ Command hierarchy (post-restructure)::
     assgen upgrade         → check for and install latest release
     assgen version         → print version info
 """
+
 from __future__ import annotations
 
 import logging
@@ -45,20 +46,29 @@ app = typer.Typer(
     rich_markup_mode=None,
 )
 
-app.add_typer(gen_app,     name="gen",     help="Generate assets: visual · audio · scene · pipeline · support · qa")
-app.add_typer(compose_app, name="compose", help="Multi-step asset pipelines: npc, weapon, prop, material, soundscape, ui-kit, environment")
-app.add_typer(tasks_app,   name="tasks",   help="Browse all game dev tasks and their configured models")
-app.add_typer(jobs_app,    name="jobs",    help="Job queue management")
-app.add_typer(models_app,  name="models",  help="Model catalog and installation")
-app.add_typer(server_app,  name="server",  help="Local server process management")
-app.add_typer(client_app,  name="client",  help="Client configuration: server targeting and connection settings")
-app.add_typer(config_app,  name="config",  help="Configure job-type → model mappings")
+app.add_typer(
+    gen_app, name="gen", help="Generate assets: visual · audio · scene · pipeline · support · qa"
+)
+app.add_typer(
+    compose_app,
+    name="compose",
+    help="Multi-step asset pipelines: npc, weapon, prop, material, soundscape, ui-kit, environment",
+)
+app.add_typer(tasks_app, name="tasks", help="Browse all game dev tasks and their configured models")
+app.add_typer(jobs_app, name="jobs", help="Job queue management")
+app.add_typer(models_app, name="models", help="Model catalog and installation")
+app.add_typer(server_app, name="server", help="Local server process management")
+app.add_typer(
+    client_app, name="client", help="Client configuration: server targeting and connection settings"
+)
+app.add_typer(config_app, name="config", help="Configure job-type → model mappings")
 app.add_typer(upgrade_app, name="upgrade", help="Check for and install the latest assgen release")
 
 
 def _version_callback(value: bool) -> None:
     if value:
         from assgen.version import format_version_string
+
         typer.echo(format_version_string("assgen"))
         raise typer.Exit()
 
@@ -66,47 +76,58 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def _root_callback(
     verbose: bool = typer.Option(
-        False, "--verbose", "-v",
+        False,
+        "--verbose",
+        "-v",
         help="Enable debug logging (shows server communication, model resolution, etc.)",
         is_eager=True,
     ),
     version: bool = typer.Option(  # noqa: ARG001
-        None, "--version", "-V",
+        None,
+        "--version",
+        "-V",
         callback=_version_callback,
         is_eager=True,
         help="Show version and exit.",
     ),
     json_output: bool = typer.Option(
-        False, "--json",
+        False,
+        "--json",
         help="Emit machine-readable JSON to stdout.  Disables progress bars. "
-             "Ideal for CI pipelines and scripting.",
+        "Ideal for CI pipelines and scripting.",
     ),
     yaml_output: bool = typer.Option(
-        False, "--yaml",
+        False,
+        "--yaml",
         help="Emit machine-readable YAML to stdout.  Disables progress bars. "
-             "Human-friendly alternative to --json.",
+        "Human-friendly alternative to --json.",
     ),
     variants: int = typer.Option(
-        1, "--variants", "-n",
+        1,
+        "--variants",
+        "-n",
         min=1,
-        help="Submit N identical jobs (batch generation).  "
-             "Use with --wait to collect all outputs.",
+        help="Submit N identical jobs (batch generation).  Use with --wait to collect all outputs.",
     ),
     quality: str = typer.Option(
-        "standard", "--quality", "-q",
+        "standard",
+        "--quality",
+        "-q",
         help="Model quality tier: draft (fastest/smallest), standard, high (best/largest).  "
-             "Maps to model size variants where available.",
+        "Maps to model size variants where available.",
     ),
     from_job: str | None = typer.Option(
-        None, "--from-job",
+        None,
+        "--from-job",
         help="Chain from a completed job's outputs.  Pass the upstream job ID; "
-             "its output files are forwarded as inputs to this job.",
+        "its output files are forwarded as inputs to this job.",
     ),
     context: list[str] = typer.Option(
-        [], "--context",
+        [],
+        "--context",
         help="Named context from a prior job: 'key=job_id'.  Repeatable.  "
-             "Loads that job's primary text output into params['context_map']['key'] "
-             "so handlers can incorporate prior narrative/lore content.",
+        "Loads that job's primary text output into params['context_map']['key'] "
+        "so handlers can incorporate prior narrative/lore content.",
     ),
 ) -> None:
     """AI-driven game asset generation pipeline."""
@@ -139,4 +160,5 @@ def _root_callback(
 def version_cmd() -> None:
     """Print version information and exit."""
     from assgen.version import format_version_string
+
     console.print(format_version_string("assgen"))

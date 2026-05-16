@@ -14,6 +14,7 @@ Params:
     algorithm (str): "bsp" | "cellular" (default "bsp")
     seed      (int): random seed (default 42)
 """
+
 from __future__ import annotations
 
 import json
@@ -22,6 +23,7 @@ from pathlib import Path
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -30,6 +32,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # BSP dungeon
 # ---------------------------------------------------------------------------
+
 
 def _bsp_dungeon(width: int, height: int, target_rooms: int, rng: random.Random):
     grid = [[0] * width for _ in range(height)]
@@ -81,7 +84,7 @@ def _bsp_dungeon(width: int, height: int, target_rooms: int, rng: random.Random)
 
         return c1 or c2
 
-    depth = max(2, int(target_rooms ** 0.5))
+    depth = max(2, int(target_rooms**0.5))
     split(0, 0, width, height, depth)
     return grid, rooms, corridors
 
@@ -89,6 +92,7 @@ def _bsp_dungeon(width: int, height: int, target_rooms: int, rng: random.Random)
 # ---------------------------------------------------------------------------
 # Cellular automata dungeon
 # ---------------------------------------------------------------------------
+
 
 def _cellular_dungeon(width: int, height: int, rng: random.Random):
     # Initialise with 45% wall probability
@@ -121,6 +125,7 @@ def _cellular_dungeon(width: int, height: int, rng: random.Random):
 # ---------------------------------------------------------------------------
 # Handler
 # ---------------------------------------------------------------------------
+
 
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Generate a procedural dungeon layout."""

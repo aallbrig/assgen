@@ -1,4 +1,5 @@
 """Tests for assgen.client.commands.tasks — task tree completeness."""
+
 from __future__ import annotations
 
 
@@ -87,20 +88,24 @@ def test_json_output_is_valid_list() -> None:
             for action in val.get("_tasks", []):
                 jt = f"{domain_name}.{key}.{action}"
                 entry = catalog.get(jt, {})
-                out.append({
-                    "job_type": jt,
-                    "model_id": entry.get("model_id"),
-                    "description": _TASK_DESC.get(jt, ""),
-                })
+                out.append(
+                    {
+                        "job_type": jt,
+                        "model_id": entry.get("model_id"),
+                        "description": _TASK_DESC.get(jt, ""),
+                    }
+                )
         if "_tasks" in dspec:
             for action in dspec["_tasks"]:
                 jt = f"{domain_name}.{action}"
                 entry = catalog.get(jt, {})
-                out.append({
-                    "job_type": jt,
-                    "model_id": entry.get("model_id"),
-                    "description": _TASK_DESC.get(jt, ""),
-                })
+                out.append(
+                    {
+                        "job_type": jt,
+                        "model_id": entry.get("model_id"),
+                        "description": _TASK_DESC.get(jt, ""),
+                    }
+                )
 
     assert len(out) > 40  # we have 50+ job types
     assert all("job_type" in item for item in out)

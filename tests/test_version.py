@@ -1,4 +1,5 @@
 """Tests for assgen.version — version string formatting and --version flags."""
+
 from __future__ import annotations
 
 import re
@@ -59,6 +60,7 @@ def test_dirty_field_is_bool() -> None:
 # ---------------------------------------------------------------------------
 # --version / -V flag tests via Typer CliRunner
 # ---------------------------------------------------------------------------
+
 
 def test_version_flag_exits_0() -> None:
     from typer.testing import CliRunner

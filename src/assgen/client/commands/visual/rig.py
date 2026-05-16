@@ -1,9 +1,10 @@
 """assgen visual rig — character rigging and skinning.
 
-  assgen visual rig auto      AI auto-rig a character / creature mesh
-  assgen visual rig skin      Generate / refine skin weight maps
-  assgen visual rig retarget  Transfer a rig to a different mesh
+assgen visual rig auto      AI auto-rig a character / creature mesh
+assgen visual rig skin      Generate / refine skin weight maps
+assgen visual rig retarget  Transfer a rig to a different mesh
 """
+
 from __future__ import annotations
 
 import typer
@@ -12,8 +13,10 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Rigging, skinning, and rig retargeting.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("auto")
@@ -24,11 +27,15 @@ def rig_auto(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Auto-rig a mesh with a skeleton (UniRig-style)."""
-    submit_job("visual.rig.auto", {
-        "input": mesh,
-        "rig_type": rig_type,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.rig.auto",
+        {
+            "input": mesh,
+            "rig_type": rig_type,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("skin")
@@ -39,12 +46,16 @@ def rig_skin(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate or refine skin weight maps for a rigged mesh."""
-    submit_job("visual.rig.auto", {
-        "mode": "skin",
-        "input": mesh,
-        "method": method,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.rig.auto",
+        {
+            "mode": "skin",
+            "input": mesh,
+            "method": method,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("retarget")
@@ -55,9 +66,13 @@ def rig_retarget(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Retarget an existing rig to a different mesh."""
-    submit_job("visual.rig.auto", {
-        "mode": "retarget",
-        "source_rig": source_rig,
-        "target_mesh": target_mesh,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.rig.auto",
+        {
+            "mode": "retarget",
+            "source_rig": source_rig,
+            "target_mesh": target_mesh,
+            "output": output,
+        },
+        wait=wait,
+    )

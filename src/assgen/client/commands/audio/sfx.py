@@ -1,9 +1,10 @@
 """assgen audio sfx — sound effects generation.
 
-  assgen audio sfx generate   text → WAV sound effect (AudioGen)
-  assgen audio sfx edit       edit / layer sound effects
-  assgen audio sfx library    search and list local SFX library
+assgen audio sfx generate   text → WAV sound effect (AudioGen)
+assgen audio sfx edit       edit / layer sound effects
+assgen audio sfx library    search and list local SFX library
 """
+
 from __future__ import annotations
 
 import typer
@@ -12,8 +13,10 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Sound effects generation and management.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("generate")
@@ -23,7 +26,9 @@ def sfx_generate(
     variations: int = typer.Option(1, "--variations", "-n", help="Number of variants to generate"),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
-    model_id: str | None = typer.Option(None, "--model-id", help="Override HF model (validated by server)"),
+    model_id: str | None = typer.Option(
+        None, "--model-id", help="Override HF model (validated by server)"
+    ),
 ) -> None:
     """Generate a sound effect from a text description (AudioGen).
 
@@ -33,33 +38,43 @@ def sfx_generate(
         assgen gen audio sfx generate "explosion, distant, muffled" -n 3 --wait
         assgen gen audio sfx generate "UI button click, satisfying" -d 0.5 --wait
     """
-    submit_job("audio.sfx.generate", {
-        "prompt": prompt,
-        "duration": duration,
-        "variations": variations,
-        "output": output,
-    }, wait=wait, model_id=model_id)
+    submit_job(
+        "audio.sfx.generate",
+        {
+            "prompt": prompt,
+            "duration": duration,
+            "variations": variations,
+            "output": output,
+        },
+        wait=wait,
+        model_id=model_id,
+    )
 
 
 @app.command("edit")
 def sfx_edit(
     input_file: str = typer.Argument(..., help="Input audio file to edit"),
-    operation: str = typer.Option("pitch", "--op",
-                                  help="pitch | reverb | speed | layer | normalize"),
+    operation: str = typer.Option(
+        "pitch", "--op", help="pitch | reverb | speed | layer | normalize"
+    ),
     value: str | None = typer.Option(None, "--value", help="Operation parameter"),
     secondary: str | None = typer.Option(None, "--secondary", help="Second audio for layer op"),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Edit or process an existing sound effect."""
-    submit_job("audio.sfx.generate", {
-        "mode": "edit",
-        "input": input_file,
-        "operation": operation,
-        "value": value,
-        "secondary": secondary,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "audio.sfx.generate",
+        {
+            "mode": "edit",
+            "input": input_file,
+            "operation": operation,
+            "value": value,
+            "secondary": secondary,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("library")

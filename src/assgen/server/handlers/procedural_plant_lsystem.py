@@ -15,6 +15,7 @@ Params:
     angle      (float): turning angle in degrees (default 25.0)
     step       (float): segment length in pixels (default 10.0)
 """
+
 from __future__ import annotations
 
 import json
@@ -69,8 +70,14 @@ def _turtle_render(
     return branches, min_x, min_y, max_x, max_y
 
 
-def _build_svg(branches: list[dict], min_x: float, min_y: float,
-               max_x: float, max_y: float, margin: float = 20.0) -> str:
+def _build_svg(
+    branches: list[dict],
+    min_x: float,
+    min_y: float,
+    max_x: float,
+    max_y: float,
+    margin: float = 20.0,
+) -> str:
     pad_x = -min_x + margin
     pad_y = -min_y + margin
     vw = max_x - min_x + 2 * margin
@@ -107,7 +114,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     step: float = float(params.get("step", 10.0))
 
     try:
-        rules: dict[str, str] = json.loads(rules_raw) if isinstance(rules_raw, str) else dict(rules_raw)
+        rules: dict[str, str] = (
+            json.loads(rules_raw) if isinstance(rules_raw, str) else dict(rules_raw)
+        )
     except json.JSONDecodeError as exc:
         raise ValueError(f"'rules' must be a valid JSON string: {exc}") from exc
 

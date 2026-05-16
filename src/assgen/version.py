@@ -27,6 +27,7 @@ Version string examples
         source  v0.0.1-16-gc9ee176-dirty  ⚠  uncommitted changes
         python  3.12.2
 """
+
 from __future__ import annotations
 
 import subprocess
@@ -75,6 +76,7 @@ def format_version_string(name: str = "assgen") -> str:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _installed_version() -> str:
     """Read the version from installed package metadata (canonical source).
 
@@ -84,6 +86,7 @@ def _installed_version() -> str:
     """
     try:
         from importlib.metadata import version
+
         return version("assgen")
     except Exception:
         pass
@@ -91,6 +94,7 @@ def _installed_version() -> str:
     # Last-resort: read the build-generated _version.py written by hatch-vcs
     try:
         from assgen._version import __version__  # type: ignore[import]
+
         if __version__ and __version__ not in ("0+unknown", ""):
             return __version__
     except ImportError:
@@ -121,4 +125,3 @@ def _git_describe() -> str | None:
     except Exception:
         pass
     return None
-

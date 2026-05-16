@@ -11,10 +11,12 @@ Params:
     scale      (float): noise coordinate scale factor (default 100.0)
     octaves    (int):   octave count for fBm/perlin (default 6)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -45,6 +47,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if noise_type == "voronoi":
         try:
             from scipy.spatial import cKDTree  # type: ignore
+
             n_pts = max(10, width * height // 2000)
             pts = rng.random((n_pts, 2)) * np.array([width, height])
             tree = cKDTree(pts)
@@ -66,17 +69,23 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     else:
         try:
             import noise as _noise
+
             for y in range(height):
                 for x in range(width):
                     nx = (x / width * scale + seed * 100.0) / scale
                     ny = (y / height * scale + seed * 77.0) / scale
                     if noise_type == "perlin":
-                        arr[y, x] = _noise.pnoise2(nx, ny, octaves=1,
-                                                    repeatx=width, repeaty=height)
+                        arr[y, x] = _noise.pnoise2(nx, ny, octaves=1, repeatx=width, repeaty=height)
                     else:  # fbm
-                        arr[y, x] = _noise.pnoise2(nx, ny, octaves=octaves,
-                                                    persistence=0.5, lacunarity=2.0,
-                                                    repeatx=width, repeaty=height)
+                        arr[y, x] = _noise.pnoise2(
+                            nx,
+                            ny,
+                            octaves=octaves,
+                            persistence=0.5,
+                            lacunarity=2.0,
+                            repeatx=width,
+                            repeaty=height,
+                        )
                 if y % 64 == 0:
                     progress_cb(0.05 + 0.8 * (y + 1) / height, "")
         except ImportError:
@@ -87,9 +96,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
                 gw = max(2, int(width * frequency / scale) + 2)
                 gh = max(2, int(height * frequency / scale) + 2)
                 base = rng.random((gh, gw)).astype(np.float32)
-                zoomed = np.array(
-                    Image.fromarray(base).resize((width, height), Image.BILINEAR)
-                )
+                zoomed = np.array(Image.fromarray(base).resize((width, height), Image.BILINEAR))
                 arr += zoomed * amplitude
                 max_val += amplitude
                 amplitude *= 0.5

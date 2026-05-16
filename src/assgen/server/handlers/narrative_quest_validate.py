@@ -16,6 +16,7 @@ Outputs:
 Params:
     input (str): path to quest JSON file
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # pure Python (networkx optional)
@@ -83,6 +84,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
     try:
         import networkx as nx  # type: ignore
+
         G = nx.DiGraph()
         for nid, nexts in graph.items():
             for nxt in nexts:

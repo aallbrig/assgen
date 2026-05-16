@@ -16,6 +16,7 @@ Typical workflow:
 try:
     # Hunyuan3D-2 publishes via diffusers HunyuanDiT pipeline
     from diffusers import HunyuanDiTPipeline  # type: ignore[import]  # noqa: F401
+
     _DIFFUSERS_AVAILABLE = True
 except ImportError:
     _DIFFUSERS_AVAILABLE = False
@@ -23,6 +24,7 @@ except ImportError:
 try:
     # Official Hunyuan3D-2 package (preferred when installed)
     import hy3dgen  # type: ignore[import]  # noqa: F401
+
     _HY3D_AVAILABLE = True
 except ImportError:
     _HY3D_AVAILABLE = False
@@ -69,14 +71,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     progress_cb(0.05, f"Loading Hunyuan3D-2 ({resolved_model})…")
 
     from PIL import Image  # type: ignore[import]
+
     image = Image.open(str(image_path)).convert("RGBA")
 
     out_path = Path(output_dir) / "model.glb"
 
     if _HY3D_AVAILABLE:
-        _run_hy3dgen(image, out_path, resolved_model, num_steps, guidance_scale, device, progress_cb)
+        _run_hy3dgen(
+            image, out_path, resolved_model, num_steps, guidance_scale, device, progress_cb
+        )
     else:
-        _run_diffusers_fallback(image, out_path, resolved_model, num_steps, guidance_scale, device, progress_cb)
+        _run_diffusers_fallback(
+            image, out_path, resolved_model, num_steps, guidance_scale, device, progress_cb
+        )
 
     return {
         "files": [str(out_path)],
@@ -113,12 +120,16 @@ def _run_hy3dgen(image, out_path, model_id, num_steps, guidance_scale, device, p
     mesh.export(str(out_path))
 
 
-def _run_diffusers_fallback(image, out_path, model_id, num_steps, guidance_scale, device, progress_cb):
+def _run_diffusers_fallback(
+    image, out_path, model_id, num_steps, guidance_scale, device, progress_cb
+):
     """Diffusers-based fallback — generates a best-effort mesh via TripoSR style pipeline."""
     import torch
+
     # Try TripoSR as a diffusers-compatible fallback
     try:
         from diffusers import StableZeroDiTPipeline  # type: ignore[import]
+
         progress_cb(0.2, "Generating multi-view images (Zero123++ fallback)…")
         pipe = StableZeroDiTPipeline.from_pretrained(
             "stabilityai/stable-zero123",
@@ -135,6 +146,7 @@ def _run_diffusers_fallback(image, out_path, model_id, num_steps, guidance_scale
         progress_cb(0.8, "Note: full mesh reconstruction requires hy3dgen or TripoSR.")
         # Write a placeholder GLB noting the partial result
         import trimesh  # type: ignore[import]
+
         placeholder = trimesh.creation.box()
         placeholder.export(str(out_path))
     except Exception as exc:

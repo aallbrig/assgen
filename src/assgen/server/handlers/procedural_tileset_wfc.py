@@ -15,10 +15,12 @@ Params:
     tile_size (int): tile size in pixels (default 16)
     seed      (int): random seed (default 42)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -71,8 +73,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     for ty in range(tile_grid_h):
         row: list[int] = []
         for tx in range(tile_grid_w):
-            patch = sample_arr[ty * tile_size:(ty + 1) * tile_size,
-                               tx * tile_size:(tx + 1) * tile_size]
+            patch = sample_arr[
+                ty * tile_size : (ty + 1) * tile_size, tx * tile_size : (tx + 1) * tile_size
+            ]
             row.append(get_tile_id(patch))
         sample_ids.append(row)
 
@@ -131,19 +134,25 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
         for gx in range(out_w):
             tid = grid[gy][gx]
             if 0 <= tid < n_tiles:
-                out_img_arr[gy * tile_size:(gy + 1) * tile_size,
-                            gx * tile_size:(gx + 1) * tile_size] = tiles[tid]
+                out_img_arr[
+                    gy * tile_size : (gy + 1) * tile_size, gx * tile_size : (gx + 1) * tile_size
+                ] = tiles[tid]
 
     img_path = Path(output_dir) / "wfc_output.png"
     map_path = Path(output_dir) / "wfc_map.json"
     Image.fromarray(out_img_arr, "RGB").save(str(img_path))
-    map_path.write_text(json.dumps({
-        "width": out_w,
-        "height": out_h,
-        "tile_size": tile_size,
-        "tile_count": n_tiles,
-        "map": grid,
-    }, indent=2))
+    map_path.write_text(
+        json.dumps(
+            {
+                "width": out_w,
+                "height": out_h,
+                "tile_size": tile_size,
+                "tile_count": n_tiles,
+                "map": grid,
+            },
+            indent=2,
+        )
+    )
 
     progress_cb(1.0, "Done")
     return {

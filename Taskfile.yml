@@ -1,10 +1,192 @@
 version: '3'
 
-tasks:
-  lint:
-    cmds:
-      - task lint-python
+vars:
+  PYTHON: .venv/bin/python
+  SRC: src/
+  TESTS: tests/
 
-  lint-python:
+tasks:
+  # ─── COMPOSITE ───────────────────────────────────────────────────────────────
+
+  dev:
+    desc: "Full dev loop — format, lint, unit tests with coverage"
     cmds:
-      - /home/aallbright/.local/bin/ruff check src/ tests/
+      - task: format
+      - task: lint
+      - task: test-coverage
+
+  test:
+    desc: "Run all test tiers — unit then integration"
+    cmds:
+      - task: test-unit
+      - task: test-integration
+
+  precommit:
+    desc: "Pre-commit quality gates — format check, lint, SAST, fast tests"
+    cmds:
+      - task: format-check
+      - task: lint
+      - task: openapi-check
+      - task: security-bandit
+      - task: test-fast
+
+  specs:
+    desc: "List every test as a human-readable spec (grouped by file)"
+    cmds:
+      - |
+        {{.PYTHON}} -m pytest --collect-only -q 2>&1 | grep '::' | \
+        {{.PYTHON}} -c "
+        import sys
+        prev = ''
+        for line in sys.stdin:
+            line = line.strip()
+            if '::' not in line:
+                continue
+            parts = line.split('::')
+            fname = parts[0].replace('tests/', '').replace('.py', '')
+            if fname != prev:
+                print(f'\n\033[1m{fname}\033[0m')
+                prev = fname
+            if len(parts) == 3:
+                print(f'  {parts[1]} > {parts[2]}')
+            else:
+                print(f'  {parts[1]}')
+        "
+
+  # ─── FORMATTING ──────────────────────────────────────────────────────────────
+
+  format:
+    desc: "Format code with ruff"
+    cmds:
+      - .venv/bin/ruff format {{.SRC}} {{.TESTS}}
+
+  format-check:
+    desc: "Verify formatting without changing files (CI / pre-commit)"
+    cmds:
+      - .venv/bin/ruff format --check {{.SRC}} {{.TESTS}}
+
+  # ─── LINTING ─────────────────────────────────────────────────────────────────
+
+  lint:
+    desc: "Lint with ruff (no auto-fix)"
+    cmds:
+      - .venv/bin/ruff check {{.SRC}} {{.TESTS}}
+
+  lint-fix:
+    desc: "Lint and auto-fix with ruff"
+    cmds:
+      - .venv/bin/ruff check --fix {{.SRC}} {{.TESTS}}
+
+  # ─── SECURITY ────────────────────────────────────────────────────────────────
+
+  security:
+    desc: "Run all security checks — bandit (SAST) + pip-audit (CVEs)"
+    cmds:
+      - task: security-bandit
+      - task: security-audit
+
+  security-bandit:
+    desc: "Scan source for security issues with bandit (medium+ severity)"
+    cmds:
+      - .venv/bin/bandit -r {{.SRC}} -c pyproject.toml -ll
+
+  security-audit:
+    desc: "Audit dependencies for known CVEs with pip-audit"
+    cmds:
+      - .venv/bin/pip-audit --ignore-vuln PYSEC-2023-228
+
+  # ─── TESTING ─────────────────────────────────────────────────────────────────
+
+  test-unit:
+    desc: "Run unit tests (excludes integration, slow, gpu)"
+    cmds:
+      - .venv/bin/pytest -v --tb=short -m "not integration and not slow and not gpu"
+
+  test-fast:
+    desc: "Run unit tests scoped to staged Python files (pre-commit friendly)"
+    cmds:
+      - |
+        STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.py$' || true)
+        if [ -z "$STAGED" ]; then
+          echo "No staged Python files — running full unit suite"
+        else
+          echo "Staged files:"
+          echo "$STAGED" | sed 's/^/  /'
+        fi
+        .venv/bin/pytest -v --tb=short -m "not integration and not slow and not gpu"
+
+  test-integration:
+    desc: "Run integration tests (real network calls — main branch only)"
+    cmds:
+      - .venv/bin/pytest -v --tb=short -m integration
+
+  test-coverage:
+    desc: "Run unit tests with coverage report"
+    cmds:
+      - .venv/bin/pytest -v --tb=short -m "not integration and not slow and not gpu"
+          --cov={{.SRC}}assgen --cov-report=term-missing --cov-report=xml
+
+  test-coverage-html:
+    desc: "Run unit tests and open HTML coverage report"
+    cmds:
+      - .venv/bin/pytest --tb=short -m "not integration and not slow and not gpu"
+          --cov={{.SRC}}assgen --cov-report=html
+      - xdg-open htmlcov/index.html 2>/dev/null || open htmlcov/index.html 2>/dev/null || true
+
+  # ─── OPENAPI ─────────────────────────────────────────────────────────────────
+
+  openapi-check:
+    desc: "Verify the committed OpenAPI spec matches the live spec"
+    cmds:
+      - .venv/bin/python scripts/export_openapi.py --check
+
+  openapi-update:
+    desc: "Regenerate and commit the OpenAPI spec"
+    cmds:
+      - .venv/bin/python scripts/export_openapi.py
+
+  # ─── HOOKS ───────────────────────────────────────────────────────────────────
+
+  install-hooks:
+    desc: "Install git hooks (pre-commit → task precommit)"
+    cmds:
+      - |
+        cat > .git/hooks/pre-commit << 'HOOK'
+        #!/usr/bin/env bash
+        set -e
+        exec task precommit
+        HOOK
+        chmod +x .git/hooks/pre-commit
+        echo "pre-commit hook installed"
+
+  # ─── DOCS ────────────────────────────────────────────────────────────────────
+
+  docs:
+    desc: "Serve docs locally with live reload"
+    cmds:
+      - .venv/bin/mkdocs serve
+
+  docs-build:
+    desc: "Build docs static site"
+    cmds:
+      - .venv/bin/mkdocs build
+
+  # ─── MISC ────────────────────────────────────────────────────────────────────
+
+  clean:
+    desc: "Remove build artifacts, caches, and coverage data"
+    cmds:
+      - rm -rf dist/ build/ .pytest_cache/ htmlcov/ .coverage coverage.xml
+      - find . -path ./.venv -prune -o -type d -name __pycache__ -print -exec rm -rf {} + 2>/dev/null || true
+      - find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
+
+  serve:
+    desc: "Start assgen server locally (debug mode)"
+    cmds:
+      - .venv/bin/assgen-server start --log-level debug
+
+  # Legacy alias kept so existing scripts don't break
+  lint-python:
+    desc: "Alias for lint (backwards compat)"
+    cmds:
+      - task: lint

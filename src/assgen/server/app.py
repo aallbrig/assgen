@@ -1,4 +1,5 @@
 """FastAPI application factory for assgen-server."""
+
 from __future__ import annotations
 
 import io
@@ -19,12 +20,14 @@ def _silence_broken_stderr() -> None:
     except OSError:
         sys.stderr = io.StringIO()
 
+
 _silence_broken_stderr()
 
 try:
     from huggingface_hub import (
         disable_progress_bars as _hf_disable_progress_bars,  # type: ignore[import]
     )
+
     _hf_disable_progress_bars()
 except Exception:
     pass
@@ -120,14 +123,16 @@ def create_app(server_config: dict | None = None) -> FastAPI:
         if stale:
             logger.warning("Reset %d stale RUNNING job(s) to FAILED on startup", stale)
 
-        mm = ModelManager(conn, device=cfg.get("device", "auto"), server_cfg=cfg,
-                          db_path=str(get_db_path()))
+        mm = ModelManager(
+            conn, device=cfg.get("device", "auto"), server_cfg=cfg, db_path=str(get_db_path())
+        )
         application.state.model_manager = mm
 
         db_path = str(get_db_path())
 
         def _make_worker_conn() -> sqlite3.Connection:
             import sqlite3 as _s
+
             worker_conn = _s.connect(db_path)
             worker_conn.row_factory = _s.Row
             worker_conn.execute("PRAGMA journal_mode=WAL")
@@ -190,6 +195,7 @@ def create_app(server_config: dict | None = None) -> FastAPI:
     # Optional Bearer-token authentication — enabled by setting api_key in server.yaml
     api_key = cfg.get("api_key")
     if api_key:
+
         class _AuthMiddleware(BaseHTTPMiddleware):
             _PUBLIC_PATHS = {"/health", "/docs", "/redoc", "/openapi.json"}
 
@@ -199,6 +205,7 @@ def create_app(server_config: dict | None = None) -> FastAPI:
                 auth = request.headers.get("authorization", "")
                 if auth != f"Bearer {api_key}":
                     from starlette.responses import JSONResponse
+
                     return JSONResponse(
                         status_code=401,
                         content={"detail": "Invalid or missing API key"},

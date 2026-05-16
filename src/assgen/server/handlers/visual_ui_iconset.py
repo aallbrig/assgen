@@ -16,10 +16,12 @@ Params:
     ip_adapter_scale (float): style influence when style_image provided (default: 0.7)
     output_dir_name (str):  sub-folder name inside job output dir (default: iconset)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -46,7 +48,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if isinstance(raw_names, str):
         raw_names = [n.strip() for n in raw_names.split(",") if n.strip()]
     count = int(params.get("count", 8))
-    icon_list = raw_names if raw_names else [f"icon_{i+1}" for i in range(count)]
+    icon_list = raw_names if raw_names else [f"icon_{i + 1}" for i in range(count)]
 
     style_image_path = params.get("style_image", "")
     size = int(params.get("size", 128))
@@ -67,7 +69,9 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     if has_style:
         progress_cb(0.1, "Loading IP-Adapter for style consistency…")
         try:
-            pipe.load_ip_adapter("h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin")
+            pipe.load_ip_adapter(
+                "h94/IP-Adapter", subfolder="sdxl_models", weight_name="ip-adapter_sdxl.bin"
+            )
             pipe.set_ip_adapter_scale(ip_scale)
         except Exception:
             has_style = False  # graceful fallback

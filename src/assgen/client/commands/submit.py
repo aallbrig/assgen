@@ -3,6 +3,7 @@
 All game-asset commands call submit_job(job_type, params, ...)
 which enqueues the job and either waits or prints the job ID.
 """
+
 from __future__ import annotations
 
 import json
@@ -129,8 +130,10 @@ def submit_job(
         for _ in range(n_variants):
             try:
                 job = client.enqueue_job(
-                    job_type, params,
-                    priority=priority, tags=tags or [],
+                    job_type,
+                    params,
+                    priority=priority,
+                    tags=tags or [],
                     model_id=model_id,
                 )
                 job_ids.append(job["id"])
@@ -139,13 +142,11 @@ def submit_job(
 
     if not should_wait:
         if json_mode or yaml_mode:
-            results = [
-                {"job_id": jid, "status": "QUEUED", "job_type": job_type}
-                for jid in job_ids
-            ]
+            results = [{"job_id": jid, "status": "QUEUED", "job_type": job_type} for jid in job_ids]
             out = results[0] if n_variants == 1 else {"jobs": results}
             if yaml_mode:
                 import yaml
+
                 print(yaml.dump(out, default_flow_style=False, sort_keys=False), end="", flush=True)
             else:
                 print(json.dumps(out), flush=True)
@@ -188,12 +189,17 @@ def submit_job(
     # --- Render output ---
     if yaml_mode:
         import yaml
+
         if n_variants == 1:
             job, saved = completed_results[0]
             print_job_yaml(job, saved)
         else:
             items = [job_to_dict(j, s) for j, s in completed_results]
-            print(yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False), end="", flush=True)
+            print(
+                yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False),
+                end="",
+                flush=True,
+            )
     elif json_mode:
         if n_variants == 1:
             job, saved = completed_results[0]

@@ -7,6 +7,7 @@ Usage:
   assgen-server status             # show server status
   assgen-server version            # print version and exit
 """
+
 from __future__ import annotations
 
 import os
@@ -44,7 +45,9 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def _root_callback(
     version: bool = typer.Option(  # noqa: ARG001
-        None, "--version", "-V",
+        None,
+        "--version",
+        "-V",
         callback=_version_callback,
         is_eager=True,
         help="Show version and exit.",
@@ -87,6 +90,7 @@ def start(
     write_pid_file(os.getpid(), url)
     try:
         from assgen.server.app import create_app
+
         uvicorn.run(
             create_app(cfg),
             host=_host,
@@ -152,6 +156,7 @@ def version_cmd() -> None:
 # Daemon helper
 # ---------------------------------------------------------------------------
 
+
 def _daemonise(cfg: dict, log_level: str, json_logs: bool) -> None:
     """Start the server as a background process, writing a PID file.
 
@@ -165,10 +170,11 @@ def _daemonise(cfg: dict, log_level: str, json_logs: bool) -> None:
     if sys.platform == "win32":
         # Windows: spawn a detached subprocess instead of forking
         from assgen.client.auto_server import find_server_executable
+
         server_exe = find_server_executable()
         proc = subprocess.Popen(
-            [server_exe, "start", "--host", _host, "--port", str(_port),
-             "--log-level", log_level] + (["--json-logs"] if json_logs else []),
+            [server_exe, "start", "--host", _host, "--port", str(_port), "--log-level", log_level]
+            + (["--json-logs"] if json_logs else []),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
@@ -191,6 +197,7 @@ def _daemonise(cfg: dict, log_level: str, json_logs: bool) -> None:
     os.setsid()  # type: ignore[attr-defined]
     setup_logging(log_level, force_json=json_logs)
     from assgen.server.app import create_app
+
     write_pid_file(os.getpid(), url)
     uvicorn.run(create_app(cfg), host=_host, port=_port, log_level=log_level, access_log=False)
     remove_pid_file()

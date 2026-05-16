@@ -8,10 +8,12 @@ Params:
     units_from (str):   source unit (mm|cm|m|km|in|ft)  — optional
     units_to   (str):   target unit (mm|cm|m|km|in|ft)  — optional
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

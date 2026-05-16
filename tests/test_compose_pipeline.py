@@ -5,6 +5,7 @@ Uses mock API client + mock wait to test:
   - Error propagation (enqueue failure, job failure, timeout)
   - from_step dependency resolution
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -18,7 +19,10 @@ from assgen.client.compose import run_pipeline
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _mock_job(job_id: str, job_type: str, status: str = "COMPLETED", files: list[str] | None = None) -> dict[str, Any]:
+
+def _mock_job(
+    job_id: str, job_type: str, status: str = "COMPLETED", files: list[str] | None = None
+) -> dict[str, Any]:
     return {
         "id": job_id,
         "job_type": job_type,
@@ -47,6 +51,7 @@ def _make_mock_client(jobs: dict[str, dict]) -> MagicMock:
 # Tests
 # ---------------------------------------------------------------------------
 
+
 class TestPipelineExecution:
     """Test basic pipeline step sequencing."""
 
@@ -57,14 +62,22 @@ class TestPipelineExecution:
         def fake_wait(client: Any, job_id: str, timeout: float | None = None) -> dict:
             return jobs[job_id]
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
-            result = run_pipeline([
-                {"id": "step1", "job_type": "visual.concept.generate", "params": {"prompt": "test"}},
-            ])
+            result = run_pipeline(
+                [
+                    {
+                        "id": "step1",
+                        "job_type": "visual.concept.generate",
+                        "params": {"prompt": "test"},
+                    },
+                ]
+            )
 
         assert "step1" in result
         assert result["step1"]["status"] == "COMPLETED"
@@ -77,16 +90,24 @@ class TestPipelineExecution:
         def fake_wait(client: Any, job_id: str, timeout: float | None = None) -> dict:
             return jobs[job_id]
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
-            result = run_pipeline([
-                {"id": "concept", "job_type": "visual.concept.generate", "params": {"prompt": "sword"}},
-                {"id": "mesh", "job_type": "visual.model.splat", "from_step": "concept"},
-                {"id": "rig", "job_type": "visual.rig.auto", "from_step": "mesh"},
-            ])
+            result = run_pipeline(
+                [
+                    {
+                        "id": "concept",
+                        "job_type": "visual.concept.generate",
+                        "params": {"prompt": "sword"},
+                    },
+                    {"id": "mesh", "job_type": "visual.model.splat", "from_step": "concept"},
+                    {"id": "rig", "job_type": "visual.rig.auto", "from_step": "mesh"},
+                ]
+            )
 
         assert len(result) == 3
         assert all(r["status"] == "COMPLETED" for r in result.values())
@@ -104,16 +125,20 @@ class TestPipelineExecution:
         def fake_wait(client: Any, job_id: str, timeout: float | None = None) -> dict:
             return jobs[job_id]
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
-            run_pipeline([
-                {"id": "a", "job_type": "visual.concept.generate", "params": {"prompt": "a"}},
-                {"id": "b", "job_type": "visual.concept.generate", "params": {"prompt": "b"}},
-                {"id": "merge", "job_type": "visual.mesh.merge", "from_step": ["a", "b"]},
-            ])
+            run_pipeline(
+                [
+                    {"id": "a", "job_type": "visual.concept.generate", "params": {"prompt": "a"}},
+                    {"id": "b", "job_type": "visual.concept.generate", "params": {"prompt": "b"}},
+                    {"id": "merge", "job_type": "visual.mesh.merge", "from_step": ["a", "b"]},
+                ]
+            )
 
         merge_params = mock_client.enqueue_job.call_args_list[2][0][1]
         # Should have files from both step a and step b
@@ -126,8 +151,10 @@ class TestPipelineExecution:
         def fake_wait(client: Any, job_id: str, timeout: float | None = None) -> dict:
             return jobs[job_id]
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
@@ -151,8 +178,10 @@ class TestPipelineExecution:
         def on_step(step_id: str, status: str, msg: str) -> None:
             callback_calls.append((step_id, status))
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
@@ -179,9 +208,15 @@ class TestPipelineErrors:
             gc.return_value.__exit__ = lambda s, *a: None
 
             with pytest.raises(RuntimeError, match="has not completed"):
-                run_pipeline([
-                    {"id": "mesh", "job_type": "visual.model.splat", "from_step": "nonexistent"},
-                ])
+                run_pipeline(
+                    [
+                        {
+                            "id": "mesh",
+                            "job_type": "visual.model.splat",
+                            "from_step": "nonexistent",
+                        },
+                    ]
+                )
 
     def test_failed_job_halts_pipeline(self) -> None:
         jobs: dict[str, dict] = {}
@@ -192,16 +227,24 @@ class TestPipelineErrors:
             job["status"] = "FAILED"
             return job
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
             with pytest.raises(RuntimeError, match="FAILED"):
-                run_pipeline([
-                    {"id": "s1", "job_type": "visual.concept.generate", "params": {"prompt": "x"}},
-                    {"id": "s2", "job_type": "visual.model.splat", "from_step": "s1"},
-                ])
+                run_pipeline(
+                    [
+                        {
+                            "id": "s1",
+                            "job_type": "visual.concept.generate",
+                            "params": {"prompt": "x"},
+                        },
+                        {"id": "s2", "job_type": "visual.model.splat", "from_step": "s1"},
+                    ]
+                )
 
         # Only one job should have been enqueued (pipeline halted after step 1)
         assert mock_client.enqueue_job.call_count == 1
@@ -217,9 +260,11 @@ class TestPipelineErrors:
             gc.return_value.__exit__ = lambda s, *a: None
 
             with pytest.raises(RuntimeError, match="failed to enqueue"):
-                run_pipeline([
-                    {"id": "s1", "job_type": "bad.type", "params": {}},
-                ])
+                run_pipeline(
+                    [
+                        {"id": "s1", "job_type": "bad.type", "params": {}},
+                    ]
+                )
 
     def test_timeout_raises(self) -> None:
         jobs: dict[str, dict] = {}
@@ -228,13 +273,21 @@ class TestPipelineErrors:
         def fake_wait(client: Any, job_id: str, timeout: float | None = None) -> dict:
             raise TimeoutError("timed out")
 
-        with patch("assgen.client.compose.get_client") as gc, \
-             patch("assgen.client.compose.wait_for_job", side_effect=fake_wait):
+        with (
+            patch("assgen.client.compose.get_client") as gc,
+            patch("assgen.client.compose.wait_for_job", side_effect=fake_wait),
+        ):
             gc.return_value.__enter__ = lambda s: mock_client
             gc.return_value.__exit__ = lambda s, *a: None
 
             with pytest.raises(RuntimeError, match="failed"):
                 run_pipeline(
-                    [{"id": "s1", "job_type": "visual.concept.generate", "params": {"prompt": "x"}}],
+                    [
+                        {
+                            "id": "s1",
+                            "job_type": "visual.concept.generate",
+                            "params": {"prompt": "x"},
+                        }
+                    ],
                     timeout_per_step=0.1,
                 )

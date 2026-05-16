@@ -9,6 +9,7 @@ Python 3.13 + modern torchvision. AudioLDM2 is the replacement.
 
   pip install diffusers transformers accelerate scipy torch
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -17,6 +18,7 @@ from typing import Any
 
 try:
     from diffusers import AudioLDM2Pipeline  # type: ignore[import]
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -40,8 +42,7 @@ def run(
     """Generate WAV sound effects from a text prompt using AudioLDM2."""
     if not _AVAILABLE:
         raise RuntimeError(
-            "diffusers is not installed. "
-            "Run: pip install diffusers transformers accelerate"
+            "diffusers is not installed. Run: pip install diffusers transformers accelerate"
         )
 
     import scipy.io.wavfile

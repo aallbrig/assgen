@@ -12,6 +12,7 @@ See: https://suno-ai.notion.site/8b8e8749ed514b0cbf3f699013548683
 
 try:
     from transformers import AutoProcessor, BarkModel  # type: ignore[import]
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -22,6 +23,7 @@ def _stub_silent_wav(params: dict, output_dir, progress_cb) -> dict:
     import struct
     import wave
     from pathlib import Path
+
     progress_cb(0.2, "Bark model not available — generating silent placeholder audio…")
     sample_rate = 24000
     duration_s = 2
@@ -69,6 +71,7 @@ def _run_real_tts(params, model_id, model_path, device, progress_cb, output_dir)
     progress_cb(0.05, f"Loading Bark model ({resolved_model})…")
 
     import torch
+
     dtype = torch.float16 if device != "cpu" else torch.float32
 
     processor = AutoProcessor.from_pretrained(resolved_model)

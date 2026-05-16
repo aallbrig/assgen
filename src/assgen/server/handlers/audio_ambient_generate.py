@@ -7,6 +7,7 @@ atmospheric, no melody, looping).
 Requires the ``audiocraft`` package (Meta):
     pip install audiocraft
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable

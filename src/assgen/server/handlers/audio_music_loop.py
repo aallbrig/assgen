@@ -3,6 +3,7 @@
 Requires transformers and torch:
     pip install transformers accelerate torch scipy numpy
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -11,6 +12,7 @@ from typing import Any
 
 try:
     from transformers import MusicgenForConditionalGeneration  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -45,12 +47,11 @@ def _crossfade_loop(audio: Any, fade_sec: float = _DEFAULT_FADE_SEC) -> Any:
         return audio  # track too short to crossfade — return as-is
 
     fade_out = np.linspace(1.0, 0.0, fade_samples, dtype=np.float32)
-    fade_in  = np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
+    fade_in = np.linspace(0.0, 1.0, fade_samples, dtype=np.float32)
 
     result = audio.copy()
     result[..., :fade_samples] = (
-        audio[..., :fade_samples] * fade_in
-        + audio[..., -fade_samples:] * fade_out
+        audio[..., :fade_samples] * fade_in + audio[..., -fade_samples:] * fade_out
     )
     return result[..., :-fade_samples]
 
@@ -67,8 +68,7 @@ def run(
     """Generate a seamlessly looping music clip."""
     if not _AVAILABLE:
         raise RuntimeError(
-            "transformers is required.  "
-            "Run: pip install transformers accelerate torch scipy numpy"
+            "transformers is required.  Run: pip install transformers accelerate torch scipy numpy"
         )
 
     import scipy.io.wavfile

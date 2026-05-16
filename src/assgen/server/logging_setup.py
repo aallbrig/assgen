@@ -7,6 +7,7 @@ journalctl tips:
   journalctl -u assgen-server -f                    # follow
   journalctl -u assgen-server -o json               # raw JSON
 """
+
 from __future__ import annotations
 
 import json
@@ -34,11 +35,30 @@ class _JournaldFormatter(logging.Formatter):
         # Merge any extra fields passed via `extra=` kwarg
         for k, v in record.__dict__.items():
             if k not in (
-                "args", "asctime", "created", "exc_info", "exc_text",
-                "filename", "funcName", "id", "levelname", "levelno",
-                "lineno", "message", "module", "msecs", "msg", "name",
-                "pathname", "process", "processName", "relativeCreated",
-                "stack_info", "taskName", "thread", "threadName",
+                "args",
+                "asctime",
+                "created",
+                "exc_info",
+                "exc_text",
+                "filename",
+                "funcName",
+                "id",
+                "levelname",
+                "levelno",
+                "lineno",
+                "message",
+                "module",
+                "msecs",
+                "msg",
+                "name",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "stack_info",
+                "taskName",
+                "thread",
+                "threadName",
             ):
                 obj[k] = v
         return json.dumps(obj, default=str)
@@ -46,11 +66,11 @@ class _JournaldFormatter(logging.Formatter):
 
 class _HumanFormatter(logging.Formatter):
     COLORS = {
-        "DEBUG":    "\033[36m",   # cyan
-        "INFO":     "\033[32m",   # green
-        "WARNING":  "\033[33m",   # yellow
-        "ERROR":    "\033[31m",   # red
-        "CRITICAL": "\033[35m",   # magenta
+        "DEBUG": "\033[36m",  # cyan
+        "INFO": "\033[32m",  # green
+        "WARNING": "\033[33m",  # yellow
+        "ERROR": "\033[31m",  # red
+        "CRITICAL": "\033[35m",  # magenta
     }
     RESET = "\033[0m"
 
@@ -74,11 +94,7 @@ def setup_logging(level: str = "info", force_json: bool = False) -> None:
     """
     numeric = getattr(logging, level.upper(), logging.INFO)
 
-    use_json = (
-        force_json
-        or bool(os.environ.get("JOURNAL_STREAM"))
-        or not sys.stdout.isatty()
-    )
+    use_json = force_json or bool(os.environ.get("JOURNAL_STREAM")) or not sys.stdout.isatty()
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(_JournaldFormatter() if use_json else _HumanFormatter())

@@ -1,9 +1,10 @@
 """assgen visual vfx — particles, decals, and simulation effects.
 
-  assgen visual vfx particle   generate a particle system texture sheet
-  assgen visual vfx decal      create / apply a dynamic decal
-  assgen visual vfx sim        bake a physics-based VFX simulation
+assgen visual vfx particle   generate a particle system texture sheet
+assgen visual vfx decal      create / apply a dynamic decal
+assgen visual vfx sim        bake a physics-based VFX simulation
 """
+
 from __future__ import annotations
 
 import typer
@@ -12,8 +13,10 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Particle systems, decals, and VFX.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("particle")
@@ -25,12 +28,16 @@ def vfx_particle(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a particle texture / sprite sheet."""
-    submit_job("visual.vfx.particle", {
-        "prompt": prompt,
-        "frames": frames,
-        "resolution": resolution,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.vfx.particle",
+        {
+            "prompt": prompt,
+            "frames": frames,
+            "resolution": resolution,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("decal")
@@ -42,13 +49,17 @@ def vfx_decal(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a decal texture (with alpha channel)."""
-    submit_job("visual.vfx.particle", {
-        "mode": "decal",
-        "prompt": prompt,
-        "resolution": resolution,
-        "alpha": alpha,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.vfx.particle",
+        {
+            "mode": "decal",
+            "prompt": prompt,
+            "resolution": resolution,
+            "alpha": alpha,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("sim")
@@ -59,9 +70,13 @@ def vfx_sim(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Run and bake a physics-based VFX simulation."""
-    submit_job("visual.vfx.particle", {
-        "mode": "sim",
-        "sim_type": sim_type,
-        "duration": duration,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.vfx.particle",
+        {
+            "mode": "sim",
+            "sim_type": sim_type,
+            "duration": duration,
+            "output": output,
+        },
+        wait=wait,
+    )

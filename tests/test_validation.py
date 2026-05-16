@@ -1,4 +1,5 @@
 """Tests for assgen.server.validation — allow-list and model/task compatibility."""
+
 from __future__ import annotations
 
 from unittest.mock import patch
@@ -15,6 +16,7 @@ from assgen.server.validation import (
 # ---------------------------------------------------------------------------
 # Allow-list enforcement
 # ---------------------------------------------------------------------------
+
 
 class TestCheckAllowList:
     def test_empty_allow_list_permits_everything(self) -> None:
@@ -44,6 +46,7 @@ class TestCheckAllowList:
 # Task compatibility
 # ---------------------------------------------------------------------------
 
+
 class TestValidateModelTaskCompatibility:
     def _cfg(self, skip: bool = False) -> dict:
         return {"skip_model_validation": skip}
@@ -67,9 +70,7 @@ class TestValidateModelTaskCompatibility:
         assert "no compatibility rules" in reason
 
     def test_allows_when_hf_api_unreachable(self) -> None:
-        with patch(
-            "assgen.server.validation.fetch_hf_pipeline_tag", return_value=None
-        ):
+        with patch("assgen.server.validation.fetch_hf_pipeline_tag", return_value=None):
             ok, reason = validate_model_task_compatibility(
                 "org/model", "text-to-image", self._cfg()
             )
@@ -123,6 +124,7 @@ class TestValidateModelTaskCompatibility:
 # Combined validate_job_model
 # ---------------------------------------------------------------------------
 
+
 class TestValidateJobModel:
     def test_passes_open_server(self) -> None:
         cfg: dict = {}
@@ -162,6 +164,7 @@ class TestValidateJobModel:
 # TASK_COMPATIBLE_TAGS structure sanity
 # ---------------------------------------------------------------------------
 
+
 class TestTaskCompatibleTagsStructure:
     def test_all_values_are_frozensets(self) -> None:
         for task, tags in TASK_COMPATIBLE_TAGS.items():
@@ -174,8 +177,11 @@ class TestTaskCompatibleTagsStructure:
 
     def test_common_tasks_present(self) -> None:
         expected = {
-            "text-to-image", "image-to-3d", "text-to-audio",
-            "music-generation", "text-to-video",
+            "text-to-image",
+            "image-to-3d",
+            "text-to-audio",
+            "music-generation",
+            "text-to-video",
         }
         for task in expected:
             assert task in TASK_COMPATIBLE_TAGS, f"Missing task: {task}"
@@ -186,15 +192,11 @@ class TestTaskCompatibleTagsStructure:
         audio_tasks = {"text-to-audio", "audio-generation", "music-generation"}
         for task in audio_tasks:
             overlap = TASK_COMPATIBLE_TAGS.get(task, frozenset()) & image_tags
-            assert not overlap, (
-                f"Audio task '{task}' incorrectly accepts image tags: {overlap}"
-            )
+            assert not overlap, f"Audio task '{task}' incorrectly accepts image tags: {overlap}"
 
     def test_3d_tasks_do_not_accept_pure_audio_tags(self) -> None:
         audio_tags = {"text-to-audio", "text-to-speech", "audio-generation"}
         _3d_tasks = {"image-to-3d", "text-to-3d", "mesh-retopology"}
         for task in _3d_tasks:
             overlap = TASK_COMPATIBLE_TAGS.get(task, frozenset()) & audio_tags
-            assert not overlap, (
-                f"3D task '{task}' incorrectly accepts audio tags: {overlap}"
-            )
+            assert not overlap, f"3D task '{task}' incorrectly accepts audio tags: {overlap}"

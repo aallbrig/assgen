@@ -14,10 +14,12 @@ Params:
     height          (int):  output height, must be multiple of 8 (default: 512)
     output          (str):  output prefix (default: hdri_<stem>)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionLDM3DPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

@@ -6,10 +6,12 @@ duplicate vertices.  Outputs a JSON report.
 Params:
     input (str): path to mesh file
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -44,6 +46,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     except Exception:
         # Fallback: edges referenced by != 2 faces are non-manifold
         from trimesh import graph as tg
+
         try:
             nm_edge_arr = tg.nonmanifold_edges(mesh)
             non_manifold_edge_count = int(len(nm_edge_arr))

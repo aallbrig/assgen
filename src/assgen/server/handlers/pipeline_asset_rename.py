@@ -14,6 +14,7 @@ Params:
     suffix     (str):   optional suffix to insert before extension (default "")
     dry_run    (bool):  if true, only plan renames without executing (default true)
 """
+
 from __future__ import annotations
 
 import re

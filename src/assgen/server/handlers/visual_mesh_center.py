@@ -6,10 +6,12 @@ Params:
                - "bbox"   → translate so bounding-box center is at origin
                - "origin" → translate so centroid is at origin
 """
+
 from __future__ import annotations
 
 try:
     import trimesh  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

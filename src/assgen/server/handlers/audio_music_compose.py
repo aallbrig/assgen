@@ -3,6 +3,7 @@
 Requires transformers and torch:
     pip install transformers accelerate torch scipy numpy
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -11,6 +12,7 @@ from typing import Any
 
 try:
     from transformers import MusicgenForConditionalGeneration  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -35,8 +37,7 @@ def run(
     """Generate a music track from a text prompt."""
     if not _AVAILABLE:
         raise RuntimeError(
-            "transformers is required.  "
-            "Run: pip install transformers accelerate torch scipy numpy"
+            "transformers is required.  Run: pip install transformers accelerate torch scipy numpy"
         )
 
     import scipy.io.wavfile

@@ -11,10 +11,12 @@ Params:
     speed           (float):speech rate multiplier (default: 1.0)
     output          (str):  output filename (default: voice_clone.wav)
 """
+
 from __future__ import annotations
 
 try:
     from TTS.api import TTS  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -23,9 +25,7 @@ except ImportError:
 def run(job_type, params, model_id, model_path, device, progress_cb, output_dir):
     """Clone a voice and synthesise speech with XTTS-v2."""
     if not _AVAILABLE:
-        raise RuntimeError(
-            "Coqui TTS is required. Run: pip install TTS torch soundfile"
-        )
+        raise RuntimeError("Coqui TTS is required. Run: pip install TTS torch soundfile")
 
     from pathlib import Path
 

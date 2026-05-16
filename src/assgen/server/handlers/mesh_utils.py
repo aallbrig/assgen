@@ -12,6 +12,7 @@ Typical pipeline
 All functions operate in-place on the provided *path* and return the same
 path so they can be chained or called independently.
 """
+
 from __future__ import annotations
 
 import logging

@@ -1,9 +1,10 @@
 """assgen visual uv — UV unwrapping and layout.
 
-  assgen visual uv auto    AI-powered smart unwrap
-  assgen visual uv manual  Interactive seam edit guidance
-  assgen visual uv optimize Texel density and stretch optimisation
+assgen visual uv auto    AI-powered smart unwrap
+assgen visual uv manual  Interactive seam edit guidance
+assgen visual uv optimize Texel density and stretch optimisation
 """
+
 from __future__ import annotations
 
 import typer
@@ -12,8 +13,10 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="UV unwrapping and layout.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("auto")
@@ -24,11 +27,15 @@ def uv_auto(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Run AI smart-unwrap on a mesh."""
-    submit_job("visual.uv.auto", {
-        "input": input_mesh,
-        "padding": padding,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.uv.auto",
+        {
+            "input": input_mesh,
+            "padding": padding,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("manual")
@@ -39,12 +46,16 @@ def uv_manual(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate AI seam suggestions for a mesh."""
-    submit_job("visual.uv.auto", {
-        "mode": "seam-suggest",
-        "input": input_mesh,
-        "style": style,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.uv.auto",
+        {
+            "mode": "seam-suggest",
+            "input": input_mesh,
+            "style": style,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("optimize")
@@ -55,9 +66,13 @@ def uv_optimize(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Optimise UV island packing and texel density."""
-    submit_job("visual.uv.auto", {
-        "mode": "optimize",
-        "input": input_mesh,
-        "texel_density": texel_density,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.uv.auto",
+        {
+            "mode": "optimize",
+            "input": input_mesh,
+            "texel_density": texel_density,
+            "output": output,
+        },
+        wait=wait,
+    )

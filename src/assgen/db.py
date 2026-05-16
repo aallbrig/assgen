@@ -8,6 +8,7 @@ Tables:
 Migrations are handled by a simple version table; new columns/tables are
 added incrementally so existing databases are upgraded automatically.
 """
+
 from __future__ import annotations
 
 import json
@@ -34,6 +35,7 @@ def _now_iso() -> str:
 # ---------------------------------------------------------------------------
 # Connection helpers
 # ---------------------------------------------------------------------------
+
 
 def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
     """Open a SQLite connection with WAL mode and foreign-key enforcement.
@@ -156,6 +158,7 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
 # Job helpers
 # ---------------------------------------------------------------------------
 
+
 class JobStatus:
     """String constants for job lifecycle states.
 
@@ -168,10 +171,10 @@ class JobStatus:
         TERMINAL: The set of states from which no transition is possible.
     """
 
-    QUEUED    = "QUEUED"
-    RUNNING   = "RUNNING"
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
     COMPLETED = "COMPLETED"
-    FAILED    = "FAILED"
+    FAILED = "FAILED"
     CANCELLED = "CANCELLED"
 
     TERMINAL = {COMPLETED, FAILED, CANCELLED}
@@ -221,9 +224,7 @@ def get_job(conn: sqlite3.Connection, job_id: str) -> dict[str, Any] | None:
     """
     row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     if row is None and len(job_id) >= 8:
-        rows = conn.execute(
-            "SELECT * FROM jobs WHERE id LIKE ?", (f"{job_id}%",)
-        ).fetchall()
+        rows = conn.execute("SELECT * FROM jobs WHERE id LIKE ?", (f"{job_id}%",)).fetchall()
         if len(rows) == 1:
             row = rows[0]
     return _row_to_job(row) if row else None
@@ -237,7 +238,12 @@ def reset_stale_running_jobs(conn: sqlite3.Connection) -> int:
     with transaction(conn):
         cur = conn.execute(
             "UPDATE jobs SET status = ?, error = ?, completed_at = ? WHERE status = ?",
-            (JobStatus.FAILED, "Server restarted while job was running", _now_iso(), JobStatus.RUNNING),
+            (
+                JobStatus.FAILED,
+                "Server restarted while job was running",
+                _now_iso(),
+                JobStatus.RUNNING,
+            ),
         )
     return cur.rowcount
 
@@ -261,7 +267,7 @@ def list_jobs(
     if statuses:
         placeholders = ",".join("?" * len(statuses))
         rows = conn.execute(
-            f"SELECT * FROM jobs WHERE status IN ({placeholders}) ORDER BY created_at DESC LIMIT ?",
+            f"SELECT * FROM jobs WHERE status IN ({placeholders}) ORDER BY created_at DESC LIMIT ?",  # nosec B608
             (*statuses, limit),
         ).fetchall()
     else:
@@ -324,7 +330,7 @@ def update_job_status(
 
     values.append(job_id)
     with transaction(conn):
-        conn.execute(f"UPDATE jobs SET {', '.join(fields)} WHERE id = ?", values)
+        conn.execute(f"UPDATE jobs SET {', '.join(fields)} WHERE id = ?", values)  # nosec B608
 
 
 def record_model_usage(conn: sqlite3.Connection, model_id: str, job_id: str) -> None:
@@ -348,7 +354,7 @@ def upsert_model(conn: sqlite3.Connection, model_id: str, **kwargs: Any) -> None
         fields = ", ".join(f"{k} = ?" for k in kwargs)
         with transaction(conn):
             conn.execute(
-                f"UPDATE models SET {fields} WHERE model_id = ?",
+                f"UPDATE models SET {fields} WHERE model_id = ?",  # nosec B608
                 (*kwargs.values(), model_id),
             )
     else:
@@ -356,7 +362,10 @@ def upsert_model(conn: sqlite3.Connection, model_id: str, **kwargs: Any) -> None
         cols = ", ".join(kwargs.keys())
         placeholders = ", ".join("?" * len(kwargs))
         with transaction(conn):
-            conn.execute(f"INSERT INTO models ({cols}) VALUES ({placeholders})", list(kwargs.values()))
+            conn.execute(
+                f"INSERT INTO models ({cols}) VALUES ({placeholders})",  # nosec B608
+                list(kwargs.values()),
+            )
 
 
 def _row_to_job(row: sqlite3.Row) -> dict[str, Any]:

@@ -8,10 +8,12 @@ Params:
     a            (str): path to image used as Alpha channel (optional)
     output_name  (str): output filename (default "packed.png")
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

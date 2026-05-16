@@ -5,10 +5,12 @@ Optional dep: pyloudnorm (for LUFS mode; falls back to peak if not installed)
 
     pip install pydub pyloudnorm
 """
+
 from __future__ import annotations
 
 try:
     from pydub import AudioSegment
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
@@ -27,6 +29,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     try:
         import numpy as np
         import pyloudnorm as pyln
+
         _PYLOUDNORM = True
     except ImportError:
         _PYLOUDNORM = False
@@ -65,12 +68,19 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
             gain_db = lufs_target - loudness
             normalized = audio.apply_gain(gain_db)
             meta_mode = "lufs"
-            meta_extra = {"lufs_target": lufs_target, "lufs_measured": float(loudness), "gain_db": float(gain_db)}
+            meta_extra = {
+                "lufs_target": lufs_target,
+                "lufs_measured": float(loudness),
+                "gain_db": float(gain_db),
+            }
         else:
             # Fall back to peak normalization
             normalized = pydub_effects.normalize(audio)
             meta_mode = "lufs_fallback_peak"
-            meta_extra = {"lufs_target": lufs_target, "note": "pyloudnorm not installed; used peak normalization"}
+            meta_extra = {
+                "lufs_target": lufs_target,
+                "note": "pyloudnorm not installed; used peak normalization",
+            }
 
     progress_cb(0.8, "Saving output…")
     out_path = Path(output_dir) / f"normalized.{ext}"

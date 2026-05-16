@@ -12,21 +12,36 @@ Params:
     output      (str):  output BVH filename (default: mocap.bvh)
     max_frames  (int):  maximum frames to process (default: 300)
 """
+
 from __future__ import annotations
 
 try:
     import numpy as np  # noqa: F401
     from transformers import pipeline as hf_pipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 # Sapiens 2D keypoint indices (COCO-17 ordering)
 _KEYPOINT_NAMES = [
-    "nose", "left_eye", "right_eye", "left_ear", "right_ear",
-    "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
-    "left_wrist", "right_wrist", "left_hip", "right_hip",
-    "left_knee", "right_knee", "left_ankle", "right_ankle",
+    "nose",
+    "left_eye",
+    "right_eye",
+    "left_ear",
+    "right_ear",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle",
 ]
 
 # BVH hierarchy skeleton (simplified biped)
@@ -159,6 +174,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     else:
         try:
             import imageio.v3 as iio
+
             vid = iio.imread(str(input_path), plugin="pyav")
             step = max(1, len(vid) // max_frames)
             frames = [Image.fromarray(vid[i]) for i in range(0, len(vid), step)][:max_frames]
@@ -172,7 +188,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
     all_keypoints: list[np.ndarray] = []
     for i, frame in enumerate(frames):
         if i % max(1, len(frames) // 10) == 0:
-            progress_cb(0.15 + 0.6 * (i / len(frames)), f"Estimating pose {i+1}/{len(frames)}…")
+            progress_cb(0.15 + 0.6 * (i / len(frames)), f"Estimating pose {i + 1}/{len(frames)}…")
         try:
             result = estimator(frame)
             kp = _parse_keypoints(result, len(_KEYPOINT_NAMES))
@@ -194,6 +210,7 @@ def run(job_type, params, model_id, model_path, device, progress_cb, output_dir)
 
 def _parse_keypoints(result, n_joints: int) -> np.ndarray:
     import numpy as np
+
     kp = np.zeros((n_joints, 3), dtype=np.float32)
     if isinstance(result, list) and result:
         raw = result[0]

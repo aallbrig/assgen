@@ -6,10 +6,12 @@ Params:
     height (int): target height in pixels
     pow2   (bool): snap width/height to next power-of-2 (default false)
 """
+
 from __future__ import annotations
 
 try:
     from PIL import Image  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False

@@ -1,12 +1,13 @@
 """assgen jobs — job lifecycle management.
 
-  assgen jobs list     [--status QUEUED|RUNNING|COMPLETED|FAILED|CANCELLED] [--limit N]
-  assgen jobs status   <job-id>
-  assgen jobs wait     <job-id> [--timeout N]
-  assgen jobs cancel   <job-id>
-  assgen jobs download <job-id> [--output DIR]
-  assgen jobs clean    [--status COMPLETED|FAILED|CANCELLED] [--days N]
+assgen jobs list     [--status QUEUED|RUNNING|COMPLETED|FAILED|CANCELLED] [--limit N]
+assgen jobs status   <job-id>
+assgen jobs wait     <job-id> [--timeout N]
+assgen jobs cancel   <job-id>
+assgen jobs download <job-id> [--output DIR]
+assgen jobs clean    [--status COMPLETED|FAILED|CANCELLED] [--days N]
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,7 +34,9 @@ app = typer.Typer(help="Manage asset generation jobs.", no_args_is_help=True)
 @app.command("list")
 def jobs_list(
     status: list[str] | None = typer.Option(
-        None, "--status", "-s",
+        None,
+        "--status",
+        "-s",
         help="Filter by status (repeatable): QUEUED RUNNING COMPLETED FAILED CANCELLED",
     ),
     limit: int = typer.Option(50, "--limit", "-n", help="Max number of jobs to show"),
@@ -46,23 +49,38 @@ def jobs_list(
             abort_with_error(str(e))
 
     from assgen.client.context import is_json_mode, is_yaml_mode
+
     if is_json_mode():
         import json
+
         items = [
-            {"job_id": j["id"], "status": j["status"], "job_type": j["job_type"],
-             "created_at": j.get("created_at")}
+            {
+                "job_id": j["id"],
+                "status": j["status"],
+                "job_type": j["job_type"],
+                "created_at": j.get("created_at"),
+            }
             for j in jobs
         ]
         print(json.dumps({"jobs": items}), flush=True)
         return
     if is_yaml_mode():
         import yaml
+
         items = [
-            {"job_id": j["id"], "status": j["status"], "job_type": j["job_type"],
-             "created_at": j.get("created_at")}
+            {
+                "job_id": j["id"],
+                "status": j["status"],
+                "job_type": j["job_type"],
+                "created_at": j.get("created_at"),
+            }
             for j in jobs
         ]
-        print(yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False), end="", flush=True)
+        print(
+            yaml.dump({"jobs": items}, default_flow_style=False, sort_keys=False),
+            end="",
+            flush=True,
+        )
         return
 
     if not jobs:
@@ -81,11 +99,14 @@ def jobs_status(job_id: str = typer.Argument(..., help="Job ID or prefix")) -> N
             abort_with_error(str(e))
 
     from assgen.client.context import is_json_mode, is_yaml_mode
+
     if is_yaml_mode():
         from assgen.client.output import print_job_yaml
+
         print_job_yaml(job)
     elif is_json_mode():
         from assgen.client.output import print_job_json
+
         print_job_json(job)
     else:
         print_job(job)
@@ -118,7 +139,9 @@ def jobs_wait(
 def jobs_download(
     job_id: str = typer.Argument(..., help="Job ID to download files from"),
     output: str | None = typer.Option(
-        None, "--output", "-o",
+        None,
+        "--output",
+        "-o",
         help="Directory to save downloaded files (default: current directory)",
     ),
 ) -> None:
@@ -165,11 +188,13 @@ def jobs_cancel(
 def jobs_rerun(
     job_id: str = typer.Argument(..., help="Job ID or prefix to re-submit"),
     wait: bool | None = typer.Option(
-        None, "--wait/--no-wait",
+        None,
+        "--wait/--no-wait",
         help="Wait for the new job to complete (overrides client default)",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run",
+        False,
+        "--dry-run",
         help="Print what would be re-submitted without actually enqueuing",
     ),
 ) -> None:
@@ -204,6 +229,7 @@ def jobs_rerun(
 
     if dry_run:
         import json
+
         console.print("[bold]Would re-submit:[/bold]")
         console.print(f"  job_type  [cyan]{job_type}[/cyan]")
         for k, v in rerun_params.items():
@@ -218,11 +244,14 @@ def jobs_rerun(
 def jobs_clean(
     statuses: list[str] | None = typer.Option(
         ["COMPLETED", "FAILED", "CANCELLED"],
-        "--status", "-s",
+        "--status",
+        "-s",
         help="Which statuses to delete",
     ),
     days: int | None = typer.Option(
-        None, "--days", "-d",
+        None,
+        "--days",
+        "-d",
         help="Only delete jobs older than N days",
     ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be deleted"),
@@ -243,7 +272,7 @@ def jobs_clean(
         params.append(f"-{days} days")
 
     where = " AND ".join(clauses)
-    rows = conn.execute(f"SELECT id, job_type, status FROM jobs WHERE {where}", params).fetchall()
+    rows = conn.execute(f"SELECT id, job_type, status FROM jobs WHERE {where}", params).fetchall()  # nosec B608
 
     if not rows:
         console.print("[dim]No matching jobs found.[/dim]")
@@ -254,6 +283,6 @@ def jobs_clean(
         console.print(f"  [dim]{r['id'][:8]}[/dim]  {r['job_type']}  [{r['status']}]")
 
     if not dry_run:
-        conn.execute(f"DELETE FROM jobs WHERE {where}", params)
+        conn.execute(f"DELETE FROM jobs WHERE {where}", params)  # nosec B608
         conn.commit()
         console.print(f"[green]Cleaned {len(rows)} job(s).[/green]")

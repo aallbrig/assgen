@@ -2,6 +2,7 @@
 
 Thin synchronous wrapper around httpx that raises friendly errors.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -21,7 +22,9 @@ class APIError(Exception):
 
 
 class APIClient:
-    def __init__(self, base_url: str, timeout: float = DEFAULT_TIMEOUT, api_key: str | None = None) -> None:
+    def __init__(
+        self, base_url: str, timeout: float = DEFAULT_TIMEOUT, api_key: str | None = None
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         headers: dict[str, str] = {}
         if api_key:
@@ -194,11 +197,13 @@ class APIClient:
 # Factory — builds a client pointing at the configured (or auto-started) server
 # ---------------------------------------------------------------------------
 
+
 def get_client() -> APIClient:
     """Return an APIClient connected to the configured or auto-started server."""
     import os
 
     from assgen.client.auto_server import get_or_start_server
+
     url = get_or_start_server()
     cfg = load_client_config()
     api_key = os.environ.get("ASSGEN_API_KEY") or cfg.get("api_key")

@@ -1,10 +1,11 @@
 """assgen visual animate — animation generation.
 
-  assgen visual animate keyframe   text / video → animation keyframes
-  assgen visual animate mocap      video → motion-capture animation
-  assgen visual animate blend      blend or loop two animations
-  assgen visual animate retarget   apply animation to a different rig
+assgen visual animate keyframe   text / video → animation keyframes
+assgen visual animate mocap      video → motion-capture animation
+assgen visual animate blend      blend or loop two animations
+assgen visual animate retarget   apply animation to a different rig
 """
+
 from __future__ import annotations
 
 import typer
@@ -13,8 +14,10 @@ from assgen.client.commands.submit import submit_job
 
 app = typer.Typer(help="Animation generation and retargeting.", no_args_is_help=True)
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 @app.command("keyframe")
@@ -34,29 +37,39 @@ def animate_keyframe(
     hand-keying or to drive a 2D sprite animation.  No open model currently
     produces importable 3D keyframe data.
     """
-    submit_job("visual.animate.keyframe", {
-        "prompt": prompt,
-        "rig": rig,
-        "fps": fps,
-        "duration": duration,
-        "looping": looping,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.animate.keyframe",
+        {
+            "prompt": prompt,
+            "rig": rig,
+            "fps": fps,
+            "duration": duration,
+            "looping": looping,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("mocap")
 def animate_mocap(
     video: str = typer.Argument(..., help="Input video file for motion capture"),
-    target_rig: str | None = typer.Option(None, "--rig", help="Rig to retarget captured motion onto"),
+    target_rig: str | None = typer.Option(
+        None, "--rig", help="Rig to retarget captured motion onto"
+    ),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Extract motion from a video and convert to skeleton animation."""
-    submit_job("visual.animate.mocap", {
-        "video": video,
-        "target_rig": target_rig,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.animate.mocap",
+        {
+            "video": video,
+            "target_rig": target_rig,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("blend")
@@ -68,13 +81,17 @@ def animate_blend(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Blend two animations together."""
-    submit_job("visual.animate.keyframe", {
-        "mode": "blend",
-        "anim_a": anim_a,
-        "anim_b": anim_b,
-        "blend_weight": blend_weight,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.animate.keyframe",
+        {
+            "mode": "blend",
+            "anim_a": anim_a,
+            "anim_b": anim_b,
+            "blend_weight": blend_weight,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @app.command("retarget")
@@ -86,10 +103,14 @@ def animate_retarget(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Retarget an animation from one rig to another."""
-    submit_job("visual.animate.keyframe", {
-        "mode": "retarget",
-        "animation": animation,
-        "source_rig": source_rig,
-        "target_rig": target_rig,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "visual.animate.keyframe",
+        {
+            "mode": "retarget",
+            "animation": animation,
+            "source_rig": source_rig,
+            "target_rig": target_rig,
+            "output": output,
+        },
+        wait=wait,
+    )

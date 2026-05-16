@@ -14,6 +14,7 @@ Outputs:
 Params:
     input (str): path to dialogue JSON file
 """
+
 from __future__ import annotations
 
 _AVAILABLE = True  # pure Python

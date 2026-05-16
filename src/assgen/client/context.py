@@ -8,6 +8,7 @@ needing to declare them.
 Thread-safety note: these are process-global singletons.  The CLI is single-threaded
 on the client side so this is safe.
 """
+
 from __future__ import annotations
 
 _json_mode: bool = False
@@ -90,9 +91,7 @@ def set_context_map(entries: list[str]) -> None:
     _context_map = {}
     for entry in entries:
         if "=" not in entry:
-            raise ValueError(
-                f"--context entries must be in 'key=job_id' form, got: {entry!r}"
-            )
+            raise ValueError(f"--context entries must be in 'key=job_id' form, got: {entry!r}")
         key, _, job_id = entry.partition("=")
         _context_map[key.strip()] = job_id.strip()
 

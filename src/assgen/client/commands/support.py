@@ -1,17 +1,20 @@
 """assgen support — narrative, lore, and procedural data assets.
 
-  assgen support narrative dialog   generate NPC dialog trees (LLM)
-  assgen support narrative lore     generate world-building text
-  assgen support data lightmap      AI-accelerated lightmap baking
-  assgen support data proc          procedural asset generation scripts
+assgen support narrative dialog   generate NPC dialog trees (LLM)
+assgen support narrative lore     generate world-building text
+assgen support data lightmap      AI-accelerated lightmap baking
+assgen support data proc          procedural asset generation scripts
 """
+
 from __future__ import annotations
 
 import typer
 
 from assgen.client.commands.submit import submit_job
 
-app = typer.Typer(help="Narrative content, lore, and procedural support data.", no_args_is_help=True)
+app = typer.Typer(
+    help="Narrative content, lore, and procedural support data.", no_args_is_help=True
+)
 
 narrative_app = typer.Typer(help="NPC dialog and world-building lore generation.")
 app.add_typer(narrative_app, name="narrative")
@@ -19,13 +22,16 @@ app.add_typer(narrative_app, name="narrative")
 data_app = typer.Typer(help="Lightmap baking and procedural data generation.")
 app.add_typer(data_app, name="data")
 
-_WAIT_OPT = typer.Option(None, "--wait/--no-wait", help="Block until the job completes and stream live progress")
-_OUT_OPT  = typer.Option(None, "--output", "-o", help="Output file or directory path")
+_WAIT_OPT = typer.Option(
+    None, "--wait/--no-wait", help="Block until the job completes and stream live progress"
+)
+_OUT_OPT = typer.Option(None, "--output", "-o", help="Output file or directory path")
 
 
 # ---------------------------------------------------------------------------
 # narrative
 # ---------------------------------------------------------------------------
+
 
 @narrative_app.command("dialog")
 def narrative_dialog(
@@ -43,20 +49,26 @@ def narrative_dialog(
         assgen gen support narrative dialog "mysterious elf merchant" --context "player just saved the village" --wait
         assgen gen support narrative dialog "guard captain, corrupt city" --branching --lines 20 --wait
     """
-    submit_job("narrative.dialogue.npc", {
-        "character": character,
-        "context": context,
-        "lines": lines,
-        "branching": branching,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.dialogue.npc",
+        {
+            "character": character,
+            "context": context,
+            "lines": lines,
+            "branching": branching,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @narrative_app.command("lore")
 def narrative_lore(
     topic: str = typer.Argument(..., help="Lore topic, e.g. 'history of the fallen empire'"),
     length: int = typer.Option(500, "--length", help="Approximate word count"),
-    format: str = typer.Option("prose", "--format", help="prose | codex | item-description | quest"),
+    format: str = typer.Option(
+        "prose", "--format", help="prose | codex | item-description | quest"
+    ),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
@@ -67,17 +79,22 @@ def narrative_lore(
         assgen gen support narrative lore "ancient cursed sword" --format item-description --wait
         assgen gen support narrative lore "the order of silver dawn" --format codex --length 800 --wait
     """
-    submit_job("narrative.lore.generate", {
-        "topic": topic,
-        "length": length,
-        "format": format,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.lore.generate",
+        {
+            "topic": topic,
+            "length": length,
+            "format": format,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 # ---------------------------------------------------------------------------
 # data
 # ---------------------------------------------------------------------------
+
 
 @data_app.command("lightmap")
 def data_lightmap(
@@ -87,34 +104,44 @@ def data_lightmap(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Bake GI lightmaps for a scene using AI-accelerated methods."""
-    submit_job("scene.lighting.hdri", {
-        "mode": "lightmap",
-        "input": scene,
-        "quality": quality,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "scene.lighting.hdri",
+        {
+            "mode": "lightmap",
+            "input": scene,
+            "quality": quality,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @data_app.command("proc")
 def data_proc(
-    description: str = typer.Argument(..., help="Describe the procedural asset to generate code for"),
-    language: str = typer.Option("python", "--language",
-                                 help="python | gdscript | csharp | hlsl"),
+    description: str = typer.Argument(
+        ..., help="Describe the procedural asset to generate code for"
+    ),
+    language: str = typer.Option("python", "--language", help="python | gdscript | csharp | hlsl"),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Generate a procedural asset generation script from a description."""
-    submit_job("narrative.quest.design", {
-        "mode": "proc-gen",
-        "description": description,
-        "language": language,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.quest.design",
+        {
+            "mode": "proc-gen",
+            "description": description,
+            "language": language,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 # ---------------------------------------------------------------------------
 # narrative — algorithmic validation and i18n
 # ---------------------------------------------------------------------------
+
 
 @narrative_app.command("validate-dialogue")
 def narrative_validate_dialogue(
@@ -123,9 +150,14 @@ def narrative_validate_dialogue(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Lint a dialogue JSON: orphan nodes, dead ends, missing keys."""
-    submit_job("narrative.dialogue.validate", {
-        "input": input_file, "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.dialogue.validate",
+        {
+            "input": input_file,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 @narrative_app.command("validate-quest")
@@ -135,9 +167,14 @@ def narrative_validate_quest(
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Check a quest JSON graph for cycles and unreachable nodes."""
-    submit_job("narrative.quest.validate", {
-        "input": input_file, "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.quest.validate",
+        {
+            "input": input_file,
+            "output": output,
+        },
+        wait=wait,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -150,17 +187,23 @@ app.add_typer(i18n_app, name="i18n")
 @i18n_app.command("extract")
 def i18n_extract(
     directory: str = typer.Argument(..., help="Directory to scan for translatable strings"),
-    pattern: str = typer.Option("**/*.json", "--pattern", "-p",
-                                 help="Glob pattern for files to scan"),
-    key_field: str = typer.Option("text", "--key-field", "-k",
-                                   help="JSON field to extract as translatable string"),
+    pattern: str = typer.Option(
+        "**/*.json", "--pattern", "-p", help="Glob pattern for files to scan"
+    ),
+    key_field: str = typer.Option(
+        "text", "--key-field", "-k", help="JSON field to extract as translatable string"
+    ),
     output: str | None = _OUT_OPT,
     wait: bool | None = _WAIT_OPT,
 ) -> None:
     """Extract localisation string keys from JSON files (outputs JSON + CSV)."""
-    submit_job("narrative.i18n.extract", {
-        "directory": directory,
-        "pattern": pattern,
-        "key_field": key_field,
-        "output": output,
-    }, wait=wait)
+    submit_job(
+        "narrative.i18n.extract",
+        {
+            "directory": directory,
+            "pattern": pattern,
+            "key_field": key_field,
+            "output": output,
+        },
+        wait=wait,
+    )

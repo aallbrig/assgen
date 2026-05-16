@@ -15,20 +15,22 @@ Params:
     steps           (int):  inference steps (default: 25)
     output          (str):  output filename (default: panel.png)
 """
+
 from __future__ import annotations
 
 try:
     from diffusers import StableDiffusionXLPipeline  # noqa: F401
+
     _AVAILABLE = True
 except ImportError:
     _AVAILABLE = False
 
 _PANEL_PROMPTS = {
-    "dialog":    "dialog box panel, speech bubble frame, game UI",
+    "dialog": "dialog box panel, speech bubble frame, game UI",
     "inventory": "inventory grid panel, item container frame, game UI",
-    "tooltip":   "tooltip popup, info panel, small rectangular frame, game UI",
-    "frame":     "decorative border frame, ornate UI frame, game UI",
-    "border":    "panel border, edge trim, UI chrome element, game UI",
+    "tooltip": "tooltip popup, info panel, small rectangular frame, game UI",
+    "frame": "decorative border frame, ornate UI frame, game UI",
+    "border": "panel border, edge trim, UI chrome element, game UI",
 }
 
 
