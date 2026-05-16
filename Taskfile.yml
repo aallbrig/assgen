@@ -22,12 +22,13 @@ tasks:
       - task: test-integration
 
   precommit:
-    desc: "Pre-commit quality gates — format check, lint, SAST, fast tests"
+    desc: "Pre-commit quality gates — format check, lint, SAST, secrets, fast tests"
     cmds:
       - task: format-check
       - task: lint
       - task: openapi-check
       - task: security-bandit
+      - task: secrets-staged
       - task: test-fast
 
   specs:
@@ -80,10 +81,11 @@ tasks:
   # ─── SECURITY ────────────────────────────────────────────────────────────────
 
   security:
-    desc: "Run all security checks — bandit (SAST) + pip-audit (CVEs)"
+    desc: "Run all security checks — bandit (SAST) + pip-audit (CVEs) + secrets history"
     cmds:
       - task: security-bandit
       - task: security-audit
+      - task: secrets-history
 
   security-bandit:
     desc: "Scan source for security issues with bandit (medium+ severity)"
@@ -94,6 +96,16 @@ tasks:
     desc: "Audit dependencies for known CVEs with pip-audit"
     cmds:
       - .venv/bin/pip-audit --ignore-vuln PYSEC-2023-228
+
+  secrets-staged:
+    desc: "Scan staged files for secrets with gitleaks (pre-commit)"
+    cmds:
+      - gitleaks protect --staged --no-banner
+
+  secrets-history:
+    desc: "Scan full git history for secrets with gitleaks"
+    cmds:
+      - gitleaks detect --no-banner
 
   # ─── TESTING ─────────────────────────────────────────────────────────────────
 

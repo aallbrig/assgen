@@ -45,6 +45,11 @@ jobs:
       - name: Security — pip-audit
         run: task security-audit
 
+      - name: Security — gitleaks (history)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check OpenAPI spec is up to date
         run: task openapi-check
 
