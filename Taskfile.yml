@@ -4,16 +4,195 @@ vars:
   PYTHON: .venv/bin/python
   SRC: src/
   TESTS: tests/
+  SESSION: assgen
+  SERVER_PORT: 8432
 
 tasks:
-  # ─── COMPOSITE ───────────────────────────────────────────────────────────────
+  # ─── DEV ENVIRONMENT ─────────────────────────────────────────────────────────
 
   dev:
-    desc: "Full dev loop — format, lint, unit tests with coverage"
+    desc: "Start full dev environment (tmux-aware; falls back to printed instructions)"
+    cmds:
+      - task: dev-down
+      - |
+        echo ""
+        echo "=================================================="
+        echo "  assgen dev environment"
+        echo "    server  http://localhost:{{.SERVER_PORT}}"
+        echo "    swagger http://localhost:{{.SERVER_PORT}}/docs"
+        echo "    redoc   http://localhost:{{.SERVER_PORT}}/redoc"
+        echo "    docs    http://localhost:8000"
+        echo "=================================================="
+        echo ""
+        if command -v tmuxinator >/dev/null 2>&1; then
+          tmuxinator start -p .tmuxinator/assgen.yml
+          echo ""
+          echo "  Session '{{.SESSION}}', window 'dev' — 3 panes:"
+          echo "    0  serve   assgen server  http://localhost:{{.SERVER_PORT}}"
+          echo "    1  shell   assgen CLI     ad-hoc commands"
+          echo "    2  docs    mkdocs         http://localhost:8000"
+          echo ""
+          echo "  Reattach any time:  task dev-attach"
+          echo "  Capture pane logs:  task dev-logs | dev-logs-server | dev-logs-shell | dev-logs-docs"
+          echo "  Open SwaggerUI:     task swagger"
+          echo "  Launch a space:     task space -- assgen.procedural.terrain.heightmap"
+          echo "  Stop everything:    task dev-down"
+          echo ""
+        else
+          echo "  tmuxinator not found — run each service in a separate terminal:"
+          echo ""
+          echo "  1.  task serve   → assgen server on http://localhost:{{.SERVER_PORT}}"
+          echo "  2.  task docs    → mkdocs on http://localhost:8000"
+          echo ""
+          echo "  Install tmuxinator: gem install tmuxinator"
+          echo ""
+        fi
+
+  dev-down:
+    desc: "Stop the assgen dev environment (tmux session + server)"
+    cmds:
+      - |
+        if tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          echo "Killing tmux session '{{.SESSION}}'..."
+          tmux kill-session -t {{.SESSION}}
+        fi
+        if .venv/bin/assgen-server status >/dev/null 2>&1; then
+          echo "Stopping assgen server..."
+          .venv/bin/assgen-server stop 2>/dev/null || true
+        fi
+        echo "Dev environment stopped."
+
+  dev-attach:
+    desc: "Reattach to the running assgen tmux session"
+    cmds:
+      - |
+        if ! tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          echo "No session '{{.SESSION}}' found. Run 'task dev' to start."
+          exit 1
+        fi
+        if [ -n "$TMUX" ]; then
+          tmux switch-client -t {{.SESSION}}
+        else
+          tmux attach -t {{.SESSION}}
+        fi
+
+  dev-logs:
+    desc: "Capture output from all panes in the dev session"
+    cmds:
+      - |
+        if ! tmux has-session -t {{.SESSION}} 2>/dev/null; then
+          echo "No session '{{.SESSION}}' found. Run 'task dev' first."
+          exit 1
+        fi
+        for entry in "0:server" "1:shell" "2:docs"; do
+          idx="${entry%%:*}"
+          name="${entry##*:}"
+          echo "════════ pane $idx ($name) ════════"
+          tmux capture-pane -t "{{.SESSION}}:dev.$idx" -p -S -200 2>/dev/null || echo "(empty)"
+          echo ""
+        done
+
+  dev-logs-server:
+    desc: "Capture pane 0 (assgen server) output"
+    cmds:
+      - |
+        tmux has-session -t {{.SESSION}} 2>/dev/null || { echo "Session '{{.SESSION}}' not found"; exit 1; }
+        tmux capture-pane -t "{{.SESSION}}:dev.0" -p -S -200
+
+  dev-logs-shell:
+    desc: "Capture pane 1 (shell) output"
+    cmds:
+      - |
+        tmux has-session -t {{.SESSION}} 2>/dev/null || { echo "Session '{{.SESSION}}' not found"; exit 1; }
+        tmux capture-pane -t "{{.SESSION}}:dev.1" -p -S -200
+
+  dev-logs-docs:
+    desc: "Capture pane 2 (mkdocs) output"
+    cmds:
+      - |
+        tmux has-session -t {{.SESSION}} 2>/dev/null || { echo "Session '{{.SESSION}}' not found"; exit 1; }
+        tmux capture-pane -t "{{.SESSION}}:dev.2" -p -S -200
+
+  swagger:
+    desc: "Open SwaggerUI in the browser (requires task serve or task dev running)"
+    cmds:
+      - |
+        URL="http://localhost:{{.SERVER_PORT}}/docs"
+        echo "Opening $URL"
+        xdg-open "$URL" 2>/dev/null || open "$URL" 2>/dev/null || echo "Visit $URL in your browser."
+
+  # ─── SPACES ──────────────────────────────────────────────────────────────────
+
+  spaces-list:
+    desc: "List all available Gradio space names"
+    cmds:
+      - |
+        echo "Available spaces (run with: task space -- <name>):"
+        ls spaces/ | grep -v '^_' | sed 's/^/  /'
+
+  space:
+    desc: "Launch a single Gradio space locally (e.g. task space -- assgen.procedural.terrain.heightmap)"
+    cmds:
+      - |
+        NAME="{{.CLI_ARGS}}"
+        if [ -z "$NAME" ]; then
+          echo "Usage: task space -- <space-name>"
+          echo "Run 'task spaces-list' to see available spaces."
+          exit 1
+        fi
+        if [ ! -d "spaces/$NAME" ]; then
+          echo "Space 'spaces/$NAME' not found."
+          echo "Run 'task spaces-list' to see available spaces."
+          exit 1
+        fi
+        echo "Launching $NAME on http://localhost:7860 ..."
+        {{.PYTHON}} "spaces/$NAME/app.py"
+
+  spaces-cpu:
+    desc: "Launch all CPU-safe spaces locally (no GPU required)"
+    cmds:
+      - |
+        CPU_SPACES=(
+          assgen.procedural.terrain.heightmap
+        )
+        PORT=7860
+        PIDS=()
+        for name in "${CPU_SPACES[@]}"; do
+          echo "Starting $name on http://localhost:$PORT ..."
+          GRADIO_SERVER_PORT=$PORT {{.PYTHON}} "spaces/$name/app.py" &
+          PIDS+=($!)
+          PORT=$((PORT + 1))
+        done
+        echo ""
+        echo "CPU spaces running. Press Ctrl-C to stop all."
+        wait "${PIDS[@]}"
+
+  spaces-install:
+    desc: "One-time install of spaces dependencies (gradio + spaces extras)"
+    cmds:
+      - |
+        echo "Installing assgen[spaces] + gradio..."
+        .venv/bin/pip install -e ".[spaces]" "gradio>=5.23.0" \
+          "imageio>=2.34.0" "imageio-ffmpeg>=0.4.9" "rembg>=2.0.57"
+        echo ""
+        echo "NOTE: Two spaces need manual install due to fragile packages:"
+        echo "  audio.voice.clone → pip install TTS"
+        echo "  model.splat       → pip install 'tsr @ git+https://github.com/VAST-AI-Research/TripoSR.git'"
+
+  # ─── QUALITY (was 'dev') ─────────────────────────────────────────────────────
+
+  quality:
+    desc: "Full quality loop — format, lint, unit tests with coverage"
     cmds:
       - task: format
       - task: lint
       - task: test-coverage
+
+  # Legacy alias — 'task dev' used to mean this; muscle memory preserved
+  dev-quality:
+    desc: "Alias for 'task quality' (format + lint + test-coverage)"
+    cmds:
+      - task: quality
 
   test:
     desc: "Run all test tiers — unit then integration"
@@ -183,7 +362,12 @@ tasks:
     cmds:
       - .venv/bin/mkdocs build
 
-  # ─── MISC ────────────────────────────────────────────────────────────────────
+  # ─── SERVER / MISC ───────────────────────────────────────────────────────────
+
+  serve:
+    desc: "Start assgen server locally (debug mode)"
+    cmds:
+      - .venv/bin/assgen-server start --log-level debug
 
   clean:
     desc: "Remove build artifacts, caches, and coverage data"
@@ -192,12 +376,7 @@ tasks:
       - find . -path ./.venv -prune -o -type d -name __pycache__ -print -exec rm -rf {} + 2>/dev/null || true
       - find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
 
-  serve:
-    desc: "Start assgen server locally (debug mode)"
-    cmds:
-      - .venv/bin/assgen-server start --log-level debug
-
-  # Legacy alias kept so existing scripts don't break
+  # Legacy aliases
   lint-python:
     desc: "Alias for lint (backwards compat)"
     cmds:
