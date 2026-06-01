@@ -3,10 +3,16 @@
 # Attach: task dev-attach
 # Logs:   task dev-logs | dev-logs-server | dev-logs-shell | dev-logs-docs
 #
-# Pane index map (stable — dev-logs-* tasks depend on this order):
-#   0  serve   assgen server  http://localhost:8432  (SwaggerUI at /docs, ReDoc at /redoc)
-#   1  shell   assgen CLI     ad-hoc commands, task runs, curl tests
-#   2  docs    mkdocs         http://localhost:8000
+# Window / pane index map (stable — dev-logs-* tasks depend on this order):
+#
+#   window 0 — dev
+#     pane 0  serve   assgen server  http://localhost:8432  (focus on attach)
+#     pane 1  shell   assgen CLI     ad-hoc commands, task runs, curl tests
+#     pane 2  docs    mkdocs         http://localhost:8000
+#
+#   window 1 — obs
+#     pane 0  obs     LGTM stack     grafana http://localhost:3030
+#                                    prometheus http://localhost:9092
 
 name: assgen
 root: <%= ENV['HOME'] %>/src/assgen
@@ -15,6 +21,14 @@ windows:
   - dev:
       layout: main-horizontal
       panes:
-        - task serve
+        - commands:
+            - task serve
+          focus: true
         - ""
         - task docs
+
+  - obs:
+      layout: even-horizontal
+      panes:
+        - task obs-start
+        - ""

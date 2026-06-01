@@ -1,0 +1,27 @@
+# docker/prometheus.yml
+#
+# Prometheus scrape configuration for the assgen observability stack.
+# Prometheus scrapes metrics from the OTel Collector's prometheus exporter
+# rather than scraping assgen-server directly — the collector handles OTLP
+# push and translates to the pull model.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: local
+
+scrape_configs:
+  # OTel Collector exposes assgen-server metrics via its prometheus exporter
+  - job_name: otel-collector
+    static_configs:
+      - targets: ["otel-collector:8889"]
+        labels:
+          service: assgen-server
+
+  # Scrape the OTel Collector's own internal metrics (optional but useful)
+  - job_name: otel-collector-internal
+    static_configs:
+      - targets: ["otel-collector:8888"]
+        labels:
+          service: otel-collector

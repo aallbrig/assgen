@@ -1,0 +1,75 @@
+# docker/otel-collector-config.yml
+#
+# OpenTelemetry Collector configuration for the assgen local observability stack.
+#
+# Pipeline:
+#   assgen-server (OTLP HTTP :4318)
+#     → OTel Collector
+#       ├─ traces  → Tempo   (OTLP gRPC :4317)
+#       ├─ metrics → Prometheus exporter (:8889, scraped by Prometheus)
+#       └─ logs    → Loki    (HTTP push :3100)
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 256
+    spike_limit_mib: 64
+
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
+  # Promote service.* resource attributes to metric/trace labels so Grafana
+  # panels can filter by service_name.
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: local
+        action: upsert
+
+exporters:
+  # Metrics → Prometheus (pull model: Prometheus scrapes port 8889)
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    resource_to_telemetry_conversion:
+      enabled: true  # makes service_name a Prometheus label
+
+  # Traces → Tempo
+  otlp/tempo:
+    endpoint: "tempo:4317"
+    tls:
+      insecure: true
+
+  # Logs → Loki
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+    default_labels_enabled:
+      exporter: false
+      job: true
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [otlp/tempo]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [prometheus]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [loki]

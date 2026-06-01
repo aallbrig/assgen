@@ -144,6 +144,9 @@ async def enqueue_job(body: JobRequest, request: Request) -> dict:
         "Job enqueued",
         extra={"job_id": job_id, "job_type": body.job_type, "model_id": effective_model_id},
     )
+    # Record enqueue metrics (Saturation + Traffic signals)
+    if jm := getattr(request.app.state, "job_metrics", None):
+        jm.record_enqueued(body.job_type)
     job = get_job(conn, job_id)
     return _normalise(job)
 

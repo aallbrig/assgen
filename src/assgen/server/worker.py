@@ -275,12 +275,19 @@ class WorkerThread(threading.Thread):
             return
 
         from assgen.db import _row_to_job  # avoid circular at module level
+        from assgen.server.telemetry import get_job_metrics
 
         job = _row_to_job(row)
         job_id = job["id"]
+        job_type = job["job_type"]
 
         update_job_status(conn, job_id, JobStatus.RUNNING, worker_id=self.WORKER_ID, progress=0.0)
-        logger.info("Job started", extra={"job_id": job_id, "job_type": job["job_type"]})
+        logger.info("Job started", extra={"job_id": job_id, "job_type": job_type})
+
+        jm = get_job_metrics()
+        if jm:
+            jm.record_started(job_type)
+        start_time = time.monotonic()
 
         def progress_cb(pct: float, msg: str) -> None:
             update_job_status(conn, job_id, JobStatus.RUNNING, progress=pct, progress_message=msg)
@@ -289,8 +296,14 @@ class WorkerThread(threading.Thread):
             dispatcher = JobDispatcher()
             output = dispatcher.dispatch(job, self._model_manager, progress_cb, conn)
             update_job_status(conn, job_id, JobStatus.COMPLETED, progress=1.0, output=output)
-            logger.info("Job completed", extra={"job_id": job_id})
+            elapsed = time.monotonic() - start_time
+            logger.info("Job completed", extra={"job_id": job_id, "duration_s": round(elapsed, 3)})
+            if jm:
+                jm.record_completed(job_type, elapsed)
         except Exception as exc:
             error_msg = traceback.format_exc()
             update_job_status(conn, job_id, JobStatus.FAILED, error=error_msg)
+            elapsed = time.monotonic() - start_time
             logger.error("Job failed", extra={"job_id": job_id, "error": str(exc)})
+            if jm:
+                jm.record_failed(job_type, elapsed)

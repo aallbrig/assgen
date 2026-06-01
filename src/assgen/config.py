@@ -116,6 +116,13 @@ _SERVER_DEFAULTS: dict[str, Any] = {
     "allow_list": [],  # [] = allow all; list model IDs to restrict downloads
     "skip_model_validation": False,  # True = bypass HF tag compatibility checks
     "api_key": None,  # None = no auth; set a string to require Bearer token
+    # OpenTelemetry — export to a local LGTM stack by default (opt-in via enabled flag)
+    "telemetry": {
+        "enabled": True,
+        "otlp_endpoint": "http://localhost:4318",  # HTTP OTLP; matches compose.observability.yml
+        "service_name": "assgen-server",
+        "export_interval_ms": 5000,
+    },
 }
 
 
@@ -129,6 +136,12 @@ def load_server_config() -> dict[str, Any]:
         data["port"] = int(port)
     if device := os.environ.get("ASSGEN_DEVICE"):
         data["device"] = device
+    # Telemetry overrides
+    tel = data.setdefault("telemetry", {})
+    if otlp := os.environ.get("ASSGEN_OTLP_ENDPOINT"):
+        tel["otlp_endpoint"] = otlp
+    if os.environ.get("ASSGEN_OTEL_DISABLED", "").lower() in ("1", "true", "yes"):
+        tel["enabled"] = False
     return data
 
 

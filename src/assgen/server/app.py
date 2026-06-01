@@ -45,6 +45,7 @@ from assgen.server.routes.health import API_VERSION  # noqa: E402
 from assgen.server.routes.health import router as health_router  # noqa: E402
 from assgen.server.routes.jobs import router as jobs_router  # noqa: E402
 from assgen.server.routes.models import router as models_router  # noqa: E402
+from assgen.server.telemetry import instrument_app, setup_telemetry  # noqa: E402
 from assgen.server.worker import WorkerThread  # noqa: E402
 from assgen.version import get_version_info  # noqa: E402
 
@@ -108,16 +109,24 @@ assgen gen visual model create --prompt "low-poly sword" --wait
 def create_app(server_config: dict | None = None) -> FastAPI:
     cfg = server_config or load_server_config()
 
+    # ── OpenTelemetry — set up providers before the app is created ────────────
+    tel_cfg = cfg.get("telemetry", {})
+    if tel_cfg.get("enabled", False):
+        version_info = get_version_info()
+        setup_telemetry(tel_cfg, app_version=version_info.get("version") or "0.0.0.dev")
+
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("assgen-server starting up", extra={"config": cfg})
 
         from assgen.config import get_db_path
+        from assgen.server.telemetry import get_job_metrics
 
         conn: sqlite3.Connection = init_db()
         application.state.conn = conn
         application.state.db_path = str(get_db_path())
         application.state.server_cfg = cfg
+        application.state.job_metrics = get_job_metrics()
 
         stale = reset_stale_running_jobs(conn)
         if stale:
@@ -218,5 +227,9 @@ def create_app(server_config: dict | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(jobs_router)
     app.include_router(models_router)
+
+    # Auto-instrument FastAPI routes for traces + http.server.request.duration metrics
+    if tel_cfg.get("enabled", False):
+        instrument_app(app)
 
     return app

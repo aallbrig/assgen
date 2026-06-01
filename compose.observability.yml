@@ -1,0 +1,136 @@
+# compose.observability.yml
+#
+# Local LGTM-style observability stack for assgen development.
+# Uses Prometheus instead of Mimir for metrics storage.
+#
+# Stack:
+#   OTel Collector  — receives OTLP from assgen-server, routes to backends
+#   Prometheus      — metrics storage & query engine
+#   Loki            — log aggregation
+#   Tempo           — distributed tracing
+#   Grafana         — unified dashboards (pre-provisioned with 4 Golden Signals)
+#
+# Quick start:
+#   task obs-up          # start detached
+#   task obs-start       # start with live log output (good for tmux pane)
+#   task obs-down        # tear down
+#
+# URLs:
+#   Grafana     http://localhost:3030  (anonymous admin access)
+#   Prometheus  http://localhost:9092
+#   Tempo       http://localhost:3200
+#   Loki        http://localhost:3100
+#   OTLP gRPC   localhost:4317
+#   OTLP HTTP   localhost:4318
+
+services:
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.113.0
+    container_name: assgen-otel-collector
+    volumes:
+      - ./docker/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP  ← assgen-server exports here by default
+      - "8888:8888"   # OTel Collector internal metrics
+      - "8889:8889"   # Prometheus scrape endpoint (assgen metrics)
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: assgen-prometheus
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9092:9090"   # host:9092 → avoids conflict with existing :9090 service
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: assgen-loki
+    volumes:
+      - ./docker/loki-local-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: assgen-tempo
+    volumes:
+      - ./docker/tempo-local-config.yml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"   # HTTP API / Grafana datasource
+    command: -config.file=/etc/tempo.yaml
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3200/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: assgen-grafana
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3030:3000"   # host:3030 → avoids conflict with common Node.js/dev-server ports
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor
+      GF_UNIFIED_ALERTING_ENABLED: "false"
+      GF_ALERTING_ENABLED: "false"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  prometheus-data:
+  loki-data:
+  tempo-data:
+  grafana-data:

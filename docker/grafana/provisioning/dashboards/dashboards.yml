@@ -1,0 +1,16 @@
+# docker/grafana/provisioning/dashboards/dashboards.yml
+#
+# Tell Grafana where to find pre-built dashboard JSON files.
+
+apiVersion: 1
+
+providers:
+  - name: assgen
+    orgId: 1
+    folder: assgen
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

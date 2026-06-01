@@ -13,7 +13,6 @@ tasks:
   dev:
     desc: "Start full dev environment (tmux-aware; falls back to printed instructions)"
     cmds:
-      - task: dev-down
       - |
         echo ""
         echo "=================================================="
@@ -22,15 +21,42 @@ tasks:
         echo "    swagger http://localhost:{{.SERVER_PORT}}/docs"
         echo "    redoc   http://localhost:{{.SERVER_PORT}}/redoc"
         echo "    docs    http://localhost:8000"
-        echo "=================================================="
-        echo ""
-        if command -v tmuxinator >/dev/null 2>&1; then
-          tmuxinator start -p .tmuxinator/assgen.yml
+        echo "  observability (window 1 — obs)"
+        echo "    grafana    http://localhost:3030"
+        echo "    prometheus http://localhost:9092"
+          CURRENT_SESSION=$(tmux display-message -p '#S' 2>/dev/null || echo "")
+          if [ "$CURRENT_SESSION" = "{{.SESSION}}" ]; then
+            echo "  Already inside session '{{.SESSION}}' — adding missing windows only."
+            echo ""
+            # Add obs window if absent
+            if ! tmux list-windows -t {{.SESSION}} -F '#W' 2>/dev/null | grep -qx 'obs'; then
+              echo "  Creating obs window..."
+              tmux new-window -t {{.SESSION}} -n obs
+              tmux send-keys -t {{.SESSION}}:obs "task obs-start" Enter
+              tmux split-window -t {{.SESSION}}:obs -h
+            else
+              echo "  obs window already present — skipping."
+            fi
+          else
+            # ── Fresh start: kill old session (if any), then tmuxinator ──────
+            if tmux has-session -t {{.SESSION}} 2>/dev/null; then
+              echo "  Killing existing session '{{.SESSION}}'..."
+              tmux kill-session -t {{.SESSION}}
+            fi
+            if .venv/bin/assgen-server status >/dev/null 2>&1; then
+              .venv/bin/assgen-server stop 2>/dev/null || true
+            fi
+            tmuxinator start -p .tmuxinator/assgen.yml
+          fi
           echo ""
-          echo "  Session '{{.SESSION}}', window 'dev' — 3 panes:"
-          echo "    0  serve   assgen server  http://localhost:{{.SERVER_PORT}}"
-          echo "    1  shell   assgen CLI     ad-hoc commands"
-          echo "    2  docs    mkdocs         http://localhost:8000"
+          echo "  Session '{{.SESSION}}' — window layout:"
+          echo "    window 0 (dev)"
+          echo "      pane 0  serve   assgen server  http://localhost:{{.SERVER_PORT}}"
+          echo "      pane 1  shell   assgen CLI     ad-hoc commands"
+          echo "      pane 2  docs    mkdocs         http://localhost:8000"
+          echo "    window 1 (obs)"
+          echo "      pane 0  obs     LGTM stack     grafana http://localhost:3030"
+          echo "      pane 1  shell   ad-hoc commands"
           echo ""
           echo "  Reattach any time:  task dev-attach"
           echo "  Capture pane logs:  task dev-logs | dev-logs-server | dev-logs-shell | dev-logs-docs"
@@ -43,6 +69,7 @@ tasks:
           echo ""
           echo "  1.  task serve   → assgen server on http://localhost:{{.SERVER_PORT}}"
           echo "  2.  task docs    → mkdocs on http://localhost:8000"
+          echo "  3.  task obs-start → observability stack (grafana http://localhost:3030)"
           echo ""
           echo "  Install tmuxinator: gem install tmuxinator"
           echo ""
@@ -52,6 +79,11 @@ tasks:
     desc: "Stop the assgen dev environment (tmux session + server)"
     cmds:
       - |
+        CURRENT_SESSION=$(tmux display-message -p '#S' 2>/dev/null || echo "")
+        if [ "$CURRENT_SESSION" = "{{.SESSION}}" ]; then
+          echo "Cannot kill session '{{.SESSION}}' from inside it — detach first, then run 'task dev-down'."
+          exit 1
+        fi
         if tmux has-session -t {{.SESSION}} 2>/dev/null; then
           echo "Killing tmux session '{{.SESSION}}'..."
           tmux kill-session -t {{.SESSION}}
@@ -120,6 +152,48 @@ tasks:
         URL="http://localhost:{{.SERVER_PORT}}/docs"
         echo "Opening $URL"
         xdg-open "$URL" 2>/dev/null || open "$URL" 2>/dev/null || echo "Visit $URL in your browser."
+
+  # ─── OBSERVABILITY ───────────────────────────────────────────────────────────
+
+  obs-up:
+    desc: "Start the local LGTM observability stack (detached)"
+    cmds:
+      - docker compose -f compose.observability.yml up -d
+      - |
+        echo ""
+        echo "  Observability stack started:"
+        echo "    Grafana    http://localhost:3030  (anonymous admin)"
+        echo "    Prometheus http://localhost:9092"
+        echo "    Loki       http://localhost:3100"
+        echo "    Tempo      http://localhost:3200"
+        echo "    OTLP HTTP  http://localhost:4318  ← assgen-server export target"
+        echo ""
+
+  obs-down:
+    desc: "Stop and remove the local LGTM observability stack"
+    cmds:
+      - docker compose -f compose.observability.yml down
+
+  obs-start:
+    desc: "Start the LGTM stack in foreground with live log output (for tmux pane)"
+    cmds:
+      - docker compose -f compose.observability.yml up
+
+  obs-logs:
+    desc: "Tail logs from the running observability stack"
+    cmds:
+      - docker compose -f compose.observability.yml logs -f
+
+  obs-status:
+    desc: "Show status of all observability stack containers"
+    cmds:
+      - docker compose -f compose.observability.yml ps
+
+  obs-restart:
+    desc: "Restart the observability stack (apply config changes)"
+    cmds:
+      - task: obs-down
+      - task: obs-up
 
   # ─── SPACES ──────────────────────────────────────────────────────────────────
 

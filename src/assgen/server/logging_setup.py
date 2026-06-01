@@ -91,6 +91,10 @@ def setup_logging(level: str = "info", force_json: bool = False) -> None:
       - ``force_json=True``
       - ``JOURNAL_STREAM`` env var is set (systemd sets this)
       - stdout is not a TTY (piped / redirected)
+
+    When the OTel LoggerProvider is already configured (i.e. setup_telemetry()
+    was called first), attaches a LoggingHandler that bridges stdlib log
+    records to the OTel logs pipeline.
     """
     numeric = getattr(logging, level.upper(), logging.INFO)
 
@@ -103,6 +107,17 @@ def setup_logging(level: str = "info", force_json: bool = False) -> None:
     root.handlers.clear()
     root.addHandler(handler)
     root.setLevel(numeric)
+
+    # Bridge stdlib logs to the OTel logs pipeline when available
+    try:
+        from opentelemetry._logs import get_logger_provider
+        from opentelemetry.sdk._logs import LoggingHandler as OTelLoggingHandler
+
+        otel_handler = OTelLoggingHandler(logger_provider=get_logger_provider())
+        otel_handler.setLevel(numeric)
+        root.addHandler(otel_handler)
+    except Exception:
+        pass  # OTel not installed or not yet initialised — silently skip
 
     # Quiet noisy third-party loggers
     for name in ("uvicorn.access", "httpx", "httpcore"):
