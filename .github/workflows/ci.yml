@@ -17,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks-action needs full history for commit-range scanning
 
       - name: Install Task
         uses: arduino/setup-task@v2
